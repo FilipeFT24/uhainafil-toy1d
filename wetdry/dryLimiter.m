@@ -1,0 +1,41 @@
+function [g] = dryLimiter(g)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+drytol                  = g.drytol;
+veltol                  = g.velcutoff;
+Z_dof                   = g.x(:, :, 1);
+Hudof                   = g.x(:, :, 2);
+Zbdof                   = g.zbinit;
+H_dof                   = Z_dof-Zbdof;
+
+H_dof2 = Z_dof-g.zb;
+
+isdry_drytol            = H_dof <= drytol;
+isdry_veltol            = H_dof <= veltol;
+isdry                   = isdry_drytol | isdry_veltol;
+Z_dof(isdry_drytol)     = Zbdof(isdry_drytol);
+Hudof(isdry       )     = 0;
+%--------------------------------------------------------------------------
+%
+H_m                     = meanval(g, H_dof);
+isdry_drytolm           = H_m <= drytol;
+isdry_veltolm           = H_m <= veltol;
+isdrym                  = isdry_drytolm | isdry_veltolm;
+Z_dof(isdry_drytolm, :) = Zbdof(isdry_drytolm, :);
+Hudof(isdrym       , :) = 0;
+%
+%--------------------------------------------------------------------------
+K                       = g.numE;
+g.fix                   = false(K, 1);
+g.wt_wd                 = false(K, 1);
+g.wt_dw                 = false(K, 1);
+g.x(:, :, 1)            = Z_dof;
+g.x(:, :, 2)            = Hudof;
+g.zb                    = g.zbinit;
+
+H_dofpos = g.x(:, :, 1)-g.zbinit;
+H_mpos      = meanval(g, H_dofpos);
+
+xx = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+end
