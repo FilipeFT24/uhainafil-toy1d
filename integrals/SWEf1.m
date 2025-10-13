@@ -77,12 +77,29 @@ vollambda(isinf(vollambda) | isnan(vollambda)) = 1./eps;
 % FLUX:
 %--------------------------------------------------------------------------
 % INT:
-F_l = hydro_reconstruction2(drytol, veltol, G, ....
-    Z_l(2:K  , 1), Z_r(1:K-1, 1), ...
-    Hul(2:K  , 1), Hur(1:K-1, 1), Zbl(2:K  , 1), Zbr(1:K-1, 1), LAMBDA, -1);
+if g.nit == 1149
+    xx = 1;
+end
+
 F_r = hydro_reconstruction2(drytol, veltol, G, ....
     Z_r(1:K-1, 1), Z_l(2:K  , 1), ...
     Hur(1:K-1, 1), Hul(2:K  , 1), Zbr(1:K-1, 1), Zbl(2:K  , 1), LAMBDA, +1);
+
+
+wet2 = find(g.wt_dw);
+
+%% fr_58 e fl_57
+
+
+
+Z_r(wet2, 1) = Z_l(wet2+1, 1);
+Hur(wet2, 1) = Hul(wet2+1, 1);
+Zbr(wet2, 1) = Zbl(wet2+1, 1);
+
+F_l = hydro_reconstruction2(drytol, veltol, G, ....
+    Z_l(2:K  , 1), Z_r(1:K-1, 1), ...
+    Hul(2:K  , 1), Hur(1:K-1, 1), Zbl(2:K  , 1), Zbr(1:K-1, 1), LAMBDA, -1);
+
 %--------------------------------------------------------------------------
 % BND:
 Fbl = hydro_reconstruction2(drytol, veltol, G, ....
