@@ -30,9 +30,17 @@ if g.test ~= 16
     Z_rb = Z_r(K, 1);
     Hurb =-Hur(K, 1);
 else
-    Z_lb = Z_l(1, 1);
-    Hulb =-Hul(1, 1);
-    Z_rb = 0;
+    switch g.data.opt
+        case 1
+            Z_lb = Z_l(1, 1);
+            Z_rb = 0.0;
+        case 2
+            Z_lb = 0.6;
+            Z_rb = 0.4;
+        otherwise
+            return
+    end
+    Hulb = 0;
     Hurb = 0;
     %{
     Z_lb = 1;

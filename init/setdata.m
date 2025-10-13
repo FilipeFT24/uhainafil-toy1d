@@ -497,7 +497,7 @@ switch test
         xs       = 1./slope+1./gamma.*acosh(sqrt(1./0.05));
         xm       =-20;
         xM       = 80;
-        K        = 1300;
+        K        = 1200;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -558,15 +558,16 @@ switch test
         % 16) T16 - Drying of a lake
         %------------------------------------------------------------------
         wetdry   = 1;
-        h0       = 0.8;
+        h0       = 0.6;
         nm       = 0;
+        option   = 1;
         %------------------------------------------------------------------
         abslayer = 0;
         alpha    = 1;
         G        = 1;
         xm       =-0.5;
         xM       = 0.5;
-        K        = 200;
+        K        = 400;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -576,12 +577,21 @@ switch test
         a        = 0.25;
         k        = pi./0.1;
         zb       = a.*(cos(k.*x)+1).*heaviside(x+0.1).*heaviside(0.1-x);
-        z        = h0;
+        switch option
+            case 1
+                z = h0;
+            case 2
+                v = 0.4;
+                z = h0.*heaviside(-(x+0.25))+(v+(zb-v).*heaviside(zb-v)).*heaviside(x+0.25);
+            otherwise
+                return
+        end
         h        = z-zb;
         u        = 0;
         hu       = h.*u;
         tend     = 100;
         tk       = tend;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     otherwise
         return;
 end
@@ -602,7 +612,7 @@ data.nf       = 1800;
 data.tend     = tend;
 data.tk       = tk;
 data.xv       = xv;
-if ismembc(test, [1, 2, 3, 4, 5, 6, 7, 9, 11, 12, 15])
+if ismembc(test, [1, 2, 3, 4, 5, 6, 7, 9, 11, 12, 15, 16])
     if ismembc(test, [1, 11])
         data.bathy = bathy;
     end

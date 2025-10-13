@@ -34,7 +34,7 @@ for j = 1:ns
 
     xx = 1;
 
-    if g.nit == 8863
+    if g.nit == 5100
         stop = 1;
     end
 
