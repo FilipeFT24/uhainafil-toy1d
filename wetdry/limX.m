@@ -10,6 +10,8 @@ H_dof      = Z_dof-Zbdof;
 is_dry     = all(H_dof <= g.drytol, 2);
 is_wet     = all(H_dof  > g.drytol, 2);
 is_partial =~is_dry & ~is_wet;
+K = g.numE;
+g.WD        = zeros(K, 1);
 if g.p > 0
     g.WD(is_wet    , 1) = 0; % wet
     g.WD(is_partial, 1) = 1; % wet and dry

@@ -488,7 +488,7 @@ switch test
                 tk   = (25:5:70).*sqrth0_G;
             case 2
                 A1   = 0.040.*h0;
-                tend = 85.*sqrth0_G;
+                tend = 100.*sqrth0_G;
                 tk   = (20:6:62).*sqrth0_G;
             otherwise
                 return
@@ -555,40 +555,28 @@ switch test
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 16
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % 14) T14 - Lake at rest
+        % 16) T16 - Drying of a lake
         %------------------------------------------------------------------
         wetdry   = 1;
-        h0       = 0.2;
+        h0       = 0.8;
         nm       = 0;
-        option   = 0;
         %------------------------------------------------------------------
         abslayer = 0;
         alpha    = 1;
         G        = 1;
-        xm       =-3;
-        xM       = 3;
-        K        = 1000;
+        xm       =-0.5;
+        xM       = 0.5;
+        K        = 200;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
             dx(i, 1) = xv(i+1, 1)-xv(i, 1);
         end
         %------------------------------------------------------------------
-        switch option
-            case 0 % EXP (DOESN'T WORK NUMERICALLY I.E., DOESN'T KEEP REST STATE)
-                zb1 =-0.5.*exp(-50.*(x+1).^2); % WET
-                zb2 = 0.5.*exp(-25.*(x-1).^2); % DRY
-            case 1 % LINEAR
-                zb1 =-0.5.*((x+1.5).*heaviside(x+1.5).*heaviside(-(1+x))+(-0.5-x).*heaviside(-0.5-x).*heaviside(x+1));
-                zb2 = 0.5.*((x-0.5).*heaviside(x-0.5).*heaviside( (1-x))+( 1.5-x).*heaviside( 1.5-x).*heaviside(x-1));
-            case 2 % QUADRATIC
-                zb1 =-0.5.*(1-((x+1)./0.5).^2).*heaviside(x+1.5).*heaviside(-0.5-x);
-                zb2 = 0.5.*(1-((x-1)./0.5).^2).*heaviside(x-0.5).*heaviside( 1.5-x);
-            otherwise
-                return
-        end
-        zb       = zb1+zb2;
-        z        = h0+(zb-h0).*(0.5.*(sign(zb2.*heaviside(x)-h0)+1));
+        a        = 0.25;
+        k        = pi./0.1;
+        zb       = a.*(cos(k.*x)+1).*heaviside(x+0.1).*heaviside(0.1-x);
+        z        = h0;
         h        = z-zb;
         u        = 0;
         hu       = h.*u;

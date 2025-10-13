@@ -1,6 +1,6 @@
 function [g] = initsol(g, itype, drytol, velcutoff, vellim)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-degreec      = 5;%max(3.*g.p-1, 1);
+degreec      = max(3.*g.p-1, 1);
 degreec      = min(degreec, 12);
 [Q1, W]      = quadRule1D(degreec);
 N            = g.N;
@@ -81,13 +81,11 @@ g.zbinit    = Zbdof;
 g.zb        = Zbdof;
 %--------------------------------------------------------------------------
 g.fix       = false(K, 1);
-
-
-g.WD        = zeros(K, 1);
+g.wt_wd     = false(K, 1);
+g.wt_dw     = false(K, 1);
 if g.data.wetdry
     g = limX(g);
 end
-
 %--------------------------------------------------------------------------
 % RK:
 switch g.p

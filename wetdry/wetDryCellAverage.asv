@@ -7,7 +7,7 @@ N                = g.N;
 fc               = g.bf;
 fl               = g.bfl;
 fr               = g.bfr;
-tol              = eps;
+tol              = 1e-10; % round-off tolerance
 %--------------------------------------------------------------------------
 Z_dof            = g.x(:, :, 1);
 Hudof            = g.x(:, :, 2);
@@ -27,41 +27,43 @@ H_r              = H_dof*fr';
 log_wd           = H_m(1:K-1, 1) > tol & H_m(2:K, 1) < tol; % wet/dry
 log_dw           = H_m(1:K-1, 1) < tol & H_m(2:K, 1) > tol; % dry/wet
 wet1             = find(log_wd);
-dry1             = wet1+1;
-dry2             = find(log_dw);
-wet2             = dry2+1;
+wet2             = find(log_dw)+1;
 g.wt_wd(wet1, 1) = true;
 g.wt_dw(wet2, 1) = true;
 log_w            = H_m > tol & ~(g.wt_wd | g.wt_dw);
+n1               = size(wet1, 1);
+n2               = size(wet2, 1);
+Z_1              = zeros(n1, 1);
+Z_2              = zeros(n2, 1);
 %--------------------------------------------------------------------------
 % DEBUG:
 
-aa = (H_dof(:, 1) < eps & H_dof(:, 2) > eps) | (H_dof(:, 1) > eps & H_dof(:, 2) < eps);
-if sum(aa, 1) > 1
-    xx = 1;
-end
-bb = H_m(1:K-1, 1)-H_m(2:K, 1);
-if any(bb(dry2:dry2+30, 1) > 0, 1)
-    wrong = 1;
-end
+% aa = (H_dof(:, 1) < eps & H_dof(:, 2) > eps) | (H_dof(:, 1) > eps & H_dof(:, 2) < eps);
+% if sum(aa, 1) > 1
+%     xx = 1;
+% end
+% bb = H_m(1:K-1, 1)-H_m(2:K, 1);
+% if any(bb(dry2:dry2+30, 1) > 0, 1)
+%     wrong = 1;
+% end
 
-if sum(log_dw, 1) > 1
+if n1 > 1
     dw = 1;
 end
-if sum(log_wd, 1) > 1
+if n2 > 1
     wd = 1;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % WET/DRY TRANSITION:
 %--------------------------------------------------------------------------
-if any(log_wd, 1)
-    if Z_l(wet2, 1) < Z_r(wet1-1, 1)+eps
-        Z_1 = Z_r(wet1-1, 1); % lake at rest
-    else
-        Z_1 = Zbl(dry2  , 1); % run-up/down
-    end
-    Hu1 = Hum(wet1, 1);
-    Zb1 =-H_m(wet1, 1)+Z_1;
+if n1 > 0
+    %----------------------------------------------------------------------
+    % VARS:
+    l_1               = Z_l(wet1, 1) <= Z_r(wet1-1, 1);
+    Z_1( l_1, 1)      = Z_r(wet1( l_1, 1)-1, 1);
+    Z_1(~l_1, 1)      = Z_l(wet1(~l_1, 1)  , 1);
+    Hu1               = Hum(wet1, 1);
+    Zb1               =-H_m(wet1, 1)+Z_1;
     %----------------------------------------------------------------------
     % P0 fix:
     g.x  (wet1, :, 1) = repmat(Z_1, 1, N);
@@ -69,26 +71,26 @@ if any(log_wd, 1)
     g.zb (wet1, :)    = repmat(Zb1, 1, N);
     g.fix(wet1, 1)    = true;
     %----------------------------------------------------------------------
-    if Z_l(dry1, 1) < Z_1
-        g.x  (dry1, :, 1) = repmat(Z_1, 1, N);
-        g.x  (dry1, :, 2) = 0;
-        g.zb (dry1, :)    = repmat(Z_1, 1, N);
-        g.fix(dry1, 1)    = true;
-    end
+    % BATHY fix:
+    lb_1              = Z_l(wet1+1, 1) < Z_1;
+    dry1              = wet1(lb_1, 1)+1;
+    g.x  (dry1, :, 1) = repmat(Z_1(lb_1, 1), 1, N);
+    g.x  (dry1, :, 2) = 0;
+    g.zb (dry1, :)    = repmat(Z_1(lb_1, 1), 1, N);
+    g.fix(dry1, 1)    = true;
     %----------------------------------------------------------------------
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DRY/WET TRANSITION:
 %--------------------------------------------------------------------------
-if any(log_dw, 1)
+if n2 > 0
     %----------------------------------------------------------------------
-    if Z_r(wet2, 1) < Z_l(wet2+1, 1)+eps
-        Z_2 = Z_l(wet2+1, 1); % lake at rest
-    else
-        Z_2 = Zbr(dry2  , 1); % run-up/down
-    end
-    Zb2 =-H_m(wet2, 1)+Z_2;
-    Hu2 = Hum(wet2, 1);
+    % VARS:
+    l_2               = Z_r(wet2, 1) <= Z_l(wet2+1, 1) | (Z_r(wet2, 1) > Z_l(wet2+1, 1) & );
+    Z_2( l_2, 1)      = Z_l(wet2( l_2, 1)+1, 1);
+    Z_2(~l_2, 1)      = Z_r(wet2(~l_2, 1)  , 1);
+    Zb2               =-H_m(wet2, 1)+Z_2;
+    Hu2               = Hum(wet2, 1);
     %----------------------------------------------------------------------
     % P0 fix:
     g.x  (wet2, :, 1) = repmat(Z_2, 1, N);
@@ -96,12 +98,13 @@ if any(log_dw, 1)
     g.zb (wet2, :)    = repmat(Zb2, 1, N);
     g.fix(wet2, 1)    = true;
     %----------------------------------------------------------------------
-    if Z_r(dry2, 1) < Z_2
-        g.x  (dry2, :, 1) = repmat(Z_2, 1, N);
-        g.x  (dry2, :, 2) = 0;
-        g.zb (dry2, :)    = repmat(Z_2, 1, N);
-        g.fix(dry2, 1)    = true;
-    end
+    % BATHY fix:
+    lb_2              = Z_r(wet2-1, 1) < Z_2;
+    dry2              = wet2(lb_2, 1)-1;
+    g.x  (dry2, :, 1) = repmat(Z_2(lb_2, 1), 1, N);
+    g.x  (dry2, :, 2) = 0;
+    g.zb (dry2, :)    = repmat(Z_2(lb_2, 1), 1, N);
+    g.fix(dry2, 1)    = true;
     %----------------------------------------------------------------------
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

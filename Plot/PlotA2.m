@@ -142,24 +142,6 @@ switch test
         numcols     = 1;
         %------------------------------------------------------------------
     case 12
-        %------------------------------------------------------------------
-        path        = "Plot/T12 - Carrier and Greenspan/DATA/CaG_";
-        %------------------------------------------------------------------
-        xlim        = [0, 1];
-        xtick       = 0.0:0.1:1.0;
-        xticklabel  = ["0.0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"];
-        L           = g.data.L;
-        xc          = xc./L;
-        %------------------------------------------------------------------
-        ylim        = [0.0, 0.8];
-        ytick       = 0.0:0.1:0.8;
-        yticklabel  = ["0.00", "0.10", "0.20", "0.30", "0.40", "0.50", "0.60", "0.70", "0.80"];
-        %------------------------------------------------------------------
-        xtitle      = "$x^{\prime}$";
-        ytitle      = "$z$";
-        legendlabel = ["$\zeta_{a}$", "$\zeta_{h}$"];
-        numcols     = 1;
-        %------------------------------------------------------------------
     case 13
         %------------------------------------------------------------------
         path        = "Plot/T13 - Oscillating lake/DATA/Ol_";
@@ -254,33 +236,33 @@ switch test
         xtitle      = "$x$";
         ytitle      = "$\zeta^{\prime}$";
         %------------------------------------------------------------------
+    case 16
+        %------------------------------------------------------------------
+        path        = "Plot/T16 - Drying of a lake/DATA/Dl_";
+        %------------------------------------------------------------------
+        xlim        = [-0.50, 0.50];
+        xtick       =-0.50:0.25:0.50;
+        xticklabel  = ["-0.50", "-0.25", "0.00", "0.02", "0.50"];
+        %------------------------------------------------------------------
+        ylim        = [0.0, 1.0];
+        ytick       = 0.0:0.2:1.0;
+        yticklabel  = ["0.0", "0.2", "0.4", "0.6", "0.8", "1.0"];
+        %------------------------------------------------------------------
+        xtitle      = "$x$";
+        ytitle      = "$\zeta$";
+        %------------------------------------------------------------------
     otherwise
         return
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if test ~= 12
-    h0 = g.data.h0;
-    Ha = g.data.H(xc, 0);
-    Za = g.data.Z(xc, 0);
-    H_ = sum(pagemtimes(g.x(:, :, 1)-g.zbinit, g.Wbf'), 2)./sum(g.W, 2);
-    Z_ = sum(pagemtimes(g.x(:, :, 1)         , g.Wbf'), 2)./sum(g.W, 2);
-    if test ~= 13
-        Za = Za./h0;
-        Z_ = Z_./h0;
-    end
-else
-    switch g.data.opt
-        case 1
-            Xa = CarrierandGreenspan_per(g);
-        case 2
-            Xa = CarrierandGreenspan_trans(g);
-        otherwise
-            return
-    end
-    Ha = sum(pagemtimes(Xa (:, :, 1)-g.Zbdof, g.Wbf'), 2)./sum(g.W, 2);
-    Za = sum(pagemtimes(Xa (:, :, 1)        , g.Wbf'), 2)./sum(g.W, 2);
-    H_ = sum(pagemtimes(g.x(:, :, 1)-g.Zbdof, g.Wbf'), 2)./sum(g.W, 2);
-    Z_ = sum(pagemtimes(g.x(:, :, 1)        , g.Wbf'), 2)./sum(g.W, 2);
+h0 = g.data.h0;
+Ha = g.data.H(xc, 0);
+Za = g.data.Z(xc, 0);
+H_ = sum(pagemtimes(g.x(:, :, 1)-g.zbinit, g.Wbf'), 2)./sum(g.W, 2);
+Z_ = sum(pagemtimes(g.x(:, :, 1)         , g.Wbf'), 2)./sum(g.W, 2);
+if test ~= 13 && test ~= 16
+    Za = Za./h0;
+    Z_ = Z_./h0;
 end
 %--------------------------------------------------------------------------
 if test ~= 7
@@ -315,7 +297,7 @@ if test ~= 7
         Ph{1, 2} = plot(xc , Z_ , 'Color', Color(2, :), 'LineWidth', LW(1, 2));
         PlotX2(...
             ph(1, :), legendlabel, 'northeast', numcols);
-    elseif ismembc(test, [9, 11, 15])
+    elseif ismembc(test, [9, 11, 15, 16])
         if test == 15
             patch(...
                 [xlim(1, 1), xlim(1, 1), -19.85.*ylim(1, 1)], [ylim(1, 1), -xlim(1, 1)./19.85, ylim(1, 1)], grey, 'EdgeColor', grey);
@@ -328,9 +310,6 @@ if test ~= 7
         Ph{1, 2} = plot(xc , H_ , 'Color', Color(2, :), 'LineWidth', LW(1, 2));
         PlotX2(...
             ph(1, :), legendlabel, 'northeast', numcols);
-%     elseif test == 14
-%         Ph{1, 1} = plot(nan, nan, 'Color', Color(1, :), 'LineWidth', LW(1, 2));
-%         Ph{1, 2} = plot(nan, nan, 'Color', Color(2, :), 'LineWidth', LW(1, 2));
     end
     %----------------------------------------------------------------------
 else
@@ -380,7 +359,7 @@ switch test
             otherwise
                 return
         end
-    case {8, 10, 11, 13, 14}
+    case {8, 10, 11, 13, 14, 16}
         num1 = '';
     case 9
         switch g.data.opt
@@ -388,15 +367,6 @@ switch test
                 num1 = '_01';
             case 2
                 num1 = '_20';
-            otherwise
-                return
-        end
-    case 12
-        switch g.data.opt
-            case 1
-                num1 = '_per';
-            case 2
-                num1 = '_trs';
             otherwise
                 return
         end
