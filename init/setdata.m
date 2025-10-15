@@ -558,7 +558,7 @@ switch test
         % 16) T16 - Drying of a lake
         %------------------------------------------------------------------
         wetdry   = 1;
-        h0       = 0.5;
+        h0       = 0.6;
         nm       = 0;
         option   = 1;
         %------------------------------------------------------------------
@@ -579,9 +579,9 @@ switch test
         zb       = a.*(cos(k.*x)+1).*heaviside(x+0.1).*heaviside(0.1-x);
         switch option
             case 1
-                v = 0.1;
-                z = v;
-                % = h0.*heaviside(-x)+(v+(zb-v).*heaviside(zb-v)).*heaviside(x);
+                % = h0;
+                v = 0.4;
+                z = h0.*heaviside(-x)+(v+(zb-v).*heaviside(zb-v)).*heaviside(x);
             case 2
                 v = 0.1;
                 z = h0.*heaviside(-(x+0.25))+(v+(zb-v).*heaviside(zb-v)).*heaviside(x+0.25);

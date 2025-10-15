@@ -11,12 +11,7 @@ f2 = g.Fluxf(:, :, 2);
 r1 = g.res  (:, :, 1);
 r2 = g.res  (:, :, 2);
 
-if g.nit == 4000%2910%1665
-    xx = 1;
-end
-if find(g.wt_dw) == 60
-    xx = 1;
-end
+
 
 Z_dof = g.x(:, :, 1);
 Zbdof = g.zb;

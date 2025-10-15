@@ -17,6 +17,8 @@ lambda = zeros(Kf, 1);
 Z_dof  = g.x(:, :, 1);
 Hudof  = g.x(:, :, 2);
 Zbdof  = g.zb;
+H_dof  = Z_dof-Zbdof;
+H_m    = meanval(g, H_dof);
 Z_l    = Z_dof*bfl';
 Z_r    = Z_dof*bfr';
 Hul    = Hudof*bfl';
@@ -33,15 +35,15 @@ else
     switch g.data.opt
         case 1
             Z_lb = Z_l(1, 1);
-            Z_rb = 0.0;
+            Z_rb = 0.3;
         case 2
             Z_lb = 0.6;
             Z_rb = 0.4;
         otherwise
             return
     end
-    Hulb = 0;
-    Hurb = 0;
+    Hulb =-Hul(1, 1);
+    Hurb =-Hur(K, 1);
     %{
     Z_lb = 1;
     Hulb = 10;
@@ -53,20 +55,12 @@ end
 % LAMBDA:
 %--------------------------------------------------------------------------
 % INT:
-% #1:
 lambda(2:Kf-1, 1) = lambdaLF(drytol, veltol, G, ...
     Z_l(2:K, 1), Z_r(1:K-1, 1), ...
     Hul(2:K, 1), Hur(1:K-1, 1), Zbl(2:K, 1), Zbr(1:K-1, 1));
-% #2:
-% HYDRO RECONST.
-%--------------------------------------------------------------------------
 % BND:
-lambda( 1, 1) = lambdaLF(drytol, veltol, G, ...
-    Z_l(1, 1), Z_lb, ...
-    Hul(1, 1), Hulb, Zbl(1, 1), Zbl(1, 1));
-lambda(Kf, 1) = lambdaLF(drytol, veltol, G, ...
-    Z_r(K, 1), Z_rb, ...
-    Hur(K, 1), Hurb, Zbr(K, 1), Zbr(K, 1));
+lambda( 1, 1) = lambdaLF(drytol, veltol, G, Z_l(1, 1), Z_lb, Hul(1, 1), Hulb, Zbl(1, 1), Zbl(1, 1));
+lambda(Kf, 1) = lambdaLF(drytol, veltol, G, Z_r(K, 1), Z_rb, Hur(K, 1), Hurb, Zbr(K, 1), Zbr(K, 1));
 %--------------------------------------------------------------------------
 LAMBDA    = max(lambda, [], 1);
 vollambda = [...
@@ -77,37 +71,18 @@ vollambda(isinf(vollambda) | isnan(vollambda)) = 1./eps;
 % FLUX:
 %--------------------------------------------------------------------------
 % INT:
-if g.nit == 1149
-    xx = 1;
-end
-
-F_r = hydro_reconstruction2(drytol, veltol, G, ....
-    Z_r(1:K-1, 1), Z_l(2:K  , 1), ...
-    Hur(1:K-1, 1), Hul(2:K  , 1), Zbr(1:K-1, 1), Zbl(2:K  , 1), LAMBDA, +1);
-
-
-wet2 = find(g.wt_dw);
-
-%% fr_58 e fl_57
-
-
-
-Z_r(wet2, 1) = Z_l(wet2+1, 1);
-Hur(wet2, 1) = Hul(wet2+1, 1);
-Zbr(wet2, 1) = Zbl(wet2+1, 1);
-
-F_l = hydro_reconstruction2(drytol, veltol, G, ....
+F_l = hydro_reconstruction2(drytol, veltol, G, ...
     Z_l(2:K  , 1), Z_r(1:K-1, 1), ...
     Hul(2:K  , 1), Hur(1:K-1, 1), Zbl(2:K  , 1), Zbr(1:K-1, 1), LAMBDA, -1);
-
+F_r = hydro_reconstruction2(drytol, veltol, G, ...
+    Z_r(1:K-1, 1), Z_l(2:K  , 1), ...
+    Hur(1:K-1, 1), Hul(2:K  , 1), Zbr(1:K-1, 1), Zbl(2:K  , 1), LAMBDA, +1);
 %--------------------------------------------------------------------------
 % BND:
-Fbl = hydro_reconstruction2(drytol, veltol, G, ....
-    Z_l(1, 1), Z_lb, ...
-    Hul(1, 1), Hulb, Zbl(1, 1), Zbl(1, 1), LAMBDA, -1);
-Fbr = hydro_reconstruction2(drytol, veltol, G, ....
-    Z_r(K, 1), Z_rb, ...
-    Hur(K, 1), Hurb, Zbr(K, 1), Zbr(K, 1), LAMBDA, +1);
+Fbl = hydro_reconstruction2(drytol, veltol, G, Z_l(1, 1), Z_lb, Hul(1, 1), Hulb, Zbl(1, 1), Zbl(1, 1), LAMBDA, -1);
+Fbr = hydro_reconstruction2(drytol, veltol, G, Z_r(K, 1), Z_rb, Hur(K, 1), Hurb, Zbr(K, 1), Zbr(K, 1), LAMBDA, +1);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% INTEGRALS:
 %--------------------------------------------------------------------------
 for v = 1:2
     F_(2:K  , :, v) = F_(2:K  , :, v)+Fi_(2:K  , :, 1).*F_l(:, v);
@@ -117,11 +92,11 @@ for v = 1:2
 end
 %--------------------------------------------------------------------------
 % P0 fix:
-c_           = find(g.fix);
-nb           = sum (g.fix, 1);
-F_(c_, :, :) = 0;
-for i = 1:nb
-    o = c_(i, 1);
+f           = find(g.fix);
+n           = sum (g.fix, 1);
+F_(f, :, :) = 0;
+for i = 1:n
+    o = f(i, 1);
     for v = 1:2
         F_(o, :, v) = 1./g.detJ0T(o, 1).*(F_l(o-1, v)+F_r(o, v));
     end

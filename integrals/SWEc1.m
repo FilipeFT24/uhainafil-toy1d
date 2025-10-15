@@ -43,7 +43,9 @@ Huquad   = Hudof*bf';
 %--------------------------------------------------------------------------
 switch vellim
     case 1
+        %{
         Huquad  = H_quad.*(Huquad./H_quad);
+        %}
         W11quad = H_quad.*(Huquad./H_quad).^2;
     case 2
         W11quad = H_quad.*kurganov_desingularise(H_quad.^2, Huquad.^2);
@@ -63,12 +65,6 @@ W11           = permute(W11quad, [2, 3, 1]);
 F_            = pagemtimes(DK, [HU, W11+GZ2]);
 F_            = permute(F_, [3, 1, 2]);
 F_(:, :, 2)   = F_(:, :, 2)-GZ1quad*fk_'+S;
-
-if max(abs(W11quad), [], 'all') > 2
-    xx = 1;
-end
-
-
 %--------------------------------------------------------------------------
 % P0 fix:
 fix           = g.fix;
