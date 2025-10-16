@@ -15,16 +15,9 @@ Z_dof  = g.x(:, :, 1);
 Hudof  = g.x(:, :, 2);
 Zbdof  = g.zbinit;
 H_dof  = Z_dof-Zbdof;
-
-
-
 H_m    = meanval(g, H_dof);
 Hum    = meanval(g, Hudof);
 Z_m    = meanval(g, Z_dof);
-
-
-
-
 H_l    = H_dof*fl';
 H_r    = H_dof*fr';
 Z_l    = Z_dof*fl';
@@ -46,15 +39,14 @@ for i = 1:ndl
     %----------------------------------------------------------------------
     w = idl(i, 1);
     d = w+1;
-    if H_m(w, 1) < tol % if (fully) dry, do nothing.
+    if H_m(w, 1) < tol
         continue
     end
     %----------------------------------------------------------------------
-    %{
-    if max(Zbr(w, 1), Zbl(d, 1)) > Z_r(w-1, 1)
+    if Z_r(w-1, 1) > Zbl(d, 1)
         Z_w = Z_m(w, 1);
     else
-        Z_w = Z_r(w-1, 1); % sera q isto é Z_r(w-1, 1) or Z_l(w)
+        Z_w = Z_r(w-1, 1);
         if Zbl(d, 1) < Z_w
             g.x  (d, :, 1) = Z_w;
             g.x  (d, :, 2) = 0;
@@ -72,59 +64,24 @@ for i = 1:ndl
     g.x  (w, :, 2) = Huw;
     g.zb (w, :)    = Zbw;
     g.fix(w, 1)    = true;
-    %
     Z_l  (w, 1)    = Z_w;
     Z_r  (w, 1)    = Z_w;
     Zbl  (w, 1)    = Zbw;
     Zbr  (w, 1)    = Zbw;
-    %}
-
-
-    if Z_r(w-1, 1) <= Zbl(d, 1)
-        Z_w = Z_r(w-1, 1);
-        if Zbl(d, 1) < Z_w
-            g.x  (d, :, 1) = repmat(Z_w, 1, N);
-            g.x  (d, :, 2) = repmat(0  , 1, N); %#ok<REPMAT>
-            g.zb (d, :)    = repmat(Z_w, 1, N);
-            g.fix(d, 1)    = true;
-            Z_l  (d, 1)    = Z_w;
-            Z_r  (d, 1)    = Z_w;
-            Zbl  (d, 1)    = Z_w;
-            Zbr  (d, 1)    = Z_w;
-        end
-    else
-        Z_w = Z_m(w, 1);
-    end
-    %----------------------------------------------------------------------
-    Huw            = Hum(w, 1);
-    Zbw            =-H_m(w, 1)+Z_w;
-    g.x  (w, :, 1) = repmat(Z_w, 1, N);
-    g.x  (w, :, 2) = repmat(Huw, 1, N);
-    g.zb (w, :)    = repmat(Zbw, 1, N);
-    g.fix(w, 1)    = true;
-    Z_l  (w, 1)    = Z_w;
-    Z_r  (w, 1)    = Z_w;
-    Zbl  (w, 1)    = Zbw;
-    Zbr  (w, 1)    = Zbw;
-
-
-
     %----------------------------------------------------------------------
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Dry/? face:
 %--------------------------------------------------------------------------
 for i = 1:ndr
-    
     %----------------------------------------------------------------------
     w = idr(i, 1);
     d = w-1;
-    if H_m(w, 1) < tol % if (fully) dry, do nothing.
+    if H_m(w, 1) < tol
         continue
     end
     %----------------------------------------------------------------------
-    %{
-    if Zbr(d, 1) > Z_l(w+1, 1)
+    if Z_l(w+1, 1) > Zbr(d, 1)
         Z_w = Z_m(w, 1);
     else
         Z_w = Z_l(w+1, 1);
@@ -145,40 +102,20 @@ for i = 1:ndr
     g.x  (w, :, 2) = Huw;
     g.zb (w, :)    = Zbw;
     g.fix(w, 1)    = true;
-    %}
-    %
-    if Z_l(w+1, 1) <= Zbr(d, 1)
-        Z_w = Z_l(w+1, 1);
-
-    else
-        Z_w = Z_m(w, 1);
-    end
-    %----------------------------------------------------------------------
-    Huw            = Hum(w, 1);
-    Zbw            =-H_m(w, 1)+Z_w;
-    g.x  (w, :, 1) = repmat(Z_w, 1, N);
-    g.x  (w, :, 2) = repmat(Huw, 1, N);
-    g.zb (w, :)    = repmat(Zbw, 1, N);
-    g.fix(w, 1)    = true;
     %{
     Z_l  (w, 1)    = Z_w;
     Z_r  (w, 1)    = Z_w;
     Zbl  (w, 1)    = Zbw;
     Zbr  (w, 1)    = Zbw;
     %}
-    if Zbr(d, 1) < Z_w
-        g.x  (d, :, 1) = repmat(Z_w, 1, N);
-        g.x  (d, :, 2) = repmat(0  , 1, N); %#ok<REPMAT>
-        g.zb (d, :)    = repmat(Z_w, 1, N);
-        g.fix(d, 1)    = true;
-        Z_l  (d, 1)    = Z_w;
-        Z_r  (d, 1)    = Z_w;
-        Zbl  (d, 1)    = Z_w;
-        Zbr  (d, 1)    = Z_w;
-    end
-    %}
     %----------------------------------------------------------------------
 end
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % POSITIVITY-PRESERVING LIMITER: NEEDS TO BE FIXED
 %--------------------------------------------------------------------------
