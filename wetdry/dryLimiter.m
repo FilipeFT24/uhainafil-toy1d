@@ -10,7 +10,7 @@ H_dofold            = Z_dof-Zbdofold;
 H_dofnew            = Z_dof-Zbdofnew;
 H_mold              = meanval(g, H_dofold);
 %--------------------------------------------------------------------------
-isdry_drytol        = H_dofnew <= drytol;
+isdry_drytol        = H_dofnew < drytol;
 isdry_veltol        = H_dofnew <= veltol;
 isdry               = isdry_drytol | isdry_veltol;
 Z_dof(isdry_drytol) = Zbdofnew(isdry_drytol);

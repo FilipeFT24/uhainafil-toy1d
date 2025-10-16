@@ -43,7 +43,7 @@ else
             return
     end
     Hulb =-Hul(1, 1);
-    Hurb =-Hur(K, 1);
+    Hurb = 0;
     %{
     Z_lb = 1;
     Hulb = 10;

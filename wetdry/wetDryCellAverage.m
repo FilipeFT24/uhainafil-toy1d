@@ -18,6 +18,7 @@ H_dof  = Z_dof-Zbdof;
 H_m    = meanval(g, H_dof);
 Hum    = meanval(g, Hudof);
 Z_m    = meanval(g, Z_dof);
+Zbm    = meanval(g, Zbdof);
 H_l    = H_dof*fl';
 H_r    = H_dof*fr';
 Z_l    = Z_dof*fl';
@@ -48,14 +49,17 @@ for i = 1:ndl
     else
         Z_w = Z_r(w-1, 1);
         if Zbl(d, 1) < Z_w
-            g.x  (d, :, 1) = Z_w;
-            g.x  (d, :, 2) = 0;
-            g.zb (d, :)    = Z_w;
+            Z_d            = Z_w;
+            Hud            = Hum(d, 1);
+            Zbd            =-H_m(d, 1)+Z_d;
+            g.x  (d, :, 1) = Z_d;
+            g.x  (d, :, 2) = Hud;
+            g.zb (d, :)    = Zbd;
             g.fix(d, 1)    = true;
-            Z_l  (d, 1)    = Z_w;
-            Z_r  (d, 1)    = Z_w;
-            Zbl  (d, 1)    = Z_w;
-            Zbr  (d, 1)    = Z_w;
+            Z_l  (d, 1)    = Z_d;
+            Z_r  (d, 1)    = Z_d;
+            Zbl  (d, 1)    = Zbd;
+            Zbr  (d, 1)    = Zbd;
         end
     end
     Huw            = Hum(w, 1);
@@ -86,14 +90,19 @@ for i = 1:ndr
     else
         Z_w = Z_l(w+1, 1);
         if Zbr(d, 1) < Z_w
-            g.x  (d, :, 1) = Z_w;
-            g.x  (d, :, 2) = 0;
-            g.zb (d, :)    = Z_w;
+            Z_d            = Z_w;
+            Hud            = Hum(d, 1);
+            Zbd            =-H_m(d, 1)+Z_d;
+            g.x  (d, :, 1) = Z_d;
+            g.x  (d, :, 2) = Hud;
+            g.zb (d, :)    = Zbd;
             g.fix(d, 1)    = true;
-            Z_l  (d, 1)    = Z_w;
-            Z_r  (d, 1)    = Z_w;
-            Zbl  (d, 1)    = Z_w;
-            Zbr  (d, 1)    = Z_w;
+            %{
+            Z_l  (d, 1)    = Z_d;
+            Z_r  (d, 1)    = Z_d;
+            Zbl  (d, 1)    = Zbd;
+            Zbr  (d, 1)    = Zbd;
+            %}
         end
     end
     Huw            = Hum(w, 1);
@@ -110,12 +119,6 @@ for i = 1:ndr
     %}
     %----------------------------------------------------------------------
 end
-
-
-
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % POSITIVITY-PRESERVING LIMITER: NEEDS TO BE FIXED
 %--------------------------------------------------------------------------
