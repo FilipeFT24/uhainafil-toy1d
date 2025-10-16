@@ -579,9 +579,11 @@ switch test
         zb       = a.*(cos(k.*x)+1).*heaviside(x+0.1).*heaviside(0.1-x);
         switch option
             case 1
-                % = h0;
+                z = h0;
+                %{
                 v = 0.4;
                 z = h0.*heaviside(-x)+(v+(zb-v).*heaviside(zb-v)).*heaviside(x);
+                %}
             case 2
                 v = 0.1;
                 z = h0.*heaviside(-(x+0.25))+(v+(zb-v).*heaviside(zb-v)).*heaviside(x+0.25);

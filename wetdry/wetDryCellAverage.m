@@ -7,8 +7,8 @@ N      = g.N;
 fc     = g.bf;
 fl     = g.bfl;
 fr     = g.bfr;
-drytol = g.drytol;
-tol    = eps;
+tol1   = eps;
+tol2   = g.drytol;
 g.fix  = false(K, 1);
 %--------------------------------------------------------------------------
 Z_dof  = g.x(:, :, 1);
@@ -18,7 +18,6 @@ H_dof  = Z_dof-Zbdof;
 H_m    = meanval(g, H_dof);
 Hum    = meanval(g, Hudof);
 Z_m    = meanval(g, Z_dof);
-Zbm    = meanval(g, Zbdof);
 H_l    = H_dof*fl';
 H_r    = H_dof*fr';
 Z_l    = Z_dof*fl';
@@ -26,8 +25,8 @@ Z_r    = Z_dof*fr';
 Zbl    = Zbdof*fl';
 Zbr    = Zbdof*fr';
 %--------------------------------------------------------------------------
-log_dr = H_r(1:K-1, 1) < tol;
-log_dl = H_l(2:K  , 1) < tol;
+log_dr = H_r(1:K-1, 1) < tol1;
+log_dl = H_l(2:K  , 1) < tol1;
 %--------------------------------------------------------------------------
 idl    = find(log_dl);
 idr    = find(log_dr)+1;
@@ -40,11 +39,11 @@ for i = 1:ndl
     %----------------------------------------------------------------------
     w = idl(i, 1);
     d = w+1;
-    if H_m(w, 1) < tol
+    if H_m(w, 1) < tol1
         continue
     end
     %----------------------------------------------------------------------
-    if Z_r(w-1, 1) > Zbl(d, 1)
+    if Z_r(w-1, 1) > Zbl(d, 1)%+tol2
         Z_w = Z_m(w, 1);
     else
         Z_w = Z_r(w-1, 1);
@@ -81,7 +80,7 @@ for i = 1:ndr
     %----------------------------------------------------------------------
     w = idr(i, 1);
     d = w-1;
-    if H_m(w, 1) < tol
+    if H_m(w, 1) < tol1
         continue
     end
     %----------------------------------------------------------------------

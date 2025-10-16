@@ -78,8 +78,8 @@ p         = 1;
 test      = 16;
 data      = setdata(test, 0);
 g         = MSH(data.xv, p);
-drytol    = 1e-02;
-velcutoff = 1e-02;
+drytol    = 5e-02;
+velcutoff = 5e-02;
 vellim    = 1;
 itype     = 0;     % 0: uhaina: interpolation
                    % 1: my:     projection
