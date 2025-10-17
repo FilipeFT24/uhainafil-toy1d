@@ -436,7 +436,7 @@ switch test
         G        = 1;
         xm       =-3;
         xM       = 3;
-        K        = 1000;
+        K        = 400;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -567,7 +567,7 @@ switch test
         G        = 1;
         xm       =-0.5;
         xM       = 0.5;
-        K        = 100;
+        K        = 200;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -575,8 +575,9 @@ switch test
         end
         %------------------------------------------------------------------
         a        = 0.25;
-        k        = pi./0.1;
-        zb       = a.*(cos(k.*x)+1).*heaviside(x+0.1).*heaviside(0.1-x);
+        b        = 0.10;
+        k        = pi./b;
+        zb       = a.*(cos(k.*x)+1).*heaviside(x+b).*heaviside(b-x);
         switch option
             case 1
                 z = h0;

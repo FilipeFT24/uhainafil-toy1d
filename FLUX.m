@@ -11,8 +11,6 @@ f2 = g.Fluxf(:, :, 2);
 r1 = g.res  (:, :, 1);
 r2 = g.res  (:, :, 2);
 
-
-
 Z_dof = g.x(:, :, 1);
 Zbdof = g.zb;
 H_dof = Z_dof-Zbdof;

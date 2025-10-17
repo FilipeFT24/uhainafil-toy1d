@@ -17,6 +17,7 @@ lambda = zeros(Kf, 1);
 Z_dof  = g.x(:, :, 1);
 Hudof  = g.x(:, :, 2);
 Zbdof  = g.zb;
+H_dof  = Z_dof-Zbdof;
 Z_l    = Z_dof*bfl';
 Z_r    = Z_dof*bfr';
 Hul    = Hudof*bfl';
@@ -33,10 +34,10 @@ else
     switch g.data.opt
         case 1
             Z_lb = Z_l(1, 1);
-            Z_rb = 0.3;
+            Z_rb = 0.45;
         case 2
-            Z_lb = 0.6;
-            Z_rb = 0.4;
+            Z_lb = 0.60;
+            Z_rb = 0.40;
         otherwise
             return
     end

@@ -5,10 +5,10 @@ g          = dryLimiter(g);
 %--------------------------------------------------------------------------
 % wet/dry detection:
 Z_dof      = g.x(:, :, 1);
-Zbdof      = g.zbinit;
+Zbdof      = g.zb;
 H_dof      = Z_dof-Zbdof;
-is_dry     = all(H_dof <= g.drytol, 2);
-is_wet     = all(H_dof  > g.drytol, 2);
+is_dry     = all(H_dof < eps, 2);
+is_wet     = all(H_dof > eps, 2);
 is_partial =~is_dry & ~is_wet;
 K = g.numE;
 g.WD        = zeros(K, 1);
