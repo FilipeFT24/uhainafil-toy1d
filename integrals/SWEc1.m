@@ -65,6 +65,11 @@ W11           = permute(W11quad, [2, 3, 1]);
 F_            = pagemtimes(DK, [HU, W11+GZ2]);
 F_            = permute(F_, [3, 1, 2]);
 F_(:, :, 2)   = F_(:, :, 2)-GZ1quad*fk_'+S;
+
+if any(H_dof < 0, 'all')
+    xx = 1;
+end
+
 %--------------------------------------------------------------------------
 % P0 fix:
 fix           = g.fix;
