@@ -78,12 +78,12 @@ p         = 0;
 test      = 16;
 data      = setdata(test, 0);
 g         = MSH(data.xv, p);
-drytol    = 1e-04;
-velcutoff = 1e-04;
+drytol    = 1e-03;
+velcutoff = 1e-03;
 vellim    = 1;
-itype     = 1;     % 0: uhaina: interpolation
+itype     = 0;     % 0: uhaina: interpolation
                    % 1: my:     projection
-CFL       = 0.10;  % CFL./(2.*p+1);
+CFL       = 0.05;  % CFL./(2.*p+1);
 penParam  = 1000;
 run       = 1;
 %--------------------------------------------------------------------------

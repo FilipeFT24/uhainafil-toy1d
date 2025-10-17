@@ -1,37 +1,28 @@
 function [g] = wetDryCellAverage(g)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% VARS:
+% VARS #1:
 %--------------------------------------------------------------------------
-K              = g.numE;
-Kf             = K+1;
-N              = g.N;
-fc             = g.bf;
-fl             = g.bfl;
-fr             = g.bfr;
-rtol           = eps;
-drytol         = g.drytol;
-g.fix          = false(K, 1);
+K      = g.numE;
+Kf     = K+1;
+fc     = g.bf;
+fl     = g.bfl;
+fr     = g.bfr;
+drytol = g.drytol;
+g.fix  = false(K, 1);
 %--------------------------------------------------------------------------
-Z_dof          = g.x(:, :, 1);
-Hudof          = g.x(:, :, 2);
-Zbdof          = g.zbinit;
-H_dof          = Z_dof-Zbdof;
-H_m            = meanval(g, H_dof);
-Hum            = meanval(g, Hudof);
-Z_m            = meanval(g, Z_dof);
-H_l            = H_dof*fl';
-H_r            = H_dof*fr';
-Z_l            = Z_dof*fl';
-Z_r            = Z_dof*fr';
-Zbl            = Zbdof*fl';
-Zbr            = Zbdof*fr';
-%--------------------------------------------------------------------------
-log            = false(Kf, 1);
-log(1:Kf-1, 1) = log(1:Kf-1, 1) | H_l(1:K, 1) < drytol;
-log(2:Kf  , 1) = log(2:Kf  , 1) | H_r(1:K, 1) < drytol;
-f              = find(log);
-n              = size(f, 1);
-
+Z_dof  = g.x(:, :, 1);
+Hudof  = g.x(:, :, 2);
+Zbdof  = g.zbinit;
+H_dof  = Z_dof-Zbdof;
+H_m    = meanval(g, H_dof);
+Hum    = meanval(g, Hudof);
+Z_m    = meanval(g, Z_dof);
+H_l    = H_dof*fl';
+H_r    = H_dof*fr';
+Z_l    = Z_dof*fl';
+Z_r    = Z_dof*fr';
+Zbl    = Zbdof*fl';
+Zbr    = Zbdof*fr';
 
 H_aux = H_dof-drytol;
 
@@ -40,14 +31,42 @@ if any(H_dof < drytol, 'all')
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Loop through "problematic" cells:
+% %--------------------------------------------------------------------------
+% log1 = H_l(:, 1) < drytol & H_r(:, 1) < drytol & H_m(:, 1) < drytol;
+% c    = find(log1);
+% m    = size(c, 1);
+% %--------------------------------------------------------------------------
+% for i = 1:m
+%     o              = c(i, 1);
+%     Zbo            = Zbdof(o, :);
+%     H_dof(o, :)    = 0;
+%     g.x  (o, :, 1) = Zbo;
+%     g.x  (o, :, 2) = 0;
+%     g.zb (o, :)    = Zbo;
+%     H_l  (o, 1)    = 0;
+%     H_r  (o, 1)    = 0;
+%     H_m  (o, 1)    = 0;
+%     Z_l  (o, 1)    = Zbo*fl';
+%     Z_r  (o, 1)    = Zbo*fr';
+%     Zbl  (o, 1)    = Zbo*fl';
+%     Zbr  (o, 1)    = Zbo*fr';
+% end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Loop through "problematic" faces:
+%--------------------------------------------------------------------------
+log2            = false(Kf, 1);
+log2(1:Kf-1, 1) = log2(1:Kf-1, 1) | H_l(1:K, 1) < drytol;
+log2(2:Kf  , 1) = log2(2:Kf  , 1) | H_r(1:K, 1) < drytol;
+f               = find(log2);
+n               = size(f, 1);
 %--------------------------------------------------------------------------
 for i = 1:n
     %----------------------------------------------------------------------
     r    = f(i, 1);
     l    = r-1;
-    ldry = H_l(l, 1) < drytol & H_r(l, 1) < drytol;
-    rdry = H_l(r, 1) < drytol & H_r(r, 1) < drytol;
+    ldry = H_l(l, 1) <= drytol & H_r(l, 1) <= drytol;
+    rdry = H_l(r, 1) <= drytol & H_r(r, 1) <= drytol;
     if ldry && rdry
         continue
     end
@@ -59,7 +78,7 @@ for i = 1:n
         if Z_r(w, 1) > Zbl(w, 1)+drytol
             Z_w = Z_m(w, 1);
         else
-            Z_w = Z_l(r+1, 1);
+            Z_w = Z_l(w+1, 1);
             if Zbr(d, 1) < Z_w
                 Z_d            = Z_w;
                 Hud            = Hum(d, 1);
@@ -81,10 +100,10 @@ for i = 1:n
         %------------------------------------------------------------------
         d = r;
         w = l;
-        if Z_l(w, 1) > Zbr(w, 1)+drytol
+        if Z_l(w, 1) > min(Zbr(w, 1), Zbl(d, 1))+drytol%Zbr(w, 1)+drytol%
             Z_w = Z_m(w, 1);
         else
-            Z_w = Z_r(l-1, 1);
+            Z_w = Z_r(w-1, 1);
             if Zbl(d, 1) < Z_w
                 Z_d            = Z_w;
                 Hud            = Hum(d, 1);
@@ -119,6 +138,16 @@ for i = 1:n
     end
     %----------------------------------------------------------------------
 end
+
+Z_dof = g.x(:, :, 1);
+Zbdof = g.zb;
+H_dof = Z_dof-Zbdof;
+
+if any(H_dof < 0, 'all')
+    xx = 1;
+end
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % POSITIVITY-PRESERVING LIMITER: NEEDS TO BE FIXED
 %--------------------------------------------------------------------------
