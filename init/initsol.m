@@ -82,6 +82,7 @@ g.zb        = Zbdof;
 %--------------------------------------------------------------------------
 g.fix       = false(K, 1);
 g.wt        = false(K, 1);
+g.WD        = false(K, 1);
 if g.data.wetdry
     g = limX(g);
 end

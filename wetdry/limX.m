@@ -1,26 +1,8 @@
 function [g] = limX(g)
 %--------------------------------------------------------------------------
 % dry limiter:
-g          = dryLimiter(g);
-%--------------------------------------------------------------------------
-% wet/dry detection:
-Z_dof      = g.x(:, :, 1);
-Zbdof      = g.zb;
-H_dof      = Z_dof-Zbdof;
-is_dry     = all(H_dof < eps, 2);
-is_wet     = all(H_dof > eps, 2);
-is_partial =~is_dry & ~is_wet;
-K = g.numE;
-g.WD        = zeros(K, 1);
-if g.p > 0
-    g.WD(is_wet    , 1) = 0; % wet
-    g.WD(is_partial, 1) = 1; % wet and dry
-    g.WD(is_dry    , 1) = 2; % dry
-end
-% -------------------------------------------------------------------------
-% wet/dry:
-if g.p > 0
+%g          = dryLimiter(g);
+
     g = wetDryCellAverage(g);
-end
 %--------------------------------------------------------------------------
 end
