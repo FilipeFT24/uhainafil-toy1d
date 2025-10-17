@@ -7,6 +7,7 @@ Kf     = K+1;
 fc     = g.bf;
 fl     = g.bfl;
 fr     = g.bfr;
+rtol   = 1e-10;
 drytol = g.drytol;
 g.fix  = false(K, 1);
 %--------------------------------------------------------------------------
@@ -40,17 +41,23 @@ m    = size(c, 1);
 for i = 1:m
     o              = c(i, 1);
     Zbo            = Zbdof(o, :);
-    H_dof(o, :)    = 0;
-    g.x  (o, :, 1) = Zbo;
-    g.x  (o, :, 2) = 0;
+    Z_o            = Zbo;
+    H_o            = 0;
+    Huo            = 0;
+    H_dof(o, :)    = H_o;
+    H_m  (o, 1)    = H_o;
+    Hudof(o, :)    = Huo;
+    Hum  (o, 1)    = Huo;
+    g.x  (o, :, 1) = Z_o;
+    g.x  (o, :, 2) = Huo;
     g.zb (o, :)    = Zbo;
-    H_l  (o, 1)    = 0;
-    H_r  (o, 1)    = 0;
-    H_m  (o, 1)    = 0;
-    Z_l  (o, 1)    = Zbo*fl';
-    Z_r  (o, 1)    = Zbo*fr';
+    H_l  (o, 1)    = H_o;
+    H_r  (o, 1)    = H_o;
+    Z_l  (o, 1)    = Z_o*fl';
+    Z_r  (o, 1)    = Z_o*fr';
     Zbl  (o, 1)    = Zbo*fl';
     Zbr  (o, 1)    = Zbo*fr';
+    g.fix(o, 1)    = true;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Loop through "problematic" faces:
@@ -73,22 +80,26 @@ for i = 1:n
     %----------------------------------------------------------------------
     if ldry && H_r(r, 1) > drytol
         %------------------------------------------------------------------
+        % DRY/WET
+        %------------------------------------------------------------------
         d = l;
         w = r;
-        if Z_r(w, 1) > Zbr(d, 1)+drytol
+        % WRONG CONDITION: IF YOU PUT TO MEAN IT WORKS FOR P0 on drying
+        % lake
+%         if Z_r(w, 1) > Z_l(w, 1)+rtol %max(Zbl(w, 1), Zbr(d, 1))+drytol %Zbr(d, 1)+drytol
             Z_w = Z_m(w, 1);
-        else
-            Z_w = Z_l(w+1, 1);
-            if Zbr(d, 1) < Z_w
-                Z_d            = Z_w;
-                Hud            = Hum(d, 1);
-                Zbd            =-H_m(d, 1)+Z_d;
-                g.x  (d, :, 1) = Z_d;
-                g.x  (d, :, 2) = Hud;
-                g.zb (d, :)    = Zbd;
-                g.fix(d, 1)    = true;
-            end
-        end
+%         else
+%             Z_w = Z_l(w+1, 1);
+%             if Zbr(d, 1) < Z_w
+%                 Z_d            = Z_w;
+%                 Hud            = Hum(d, 1);
+%                 Zbd            =-H_m(d, 1)+Z_d;
+%                 g.x  (d, :, 1) = Z_d;
+%                 g.x  (d, :, 2) = Hud;
+%                 g.zb (d, :)    = Zbd;
+%                 g.fix(d, 1)    = true;
+%             end
+%         end
         Huw            = Hum(w, 1);
         Zbw            =-H_m(w, 1)+Z_w;
         g.x  (w, :, 1) = Z_w;
@@ -98,22 +109,24 @@ for i = 1:n
         %------------------------------------------------------------------
     elseif rdry && H_l(l, 1) > drytol
         %------------------------------------------------------------------
+        % WET/DRY
+        %------------------------------------------------------------------
         d = r;
         w = l;
-        if Z_l(w, 1) > Zbr(w, 1)+drytol
+%         if Z_l(w, 1) > Z_r(w, 1)+rtol %max(Zbr(w, 1), Zbl(d, 1))+drytol %Zbr(w, 1)+drytol
             Z_w = Z_m(w, 1);
-        else
-            Z_w = Z_r(w-1, 1);
-            if Zbl(d, 1) < Z_w
-                Z_d            = Z_w;
-                Hud            = Hum(d, 1);
-                Zbd            =-H_m(d, 1)+Z_d;
-                g.x  (d, :, 1) = Z_d;
-                g.x  (d, :, 2) = Hud;
-                g.zb (d, :)    = Zbd;
-                g.fix(d, 1)    = true;
-            end
-        end
+%         else
+%             Z_w = Z_r(w-1, 1);
+%             if Zbl(d, 1) < Z_w
+%                 Z_d            = Z_w;
+%                 Hud            = Hum(d, 1);
+%                 Zbd            =-H_m(d, 1)+Z_d;
+%                 g.x  (d, :, 1) = Z_d;
+%                 g.x  (d, :, 2) = Hud;
+%                 g.zb (d, :)    = Zbd;
+%                 g.fix(d, 1)    = true;
+%             end
+%         end
         Huw            = Hum(w, 1);
         Zbw            =-H_m(w, 1)+Z_w;
         g.x  (w, :, 1) = Z_w;
@@ -143,11 +156,9 @@ Z_dof = g.x(:, :, 1);
 Zbdof = g.zb;
 H_dof = Z_dof-Zbdof;
 
-if any(H_dof < 0, 'all')
+if any(H_dof < drytol, 'all')
     xx = 1;
 end
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % POSITIVITY-PRESERVING LIMITER: NEEDS TO BE FIXED
 %--------------------------------------------------------------------------

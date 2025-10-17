@@ -429,14 +429,14 @@ switch test
         wetdry   = 1;
         h0       = 0.2;
         nm       = 0;
-        option   = 1;
+        option   = 2;
         %------------------------------------------------------------------
         abslayer = 0;
         alpha    = 1;
         G        = 1;
         xm       =-3;
         xM       = 3;
-        K        = 400;
+        K        = 1000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
