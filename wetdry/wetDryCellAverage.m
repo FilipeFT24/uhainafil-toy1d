@@ -87,18 +87,18 @@ for i = 1:n
         % WRONG CONDITION: IF YOU PUT TO MEAN IT WORKS FOR P0 on drying
         % lake
 %         if Z_r(w, 1) > Z_l(w, 1)+rtol %max(Zbl(w, 1), Zbr(d, 1))+drytol %Zbr(d, 1)+drytol
-            Z_w = Z_m(w, 1);
+%            Z_w = Z_m(w, 1);
 %         else
-%             Z_w = Z_l(w+1, 1);
-%             if Zbr(d, 1) < Z_w
-%                 Z_d            = Z_w;
-%                 Hud            = Hum(d, 1);
-%                 Zbd            =-H_m(d, 1)+Z_d;
-%                 g.x  (d, :, 1) = Z_d;
-%                 g.x  (d, :, 2) = Hud;
-%                 g.zb (d, :)    = Zbd;
-%                 g.fix(d, 1)    = true;
-%             end
+            Z_w = Z_l(w+1, 1);
+            if Zbr(d, 1) < Z_w
+                Z_d            = Z_w;
+                Hud            = Hum(d, 1);
+                Zbd            =-H_m(d, 1)+Z_d;
+                g.x  (d, :, 1) = Z_d;
+                g.x  (d, :, 2) = Hud;
+                g.zb (d, :)    = Zbd;
+                g.fix(d, 1)    = true;
+            end
 %         end
         Huw            = Hum(w, 1);
         Zbw            =-H_m(w, 1)+Z_w;
@@ -114,7 +114,7 @@ for i = 1:n
         d = r;
         w = l;
 %         if Z_l(w, 1) > Z_r(w, 1)+rtol %max(Zbr(w, 1), Zbl(d, 1))+drytol %Zbr(w, 1)+drytol
-            Z_w = Z_m(w, 1);
+%            Z_w = Z_m(w, 1);
 %         else
 %             Z_w = Z_r(w-1, 1);
 %             if Zbl(d, 1) < Z_w
@@ -127,12 +127,12 @@ for i = 1:n
 %                 g.fix(d, 1)    = true;
 %             end
 %         end
-        Huw            = Hum(w, 1);
-        Zbw            =-H_m(w, 1)+Z_w;
-        g.x  (w, :, 1) = Z_w;
-        g.x  (w, :, 2) = Huw;
-        g.zb (w, :)    = Zbw;
-        g.fix(w, 1)    = true;
+%         Huw            = Hum(w, 1);
+%         Zbw            =-H_m(w, 1)+Z_w;
+%         g.x  (w, :, 1) = Z_w;
+%         g.x  (w, :, 2) = Huw;
+%         g.zb (w, :)    = Zbw;
+%         g.fix(w, 1)    = true;
         %------------------------------------------------------------------
     else
         %------------------------------------------------------------------
