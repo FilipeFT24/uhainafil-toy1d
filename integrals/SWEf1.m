@@ -89,22 +89,17 @@ for v = 1:2
     F_(1    , :, v) = F_(1    , :, v)+Fil.*Fbl(1, v);
     F_(K    , :, v) = F_(K    , :, v)+Fir.*Fbr(1, v);
 end
-
-if any(H_dof < 0, "all")
-    xx = 1;
-end
-
 %--------------------------------------------------------------------------
 % P0 fix:
-% f           = find(g.fix);
-% n           = sum (g.fix, 1);
-% F_(f, :, :) = 0;
-% for i = 1:n
-%     o = f(i, 1);
-%     for v = 1:2
-%         F_(o, :, v) = 1./g.detJ0T(o, 1).*(F_l(o-1, v)+F_r(o, v));
-%     end
-% end
+f           = find(g.fix);
+n           = sum (g.fix, 1);
+F_(f, :, :) = 0;
+for i = 1:n
+    o = f(i, 1);
+    for v = 1:2
+        F_(o, :, v) = 1./g.detJ0T(o, 1).*(F_l(o-1, v)+F_r(o, v));
+    end
+end
 %--------------------------------------------------------------------------
 g.vollambda = vollambda;
 g.Fluxf     = F_;

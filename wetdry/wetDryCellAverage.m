@@ -38,27 +38,27 @@ log1 = H_l(:, 1) < drytol & H_r(:, 1) < drytol & H_m(:, 1) < drytol;
 c    = find(log1);
 m    = size(c, 1);
 %--------------------------------------------------------------------------
-for i = 1:m
-    o              = c(i, 1);
-    Zbo            = Zbdof(o, :);
-    Z_o            = Zbo;
-    H_o            = 0;
-    Huo            = 0;
-    H_dof(o, :)    = H_o;
-    H_m  (o, 1)    = H_o;
-    Hudof(o, :)    = Huo;
-    Hum  (o, 1)    = Huo;
-    g.x  (o, :, 1) = Z_o;
-    g.x  (o, :, 2) = Huo;
-    g.zb (o, :)    = Zbo;
-    H_l  (o, 1)    = H_o;
-    H_r  (o, 1)    = H_o;
-    Z_l  (o, 1)    = Z_o*fl';
-    Z_r  (o, 1)    = Z_o*fr';
-    Zbl  (o, 1)    = Zbo*fl';
-    Zbr  (o, 1)    = Zbo*fr';
-    g.fix(o, 1)    = true;
-end
+% for i = 1:m
+%     o              = c(i, 1);
+%     Zbo            = Zbdof(o, :);
+%     Z_o            = Zbo;
+%     H_o            = 0;
+%     Huo            = 0;
+%     H_dof(o, :)    = H_o;
+%     H_m  (o, 1)    = H_o;
+%     Hudof(o, :)    = Huo;
+%     Hum  (o, 1)    = Huo;
+%     g.x  (o, :, 1) = Z_o;
+%     g.x  (o, :, 2) = Huo;
+%     g.zb (o, :)    = Zbo;
+%     H_l  (o, 1)    = H_o;
+%     H_r  (o, 1)    = H_o;
+%     Z_l  (o, 1)    = Z_o*fl';
+%     Z_r  (o, 1)    = Z_o*fr';
+%     Zbl  (o, 1)    = Zbo*fl';
+%     Zbr  (o, 1)    = Zbo*fr';
+%     g.fix(o, 1)    = true;
+% end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Loop through "problematic" faces:
 %--------------------------------------------------------------------------
@@ -84,11 +84,9 @@ for i = 1:n
         %------------------------------------------------------------------
         d = l;
         w = r;
-        % WRONG CONDITION: IF YOU PUT TO MEAN IT WORKS FOR P0 on drying
-        % lake
-%         if Z_r(w, 1) > Z_l(w, 1)+rtol %max(Zbl(w, 1), Zbr(d, 1))+drytol %Zbr(d, 1)+drytol
-%            Z_w = Z_m(w, 1);
-%         else
+        if Z_r(w, 1) > Zbl(w, 1)+drytol %max(Zbl(w, 1), Zbr(d, 1))+drytol
+            Z_w = Z_m(w, 1);
+        else
             Z_w = Z_l(w+1, 1);
             if Zbr(d, 1) < Z_w
                 Z_d            = Z_w;
@@ -99,7 +97,7 @@ for i = 1:n
                 g.zb (d, :)    = Zbd;
                 g.fix(d, 1)    = true;
             end
-%         end
+        end
         Huw            = Hum(w, 1);
         Zbw            =-H_m(w, 1)+Z_w;
         g.x  (w, :, 1) = Z_w;
@@ -113,26 +111,26 @@ for i = 1:n
         %------------------------------------------------------------------
         d = r;
         w = l;
-%         if Z_l(w, 1) > Z_r(w, 1)+rtol %max(Zbr(w, 1), Zbl(d, 1))+drytol %Zbr(w, 1)+drytol
-%            Z_w = Z_m(w, 1);
-%         else
-%             Z_w = Z_r(w-1, 1);
-%             if Zbl(d, 1) < Z_w
-%                 Z_d            = Z_w;
-%                 Hud            = Hum(d, 1);
-%                 Zbd            =-H_m(d, 1)+Z_d;
-%                 g.x  (d, :, 1) = Z_d;
-%                 g.x  (d, :, 2) = Hud;
-%                 g.zb (d, :)    = Zbd;
-%                 g.fix(d, 1)    = true;
-%             end
-%         end
-%         Huw            = Hum(w, 1);
-%         Zbw            =-H_m(w, 1)+Z_w;
-%         g.x  (w, :, 1) = Z_w;
-%         g.x  (w, :, 2) = Huw;
-%         g.zb (w, :)    = Zbw;
-%         g.fix(w, 1)    = true;
+        if Z_l(w, 1) > Zbr(w, 1)+drytol %max(Zbr(w, 1), Zbl(d, 1))+drytol
+            Z_w = Z_m(w, 1);
+        else
+            Z_w = Z_r(w-1, 1);
+            if Zbl(d, 1) < Z_w
+                Z_d            = Z_w;
+                Hud            = Hum(d, 1);
+                Zbd            =-H_m(d, 1)+Z_d;
+                g.x  (d, :, 1) = Z_d;
+                g.x  (d, :, 2) = Hud;
+                g.zb (d, :)    = Zbd;
+                g.fix(d, 1)    = true;
+            end
+        end
+        Huw            = Hum(w, 1);
+        Zbw            =-H_m(w, 1)+Z_w;
+        g.x  (w, :, 1) = Z_w;
+        g.x  (w, :, 2) = Huw;
+        g.zb (w, :)    = Zbw;
+        g.fix(w, 1)    = true;
         %------------------------------------------------------------------
     else
         %------------------------------------------------------------------
