@@ -12,14 +12,11 @@ r1 = g.res  (:, :, 1);
 r2 = g.res  (:, :, 2);
 
 Z_dof = g.x(:, :, 1);
+Hudof = g.x(:, :, 2);
 Zbdof = g.zb;
 H_dof = Z_dof-Zbdof;
 
 xx = 1;
-
-if any(H_dof < 0, "all")
-    xx = 1;
-end
 
 %--------------------------------------------------------------------------
 % P0 correction:
