@@ -1,6 +1,6 @@
 function [g] = initsol(g, itype, drytol, velcutoff, vellim)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-degreec      = 3;%max(3.*g.p-1, 1);
+degreec      = max(3.*g.p-1, 1);
 degreec      = min(degreec, 12);
 [Q1, W]      = quadRule1D(degreec);
 N            = g.N;

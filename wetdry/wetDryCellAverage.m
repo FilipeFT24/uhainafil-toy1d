@@ -95,18 +95,29 @@ for i = 1:n
         continue
     end
     %----------------------------------------------------------------------
+    %----------------------------------------------------------------------
     if ldry && H_r(r, 1) > drytol
         %------------------------------------------------------------------
         % DRY/WET
         %------------------------------------------------------------------
-        d = l;
-        w = r;
+        d = l-1;
+        w = r-1;
         x = r+1;
+ 
+%         figure;
+%         hold on;
+%         plot(reshape(Z_dof(1:71, :)'+drytol, [], 1), '-ob');
+%         plot(reshape(Zbdof(1:71, :)'       , [], 1), '-*k');
+
+
+        %precisas é de corrigir a célula a que pertence a face que tem
+        %problemas!
+
         if Z_r(w, 1) > Zbl(w, 1)+drytol
             Z_w = Z_m(w, 1);
         else
             Z_w = Z_l(x, 1);
-            if Zbr(d, 1) < Z_w
+            if Z_w < Z_r(d, 1)
                 Z_d            = Z_w;
                 Hud            = Hum(d, 1);
                 Zbd            =-H_m(d, 1)+Z_d;
@@ -134,7 +145,7 @@ for i = 1:n
             Z_w = Z_m(w, 1);
         else
             Z_w = Z_r(x, 1);
-            if Zbl(d, 1) < Z_w
+            if Z_w < Z_l(d, 1)
                 Z_d            = Z_w;
                 Hud            = Hum(d, 1);
                 Zbd            =-H_m(d, 1)+Z_d;
@@ -152,61 +163,56 @@ for i = 1:n
         g.fix(w, 1)    = true;
         %------------------------------------------------------------------
     else
-        %------------------------------------------------------------------
-        if H_r(l, 1) < drytol && H_l(r, 1) < drytol
 
-            Z_1            = Z_m(l, 1);
-            Hu1            = Hum(l, 1);
-            Zb1            =-H_m(l, 1)+Z_1;
-            Z_2            = Z_m(r, 1);
-            Hu2            = Hum(r, 1);
-            Zb2            =-H_m(r, 1)+Z_2;
-
-
-
-            g.x  (l, :, 1) = Z_1;
-            g.x  (l, :, 2) = Hu1;
-            g.x  (r, :, 1) = Z_2;
-            g.x  (r, :, 2) = Hu2;
-            g.zb (l, :)    = Zb1;
-            g.zb (r, :)    = Zb2;
-            g.fix(l, 1)    = true;
-            g.fix(r, 1)    = true;
-
-            if Z_l(l, 1) <= Zbr(l, 1)+drytol
-                xx = 1;
-            end
-            if Z_l(r, 1) <= Zbr(r, 1)+drytol
-                xx = 1;
-            end
-
-
-
-            xx = 1;
-        else
-            if H_r(l, 1) < drytol
-                p = l;
-            else
-                p = r;
-            end
-
-            if Z_l(p, 1) <= Zbr(p, 1)+drytol
-                xx = 1;
-            end
-            if n > 2
-                yy = 1;
-            end
-
-
-            Z_p            = Z_m(p, 1);
-            Hup            = Hum(p, 1);
-            Zbp            =-H_m(p, 1)+Z_p;
-            g.x  (p, :, 1) = Z_p;
-            g.x  (p, :, 2) = Hup;
-            g.zb (p, :)    = Zbp;
-            g.fix(p, 1)    = true;
-        end
-        %------------------------------------------------------------------
+        %         %------------------------------------------------------------------
+%         if H_r(l, 1) < drytol && H_l(r, 1) < drytol
+% 
+%             Z_1            = Z_m(l, 1);
+%             Hu1            = Hum(l, 1);
+%             Zb1            =-H_m(l, 1)+Z_1;
+%             Z_2            = Z_m(r, 1);
+%             Hu2            = Hum(r, 1);
+%             Zb2            =-H_m(r, 1)+Z_2;
+% 
+%             g.x  (l, :, 1) = Z_1;
+%             g.x  (l, :, 2) = Hu1;
+%             g.x  (r, :, 1) = Z_2;
+%             g.x  (r, :, 2) = Hu2;
+%             g.zb (l, :)    = Zb1;
+%             g.zb (r, :)    = Zb2;
+%             g.fix(l, 1)    = true;
+%             g.fix(r, 1)    = true;
+% 
+%             if Z_l(l, 1) <= Zbr(l, 1)+drytol
+%                 xx = 1;
+%             end
+%             if Z_l(r, 1) <= Zbr(r, 1)+drytol
+%                 xx = 1;
+%             end
+%             xx = 1;
+%         else
+%             if H_r(l, 1) < drytol
+%                 p = l;
+%             else
+%                 p = r;
+%             end
+% 
+%             if Z_l(p, 1) <= Zbr(p, 1)+drytol
+%                 xx = 1;
+%             end
+%             if n > 2
+%                 yy = 1;
+%             end
+%  
+%             Z_p            = Z_m(p, 1);
+%             Hup            = Hum(p, 1);
+%             Zbp            =-H_m(p, 1)+Z_p;
+%             g.x  (p, :, 1) = Z_p;
+%             g.x  (p, :, 2) = Hup;
+%             g.zb (p, :)    = Zbp;
+%             g.fix(p, 1)    = true;
+%         end
+%         %------------------------------------------------------------------
     end
     %----------------------------------------------------------------------
 end
