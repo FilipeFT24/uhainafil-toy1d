@@ -154,6 +154,34 @@ for i = 1:n
     else
         %------------------------------------------------------------------
         if H_r(l, 1) < drytol && H_l(r, 1) < drytol
+
+            Z_1            = Z_m(l, 1);
+            Hu1            = Hum(l, 1);
+            Zb1            =-H_m(l, 1)+Z_1;
+            Z_2            = Z_m(r, 1);
+            Hu2            = Hum(r, 1);
+            Zb2            =-H_m(r, 1)+Z_2;
+
+
+
+            g.x  (l, :, 1) = Z_1;
+            g.x  (l, :, 2) = Hu1;
+            g.x  (r, :, 1) = Z_2;
+            g.x  (r, :, 2) = Hu2;
+            g.zb (l, :)    = Zb1;
+            g.zb (r, :)    = Zb2;
+            g.fix(l, 1)    = true;
+            g.fix(r, 1)    = true;
+
+            if Z_l(l, 1) <= Zbr(l, 1)+drytol
+                xx = 1;
+            end
+            if Z_l(r, 1) <= Zbr(r, 1)+drytol
+                xx = 1;
+            end
+
+
+
             xx = 1;
         else
             if H_r(l, 1) < drytol
@@ -161,6 +189,15 @@ for i = 1:n
             else
                 p = r;
             end
+
+            if Z_l(p, 1) <= Zbr(p, 1)+drytol
+                xx = 1;
+            end
+            if n > 2
+                yy = 1;
+            end
+
+
             Z_p            = Z_m(p, 1);
             Hup            = Hum(p, 1);
             Zbp            =-H_m(p, 1)+Z_p;
