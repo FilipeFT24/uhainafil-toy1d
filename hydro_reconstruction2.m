@@ -1,5 +1,5 @@
 function [F] = ...
-    hydro_reconstruction2(drytol, veltol, G, zi, ze, hui, hue, zbi, zbe, LAMBDA, n) %#ok<INUSL> 
+    hydro_reconstruction2(drytol, veltol, rtol, G, zi, ze, hui, hue, zbi, zbe, LAMBDA, n) %#ok<INUSL> 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % HYDRO RECONSTRUCTION:
 hi        = zi-zbi;
@@ -35,6 +35,10 @@ hutildee (he < drytol | he < veltol) = 0;
 huutildei(hi < drytol | hi < veltol) = 0;
 huutildee(he < drytol | he < veltol) = 0;
 %}
+hutildei (hi < rtol) = 0;
+hutildee (he < rtol) = 0;
+huutildei(hi < rtol) = 0;
+huutildee(he < rtol) = 0;
 %--------------------------------------------------------------------------
 gzi       = G.*z_tildei.*(1./2.*z_tildei-zbtilde);
 gze       = G.*z_tildee.*(1./2.*z_tildee-zbtilde);
