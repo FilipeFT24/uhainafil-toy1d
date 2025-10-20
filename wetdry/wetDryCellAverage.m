@@ -27,6 +27,9 @@ Zbmax  = max(Zbl(2:K, 1), Zbr(1:K-1, 1));
 H_l    = Z_l-[Zbl(1, 1); Zbmax];
 H_r    = Z_r-[Zbmax; Zbr(K, 1)];%max(Zbl, Zbr);%
 
+% H_l = Z_l-Zbl;
+% H_r = Z_r-Zbr;
+
 
 
 % 
@@ -82,6 +85,12 @@ n = 0;
 if g.p > 0
     log2l           = H_l(1:K, 1) <= drytol;
     log2r           = H_r(1:K, 1) <= drytol;
+
+    if g.nit == 0
+        log2r(40, 1) = 1;
+        log2l(41, 1) = 1;
+    end
+
     log2            = false(Kf, 1);
     log2(1:Kf-1, 1) = log2(1:Kf-1, 1) | log2l;
     log2(2:Kf  , 1) = log2(2:Kf  , 1) | log2r;
@@ -90,6 +99,9 @@ if g.p > 0
 end
 
 H_aux = [H_l, H_r]-drytol;
+
+gg = H_l(2:K)-H_r(1:K-1);
+
 
 if g.nit == 7409
     xx = 1;

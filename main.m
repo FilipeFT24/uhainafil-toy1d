@@ -76,10 +76,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p         = 2;
 test      = 14;
-data      = setdata(test, 1);
+data      = setdata(test, 0);
 g         = MSH(data.xv, p);
-drytol    = 1e-04;
-velcutoff = 1e-04;
+drytol    = 1e-03;
+velcutoff = 1e-03;
 vellim    = 1;
 itype     = 1;     % 0: uhaina: interpolation
                    % 1: my:     projection

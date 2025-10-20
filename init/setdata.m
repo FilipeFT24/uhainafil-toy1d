@@ -445,8 +445,8 @@ switch test
         %------------------------------------------------------------------
         switch option
             case 0 % EXP (DOESN'T WORK NUMERICALLY I.E., DOESN'T KEEP REST STATE)
-                zb1 =-0.215.*exp(-50.*(x+1).^2); % WET
-                zb2 = 0.215.*exp(-25.*(x-1).^2); % DRY
+                zb1 =-0.235.*exp(-50.*(x+1).^2); % WET
+                zb2 = 0.235.*exp(-25.*(x-1).^2); % DRY
             case 1 % LINEAR
                 zb1 =-0.50.*((x+1.50).*heaviside(x+1.50).*heaviside(-(1.00+x))+(-0.50-x).*heaviside(-0.50-x).*heaviside(x+1.00));
                 zb2 = 0.50.*((x-0.50).*heaviside(x-0.50).*heaviside( (1.00-x))+( 1.50-x).*heaviside( 1.50-x).*heaviside(x-1.00));
@@ -458,6 +458,17 @@ switch test
         end
         zb       = zb1+zb2;
         z        = h0+(zb-h0).*(0.5.*(sign(zb2.*heaviside(x)-h0)+1));
+
+%        ZZ = mymatlabFunction(vpa(z, 32), [x, t]); % sol1
+
+%         figure;
+%         hold on;
+%         plot(ZZ(xv, 0), '-ok');
+% 
+%         %xlim([0.00, 2.00]);
+%         %ylim([0.18, 0.22]);
+
+
         h        = z-zb;
         u        = 0;
         hu       = h.*u;

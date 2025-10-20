@@ -7,6 +7,11 @@ he        = ze-zbe;
 zbmax     = max(zbi, zbe);
 delta     = max(0, zbmax-zi);
 zbtilde   = zbmax-delta;
+
+
+a1 = zi-zbmax;
+a2 = ze-zbmax;
+
 h_tildei  = max(0, zi-zbmax); % =NEW hi
 h_tildee  = max(0, ze-zbmax); % =NEW he
 z_tildei  = h_tildei+zbtilde; % =NEW zi = free-surface elev.

@@ -76,6 +76,17 @@ X           = zeros(K, N, 2);
 X(:, :, 1)  = inittype(itype, @(x) g.data.Z (x, t), xydc, xyqc, fi_aux);
 X(:, :, 2)  = inittype(itype, @(x) g.data.HU(x, t), xydc, xyqc, fi_aux);
 Zbdof       = inittype(itype, @(x) g.data.Zb(x, t), xydc, xyqc, fi_aux);
+
+% figure;
+% hold on;
+% plot(xydc(39, [1, 3, 2]), reshape(X(39, [1, 3, 2], 1)', [], 1), '-ob');
+% plot(xydc(40, [1, 3, 2]), reshape(X(40, [1, 3, 2], 1)', [], 1), '-or');
+% plot(xydc(41, [1, 3, 2]), reshape(X(41, [1, 3, 2], 1)', [], 1), '-ok');
+% 
+% plot(xydc(39, [1, 3, 2]), reshape(Zbdof(39, [1, 3, 2], 1)', [], 1), '-*b');
+% plot(xydc(40, [1, 3, 2]), reshape(Zbdof(40, [1, 3, 2], 1)', [], 1), '-*r');
+% plot(xydc(41, [1, 3, 2]), reshape(Zbdof(41, [1, 3, 2], 1)', [], 1), '-*k');
+
 g.x         = X;
 g.zbinit    = Zbdof;
 g.zb        = Zbdof;
