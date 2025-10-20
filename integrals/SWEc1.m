@@ -55,12 +55,17 @@ switch vellim
     otherwise
         return
 end
-%{
-Huquad (H_quad < drytol | H_quad < veltol) = 0;
-W11quad(H_quad < drytol | H_quad < veltol) = 0;
-%}
+%
+%Huquad (H_quad < drytol | H_quad < veltol) = 0;
+%W11quad(H_quad < drytol | H_quad < veltol) = 0;
+%
 Huquad (H_quad < rtol) = 0;
 W11quad(H_quad < rtol) = 0;
+
+if max(abs(Huquad), [], 'all') > 1
+    xx = 1;
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DK            = g.DKc;
 fk_           = g.fkc;
@@ -70,11 +75,6 @@ W11           = permute(W11quad, [2, 3, 1]);
 F_            = pagemtimes(DK, [HU, W11+GZ2]);
 F_            = permute(F_, [3, 1, 2]);
 F_(:, :, 2)   = F_(:, :, 2)-GZ1quad*fk_'+S;
-
-if any(H_dof < 0, 'all')
-    xx = 1;
-end
-
 %--------------------------------------------------------------------------
 % P0 fix:
 fix           = g.fix;

@@ -18,6 +18,7 @@ lambda = zeros(Kf, 1);
 Z_dof  = g.x(:, :, 1);
 Hudof  = g.x(:, :, 2);
 Zbdof  = g.zb;
+H_dof  = Z_dof-Zbdof;
 %--------------------------------------------------------------------------
 Hul    = Hudof*bfl';
 Hur    = Hudof*bfr';

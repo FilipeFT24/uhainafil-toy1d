@@ -16,10 +16,10 @@ Hudof = g.x(:, :, 2);
 Zbdof = g.zb;
 H_dof = Z_dof-Zbdof;
 
-
-if g.nit == 150169
+if any(H_dof < 0, 'all')
     xx = 1;
 end
+
 
 xx = 1;
 

@@ -18,23 +18,22 @@ H_dof  = Z_dof-Zbdof;
 H_m    = meanval(g, H_dof);
 Hum    = meanval(g, Hudof);
 Z_m    = meanval(g, Z_dof);
-Zbm    = meanval(g, Zbdof);
-H_l    = H_dof*fl';
-H_r    = H_dof*fr';
 Z_l    = Z_dof*fl';
 Z_r    = Z_dof*fr';
 Zbl    = Zbdof*fl';
 Zbr    = Zbdof*fr';
+%--------------------------------------------------------------------------
+Zbmax  = max(Zbl(2:K, 1), Zbr(1:K-1, 1));
+H_l    = Z_l-[Zbl(1, 1); Zbmax];
+H_r    = Z_r-[Zbmax; Zbr(K, 1)];%max(Zbl, Zbr);%
 
-H_aux = H_dof-drytol;
 
-if any(H_dof < drytol, 'all')
-    xx = 1;
-end
 
-if g.nit == 95429
-    xx = 1;
-end
+% 
+% 
+% [h_tildeil, h_tildeel] = hydro_reconstruction3(zi, ze, zbi, zbe);
+% [h_tildeil, h_tildeel] = hydro_reconstruction3(zi, ze, zbi, zbe);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{
@@ -51,7 +50,7 @@ for i = 1:m
     Zbo            = Zbm(o, 1);
     %----------------------------------------------------------------------
     % VARS MODIFIED:
-    H_o            = drytol-rtol;
+    H_o            = drytol;
     Z_o            = H_o+Zbo;
     Huo            = Hum(o, 1).*(H_m(o, 1)./H_o);
     %----------------------------------------------------------------------
@@ -79,46 +78,51 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Loop through "problematic" faces:
 %--------------------------------------------------------------------------
-log2            = false(Kf, 1);
-log2(1:Kf-1, 1) = log2(1:Kf-1, 1) | H_l(1:K, 1) <= drytol;
-log2(2:Kf  , 1) = log2(2:Kf  , 1) | H_r(1:K, 1) <= drytol;
-f               = find(log2);
-n               = size(f, 1);
+n = 0;
+if g.p > 0
+    log2l           = H_l(1:K, 1) <= drytol;
+    log2r           = H_r(1:K, 1) <= drytol;
+    log2            = false(Kf, 1);
+    log2(1:Kf-1, 1) = log2(1:Kf-1, 1) | log2l;
+    log2(2:Kf  , 1) = log2(2:Kf  , 1) | log2r;
+    f               = find(log2);
+    n               = size(f, 1);
+end
+
+H_aux = [H_l, H_r]-drytol;
+
+if g.nit == 7409
+    xx = 1;
+end
+
 %--------------------------------------------------------------------------
 for i = 1:n
     %----------------------------------------------------------------------
-    r    = f(i, 1);
-    l    = r-1;
-    ldry = H_l(l, 1) <= drytol & H_r(l, 1) <= drytol;
-    rdry = H_l(r, 1) <= drytol & H_r(r, 1) <= drytol;
-    if ldry && rdry
+    r = f(i, 1);
+    l = r-1;
+    if log2r(l, 1) && log2l(r, 1) && H_l(l, 1) <= drytol && H_r(r, 1) <= drytol
         continue
     end
     %----------------------------------------------------------------------
-    %----------------------------------------------------------------------
-    if ldry && H_r(r, 1) > drytol
+    if log2r(l, 1) && H_r(r, 1) > drytol
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % DRY/WET:
         %------------------------------------------------------------------
-        % DRY/WET
-        %------------------------------------------------------------------
+        p = l;
         d = l-1;
-        w = r-1;
-        x = r+1;
- 
-%         figure;
-%         hold on;
-%         plot(reshape(Z_dof(1:71, :)'+drytol, [], 1), '-ob');
-%         plot(reshape(Zbdof(1:71, :)'       , [], 1), '-*k');
-
-
-        %precisas é de corrigir a célula a que pertence a face que tem
-        %problemas!
-
-        if Z_r(w, 1) > Zbl(w, 1)+drytol
-            Z_w = Z_m(w, 1);
+        x = r;
+        if log2l(r, 1) % modify wet cell instead
+            p = p+1;
+            d = d+1;
+            x = x+1;
+        end
+        %------------------------------------------------------------------
+        if Z_r(p, 1) > Zbl(p, 1)+drytol
+            Z_p = Z_m(p, 1);
         else
-            Z_w = Z_l(x, 1);
-            if Z_w < Z_r(d, 1)
-                Z_d            = Z_w;
+            Z_p = Z_l(x, 1);
+            if Zbr(d, 1) < Z_p
+                Z_d            = Z_p;
                 Hud            = Hum(d, 1);
                 Zbd            =-H_m(d, 1)+Z_d;
                 g.x  (d, :, 1) = Z_d;
@@ -127,26 +131,33 @@ for i = 1:n
                 g.fix(d, 1)    = true;
             end
         end
-        Huw            = Hum(w, 1);
-        Zbw            =-H_m(w, 1)+Z_w;
-        g.x  (w, :, 1) = Z_w;
-        g.x  (w, :, 2) = Huw;
-        g.zb (w, :)    = Zbw;
-        g.fix(w, 1)    = true;
+        Hup            = Hum(p, 1);
+        Zbp            =-H_m(p, 1)+Z_p;
+        g.x  (p, :, 1) = Z_p;
+        g.x  (p, :, 2) = Hup;
+        g.zb (p, :)    = Zbp;
+        g.fix(p, 1)    = true;
+    end
+    %----------------------------------------------------------------------
+    if log2l(r, 1) && H_l(l, 1) > drytol
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % WET/DRY:
         %------------------------------------------------------------------
-    elseif rdry && H_l(l, 1) > drytol
+        p = r;
+        d = r+1;
+        x = l;
+        if log2r(l, 1) % modify wet cell instead
+            p = p-1;
+            d = d-1;
+            x = x-1;
+        end
         %------------------------------------------------------------------
-        % WET/DRY
-        %------------------------------------------------------------------
-        d = r;
-        w = l;
-        x = l-1;
-        if Z_l(w, 1) > Zbr(w, 1)+drytol
-            Z_w = Z_m(w, 1);
+        if Z_l(p, 1) > Zbr(p, 1)+drytol
+            Z_p = Z_m(p, 1);
         else
-            Z_w = Z_r(x, 1);
-            if Z_w < Z_l(d, 1)
-                Z_d            = Z_w;
+            Z_p = Z_r(x, 1);
+            if Zbl(d, 1) < Z_p
+                Z_d            = Z_p;
                 Hud            = Hum(d, 1);
                 Zbd            =-H_m(d, 1)+Z_d;
                 g.x  (d, :, 1) = Z_d;
@@ -155,94 +166,49 @@ for i = 1:n
                 g.fix(d, 1)    = true;
             end
         end
-        Huw            = Hum(w, 1);
-        Zbw            =-H_m(w, 1)+Z_w;
-        g.x  (w, :, 1) = Z_w;
-        g.x  (w, :, 2) = Huw;
-        g.zb (w, :)    = Zbw;
-        g.fix(w, 1)    = true;
-        %------------------------------------------------------------------
-    else
-
-        %         %------------------------------------------------------------------
-%         if H_r(l, 1) < drytol && H_l(r, 1) < drytol
-% 
-%             Z_1            = Z_m(l, 1);
-%             Hu1            = Hum(l, 1);
-%             Zb1            =-H_m(l, 1)+Z_1;
-%             Z_2            = Z_m(r, 1);
-%             Hu2            = Hum(r, 1);
-%             Zb2            =-H_m(r, 1)+Z_2;
-% 
-%             g.x  (l, :, 1) = Z_1;
-%             g.x  (l, :, 2) = Hu1;
-%             g.x  (r, :, 1) = Z_2;
-%             g.x  (r, :, 2) = Hu2;
-%             g.zb (l, :)    = Zb1;
-%             g.zb (r, :)    = Zb2;
-%             g.fix(l, 1)    = true;
-%             g.fix(r, 1)    = true;
-% 
-%             if Z_l(l, 1) <= Zbr(l, 1)+drytol
-%                 xx = 1;
-%             end
-%             if Z_l(r, 1) <= Zbr(r, 1)+drytol
-%                 xx = 1;
-%             end
-%             xx = 1;
-%         else
-%             if H_r(l, 1) < drytol
-%                 p = l;
-%             else
-%                 p = r;
-%             end
-% 
-%             if Z_l(p, 1) <= Zbr(p, 1)+drytol
-%                 xx = 1;
-%             end
-%             if n > 2
-%                 yy = 1;
-%             end
-%  
-%             Z_p            = Z_m(p, 1);
-%             Hup            = Hum(p, 1);
-%             Zbp            =-H_m(p, 1)+Z_p;
-%             g.x  (p, :, 1) = Z_p;
-%             g.x  (p, :, 2) = Hup;
-%             g.zb (p, :)    = Zbp;
-%             g.fix(p, 1)    = true;
-%         end
-%         %------------------------------------------------------------------
+        Hup            = Hum(p, 1);
+        Zbp            =-H_m(p, 1)+Z_p;
+        g.x  (p, :, 1) = Z_p;
+        g.x  (p, :, 2) = Hup;
+        g.zb (p, :)    = Zbp;
+        g.fix(p, 1)    = true;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
     %----------------------------------------------------------------------
 end
 
-Z_dof = g.x(:, :, 1);
-Zbdof = g.zb;
-H_dof = Z_dof-Zbdof;
 
-if any(H_dof < drytol, 'all')
-    xx = 1;
-end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % POSITIVITY-PRESERVING LIMITER: NEEDS TO BE FIXED
 %--------------------------------------------------------------------------
-%{
-log_w            =~g.fix & H_m > tol;
-H_dofw           = H_dof(log_w, :);
-Hudofw           = Hudof(log_w, :);
-Zbdofw           = Zbdof(log_w, :);
-H_mw             = H_m  (log_w, 1);
-Humw             = Hum  (log_w, 1);
-%--------------------------------------------------------------------------
-H_quad           = H_dofw*fc';
-min_H            = min(H_quad, [], 2);
-theta            = min(1, (H_mw-drytol)./(H_mw-min_H)); % uhaina uses 0 instead of drytol
-theta            = max(0, theta);
-%--------------------------------------------------------------------------
-g.x(log_w, :, 1) = H_mw+theta.*(H_dofw-H_mw)+Zbdofw;
-g.x(log_w, :, 2) = Humw+theta.*(Hudofw-Humw);
-%}
+% Z_dof            = g.x(:, :, 1);
+% Zbdof            = g.zb;
+% H_dof            = Z_dof-Zbdof;
+% log_w            = true (K, 1);
+% H_dofw           = H_dof(log_w, :);
+% Hudofw           = Hudof(log_w, :);
+% Zbdofw           = Zbdof(log_w, :);
+% H_mw             = H_m  (log_w, 1);
+% Humw             = Hum  (log_w, 1);
+% %--------------------------------------------------------------------------
+% H_quad           = H_dofw*fc';
+% min_H            = min(H_quad, [], 2);
+% theta            = min(1, (H_mw-drytol)./(H_mw-min_H)); % uhaina uses 0 instead of drytol
+% theta            = max(0, theta);
+% %--------------------------------------------------------------------------
+% g.x(log_w, :, 1) = H_mw+theta.*(H_dofw-H_mw)+Zbdofw;
+% g.x(log_w, :, 2) = Humw+theta.*(Hudofw-Humw);
+
+
+% Z_dof = g.x(:, :, 1);
+% Hudof = g.x(:, :, 2);
+% Zbdof = g.zb;
+% H_dof = Z_dof-Zbdof;
+% 
+% if any(H_dof < 0, 'all')
+%     xx = 1;
+% end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 

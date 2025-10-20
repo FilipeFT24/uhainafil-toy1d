@@ -436,7 +436,7 @@ switch test
         G        = 1;
         xm       =-3;
         xM       = 3;
-        K        = 100;
+        K        = 60;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -445,11 +445,11 @@ switch test
         %------------------------------------------------------------------
         switch option
             case 0 % EXP (DOESN'T WORK NUMERICALLY I.E., DOESN'T KEEP REST STATE)
-                zb1 =-0.5.*exp(-50.*(x+1).^2); % WET
-                zb2 = 0.5.*exp(-25.*(x-1).^2); % DRY
+                zb1 =-0.215.*exp(-50.*(x+1).^2); % WET
+                zb2 = 0.215.*exp(-25.*(x-1).^2); % DRY
             case 1 % LINEAR
-                zb1 =-0.5.*((x+1.5).*heaviside(x+1.5).*heaviside(-(1+x))+(-0.5-x).*heaviside(-0.5-x).*heaviside(x+1));
-                zb2 = 0.5.*((x-0.5).*heaviside(x-0.5).*heaviside( (1-x))+( 1.5-x).*heaviside( 1.5-x).*heaviside(x-1));
+                zb1 =-0.50.*((x+1.50).*heaviside(x+1.50).*heaviside(-(1.00+x))+(-0.50-x).*heaviside(-0.50-x).*heaviside(x+1.00));
+                zb2 = 0.50.*((x-0.50).*heaviside(x-0.50).*heaviside( (1.00-x))+( 1.50-x).*heaviside( 1.50-x).*heaviside(x-1.00));
             case 2 % QUADRATIC
                 zb1 =-0.5.*(1-((x+1)./0.5).^2).*heaviside(x+1.5).*heaviside(-0.5-x);
                 zb2 = 0.5.*(1-((x-1)./0.5).^2).*heaviside(x-0.5).*heaviside( 1.5-x);
@@ -567,7 +567,7 @@ switch test
         G        = 1;
         xm       =-0.5;
         xM       = 0.5;
-        K        = 200;
+        K        = 100;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K

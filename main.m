@@ -76,14 +76,14 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p         = 2;
 test      = 14;
-data      = setdata(test, 0);
+data      = setdata(test, 1);
 g         = MSH(data.xv, p);
-drytol    = 1e-02;
-velcutoff = 1e-02;
+drytol    = 1e-04;
+velcutoff = 1e-04;
 vellim    = 1;
 itype     = 1;     % 0: uhaina: interpolation
                    % 1: my:     projection
-CFL       = 0.05;  % CFL./(2.*p+1);
+CFL       = 0.01;  % CFL./(2.*p+1);
 penParam  = 1000;
 run       = 1;
 %--------------------------------------------------------------------------
