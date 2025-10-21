@@ -21,10 +21,9 @@ for j = 1:ns
         end
     end
     %----------------------------------------------------------------------
-    x    = g.x;
-    x    = g.omega(j, 1).*x0+g.omega(j, 2).*(x+dt.*g.res);
-    g.x  = x;
-    g.zb = g.zbinit;
+    x   = g.x;
+    x   = g.omega(j, 1).*x0+g.omega(j, 2).*(x+dt.*g.res);
+    g.x = x;
     if g.data.wetdry
         g = limN(g);
     end
