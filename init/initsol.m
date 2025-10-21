@@ -76,6 +76,12 @@ X           = zeros(K, N, 2);
 X(:, :, 1)  = inittype(itype, @(x) g.data.Z (x, t), xydc, xyqc, fi_aux);
 X(:, :, 2)  = inittype(itype, @(x) g.data.HU(x, t), xydc, xyqc, fi_aux);
 Zbdof       = inittype(itype, @(x) g.data.Zb(x, t), xydc, xyqc, fi_aux);
+
+% X(1:39, :, 1) = 0.229;
+% X(40, 1, 1) = 0.229;
+% X(40, 2, 1) = 0.215;
+% % % Zbdof(40, 2) = 0.238;
+
 g.x         = X;
 g.zbinit    = Zbdof;
 g.zb        = Zbdof;
@@ -83,6 +89,17 @@ g.zb        = Zbdof;
 g.xydc = xydc;
 
 
+% l = 40;
+% r = 41;
+% Z_dof = X(:, :, 1);
+% 
+% f1 = figure;
+% hold on;
+% for j = l-1:r+1
+%     plot(xydc(j, :), Z_dof(j, :), '--ob');
+%     plot(xydc(j, :), Zbdof(j, :)+drytol,  ':*k');
+% end
+% close all;
 
 %--------------------------------------------------------------------------
 g.fix       = false(K, 1);

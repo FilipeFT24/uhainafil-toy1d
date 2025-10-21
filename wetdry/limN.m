@@ -27,9 +27,17 @@ Zbr    = Zbdof*fr';
 H_l    = Z_l-Zbl;
 H_r    = Z_r-Zbr;
 
-%Zbmax  = max(Zbl(2:K, 1), Zbr(1:K-1, 1));
+% Zbmax  = max(Zbl(2:K, 1), Zbr(1:K-1, 1));
 % H_l    = Z_l-[Zbl(1, 1); Zbmax];
 % H_r    = Z_r-[Zbmax; Zbr(K, 1)];%max(Zbl, Zbr);%
+% gg = H_l(2:K)-H_r(1:K-1);
+% xx = 1;
+%     if g.nit == 0
+%     log2l(41, 1) = true;
+%     log2r(40, 1) = true;
+%     end
+
+%% have to do an initial limiting for projection!
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -85,26 +93,26 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Loop through "problematic" faces:
 %--------------------------------------------------------------------------
-n = 0;
-if g.p > 0
-    %----------------------------------------------------------------------
-    dry             = H_l(1:K, 1) < drytol & H_r(1:K, 1) < drytol;
-    log2l           = H_l(1:K, 1) < drytol;
-    log2r           = H_r(1:K, 1) < drytol;
-    log2            = false(Kf, 1);
-    log2(1:Kf-1, 1) = log2(1:Kf-1, 1) | log2l;
-    log2(2:Kf  , 1) = log2(2:Kf  , 1) | log2r;
-    for i = 2:Kf-1
-        if dry(i-1, 1) && dry(i, 1)
-            log2(i, 1) = false;
-        end
+dry             = H_l(1:K, 1) < drytol & H_r(1:K, 1) < drytol;
+log2l           = H_l(1:K, 1) < drytol;
+log2r           = H_r(1:K, 1) < drytol;
+log2            = false(Kf, 1);
+log2(1:Kf-1, 1) = log2(1:Kf-1, 1) | log2l;
+log2(2:Kf  , 1) = log2(2:Kf  , 1) | log2r;
+for i = 2:Kf-1
+    if dry(i-1, 1) && dry(i, 1)
+        log2(i, 1) = false;
     end
-    log2( 1, 1)     = false;
-    log2(Kf, 1)     = false;
-    %----------------------------------------------------------------------
-    f               = find(log2);
-    n               = size(f, 1);
-    %----------------------------------------------------------------------
+end
+log2( 1, 1)     = false;
+log2(Kf, 1)     = false;
+%--------------------------------------------------------------------------
+f               = find(log2);
+n               = size(f, 1);
+%----------------------------------------------------------------------
+
+if g.nit > 2620
+    xx = 1;
 end
 
 H_x = [H_l, H_r];
@@ -121,7 +129,7 @@ switch g.p
     otherwise
         return
 end
-plot_ = 1;
+plot_ = 0;
 
 %--------------------------------------------------------------------------
 for i = 1:n
@@ -130,16 +138,15 @@ for i = 1:n
     l = r-1;
     L = l-1;
     R = r+1;
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %----------------------------------------------------------------------
     if log2l(r, 1)
-        if ~log2r(l, 1) || (log2r(l, 1) && Zbr(l, 1) > Z_r(L, 1))
-            %--------------------------------------------------------------
+        if ~log2r(l, 1) || (log2r(l, 1) && Zbr(l, 1) > Z_r(L, 1) && Zbl(r, 1) > Z_l(R, 1))
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % WET/DRY
-            % DRY/DRY w/ Zbr(l, 1) > Z_r(L, 1) => negative water depths
+            % DRY/DRY w/ Zbr(l, 1) > Z_r(L, 1) and Zbl(r, 1) > Z_l(R, 1) => avoid negative water depths
             %--------------------------------------------------------------
-%             if Z_m(l, 1) > Z_m(r, 1)
-%                 Z_1 = Z_m(l, 1);
-%             else
+            %if Z_m(l, 1) > Z_m(r, 1)
+
                 Z_1 = Z_r(L, 1);
                 if Z_l(r, 1) < Z_1
                     Hu2            = Hum(r, 1);
@@ -149,82 +156,106 @@ for i = 1:n
                     g.zb (r, :)    = Zb2;
                     g.fix(r, 1)    = true;
                 end
-%             end
+            %end
             Hu1            = Hum(l, 1);
             Zb1            =-H_m(l, 1)+Z_1;
             g.x  (l, :, 1) = Z_1;
             g.x  (l, :, 2) = Hu1;
             g.zb (l, :)    = Zb1;
             g.fix(l, 1)    = true;
-            %--------------------------------------------------------------
 
-            if plot_
-                figure;
-                subplot(1, 2, 1);
-                hold on;
-                for j = l-1:r+1
-                    plot(g.xydc(j, aux), Z_dof(j, aux), '--ob');
-                    plot(g.xydc(j, aux), Zbdof(j, aux)+drytol,  ':*k');
-                end
-                subplot(1, 2, 2);
-                hold on;
-                for j = l-1:r+1
-                    plot(g.xydc(j, aux), g.x (j, aux, 1), '--ob');
-                    plot(g.xydc(j, aux), g.zb(j, aux)+drytol, ':*k');
-                end
-                close all;
+
+            f2 = figure;
+            subplot(1, 2, 1);
+            hold on;
+            for j = l-1:r+1
+                plot(g.xydc(j, aux), Z_dof(j, aux), '--ob');
+                plot(g.xydc(j, aux), Zbdof(j, aux)+drytol,  ':*k');
             end
-        end
-    end
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if log2r(l, 1)
-        if ~log2l(r, 1) || (log2l(r, 1) && Zbl(r, 1) > Z_l(R, 1))
+            subplot(1, 2, 2);
+            hold on;
+            for j = l-1:r+1
+                plot(g.xydc(j, aux), g.x (j, aux, 1), '--ob');
+                plot(g.xydc(j, aux), g.zb(j, aux)+drytol, ':*k');
+            end
+            close(f2);
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        else
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % DRY/DRY w/ flooding of neighbouring cell
             %--------------------------------------------------------------
-            % DRY/WET
-            % DRY/DRY w/ Zbl(r, 1) > Z_l(R, 1) => negative water depths
-            %--------------------------------------------------------------
-%             if Z_m(r, 1) > Z_m(l, 1)
-%                 Z_1 = Z_m(r, 1);
-%             else
-                Z_1 = Z_l(R, 1);
-                if Z_r(l, 1) < Z_1
-                    Hu2            = Hum(l, 1);
-                    Zb2            =-H_m(l, 1)+Z_1;
-                    g.x  (l, :, 1) = Z_1;
-                    g.x  (l, :, 2) = Hu2;
-                    g.zb (l, :)    = Zb2;
-                    g.fix(l, 1)    = true;
-                end
-%             end
-            Hu1            = Hum(r, 1);
-            Zb1            =-H_m(r, 1)+Z_1;
-            g.x  (r, :, 1) = Z_1;
-            g.x  (r, :, 2) = Hu1;
-            g.zb (r, :)    = Zb1;
+            
+
+
+            Z_1            = Z_m(l, 1);
+            Hu1            = Hum(l, 1);
+            Zb1            =-H_m(l, 1)+Z_1;
+            g.x  (l, :, 1) = Z_1;
+            g.x  (l, :, 2) = Hu1;
+            g.zb (l, :)    = Zb1;
+            g.fix(l, 1)    = true;
+            Z_2            = Z_m(r, 1);
+            Hu2            = Hum(r, 1);
+            Zb2            =-H_m(r, 1)+Z_2;
+            g.x  (r, :, 1) = Z_2;
+            g.x  (r, :, 2) = Hu2;
+            g.zb (r, :)    = Zb2;
             g.fix(r, 1)    = true;
-            %--------------------------------------------------------------
 
-            if plot_
-                figure;
-                subplot(1, 2, 1);
-                hold on;
-                for j = l-1:r+1
-                    plot(g.xydc(j, aux), Z_dof(j, aux), '--ob');
-                    plot(g.xydc(j, aux), Zbdof(j, aux)+drytol,  ':*k');
-                end
-                subplot(1, 2, 2);
-                hold on;
-                for j = l-1:r+1
-                    plot(g.xydc(j, aux), g.x (j, aux, 1), '--ob');
-                    plot(g.xydc(j, aux), g.zb(j, aux)+drytol, ':*k');
-                end
-                close all;
+
+%             if plot_
+%                 f2 = figure;
+%                 subplot(1, 2, 1);
+%                 hold on;
+%                 for j = l-1:r+1
+%                     plot(g.xydc(j, aux), Z_dof(j, aux), '--ob');
+%                     plot(g.xydc(j, aux), Zbdof(j, aux)+drytol,  ':*k');
+%                 end
+%                 subplot(1, 2, 2);
+%                 hold on;
+%                 for j = l-1:r+1
+%                     plot(g.xydc(j, aux), g.x (j, aux, 1), '--ob');
+%                     plot(g.xydc(j, aux), g.zb(j, aux)+drytol, ':*k');
+%                 end
+%                 close(f2);
+%             end
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        end
+    else
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % DRY/WET
+        %------------------------------------------------------------------
+        if Z_m(r, 1) > Z_m(l, 1)
+            Z_1 = Z_m(r, 1);
+        else
+            Z_1 = Z_l(R, 1);
+            if Z_r(l, 1) < Z_1
+                Hu2            = Hum(l, 1);
+                Zb2            =-H_m(l, 1)+Z_1;
+                g.x  (l, :, 1) = Z_1;
+                g.x  (l, :, 2) = Hu2;
+                g.zb (l, :)    = Zb2;
+                g.fix(l, 1)    = true;
             end
         end
+        Hu1            = Hum(r, 1);
+        Zb1            =-H_m(r, 1)+Z_1;
+        g.x  (r, :, 1) = Z_1;
+        g.x  (r, :, 2) = Hu1;
+        g.zb (r, :)    = Zb1;
+        g.fix(r, 1)    = true;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 end
 
 H_dofnew = g.x(:, :, 1)-g.zbinit;
+
+
+if H_dofnew(54, 1) < 0
+    xx = 1;
+end
 
 xx = 1;
 
