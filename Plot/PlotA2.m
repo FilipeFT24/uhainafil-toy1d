@@ -405,7 +405,7 @@ nf  = g.data.nf+1;
 ndt = g.data.tend./g.data.nf;
 obj = Output(Ph, fid, ndt, nf, K, N, 0, xc, nan, nan, nan);
 %--------------------------------------------------------------------------
-obj.Write1(0, g.x, g.WD);
-obj.Write2(0, g.x, nan, g.WD);
+obj.Write1(0, g.x, 0);
+obj.Write2(0, g.x, nan, 0);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
