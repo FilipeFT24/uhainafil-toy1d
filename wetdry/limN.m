@@ -40,9 +40,9 @@ H_r    = Z_r-Zbr;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Loop through "problematic" cells:
-%--------------------------------------------------------------------------
-% log1 = H_l(:, 1) <= drytol & H_r(:, 1) <= drytol & H_m(:, 1) <= drytol;
+% % Loop through "problematic" cells:
+% %--------------------------------------------------------------------------
+% log1 = H_l(:, 1) <= drytol & H_r(:, 1) <= drytol;
 % c    = find(log1);
 % m    = size(c, 1);
 % %--------------------------------------------------------------------------
@@ -53,9 +53,9 @@ H_r    = Z_r-Zbr;
 %     Zbo            = Zbm(o, 1);
 %     %----------------------------------------------------------------------
 %     % VARS MODIFIED:
-%     H_o            = drytol;
+%     H_o            = 0;
 %     Z_o            = H_o+Zbo;
-%     Huo            = Hum(o, 1).*(H_m(o, 1)./H_o);
+%     Huo            = 0;
 %     %----------------------------------------------------------------------
 %     % SOLUTION:
 %     H_dof(o, :)    = H_o;
@@ -119,23 +119,24 @@ switch g.p
     otherwise
         return
 end
-plot_ = 1;
 
 %--------------------------------------------------------------------------
 for i = 1:n
     %----------------------------------------------------------------------
-    r = f(i, 1);
-    l = r-1;
-    L = l-1;
-    R = r+1;
+    r   = f(i, 1);
+    l   = r-1;
+    L   = l-1;
+    R   = r+1;
+    Z_L = Z_r(L, 1);
+    Z_R = Z_l(R, 1);
     %----------------------------------------------------------------------
     if log2r(l, 1)
         if log2l(r, 1)
             %--------------------------------------------------------------
             % DRY/DRY
             %--------------------------------------------------------------
-            Z_L            = Z_r(L, 1);
-            Z_R            = Z_l(R, 1);
+            H_L            = H_r(L, 1); %if H_L < rtol, Z_L = realmax; end
+            H_R            = H_l(R, 1); %if H_R < rtol, Z_R = realmax; end
             Z_M            = min(Z_L, Z_R);
             g.x  (l, :, 1) = Z_M;
             g.x  (r, :, 1) = Z_M;
@@ -167,63 +168,57 @@ for i = 1:n
             %--------------------------------------------------------------
             % DRY/WET
             %--------------------------------------------------------------
-            if 0
+            if Z_L < Z_R
+                Z_X = Z_L;
             else
-                Z_1 = Z_l(R, 1);
-                if Z_r(l, 1) < Z_1
-                    Hu2            = Hum(l, 1);
-                    Zb2            =-H_m(l, 1)+Z_1;
-                    g.x  (l, :, 1) = Z_1;
-                    g.x  (l, :, 2) = Hu2;
-                    g.zb (l, :)    = Zb2;
+                Z_X = Z_R;
+                if Z_r(l, 1) < Z_X
+                    g.x  (l, :, 1) = Z_X;
+                    g.x  (l, :, 2) = Hum(l, 1);
+                    g.zb (l, :)    =-H_m(l, 1)+Z_X;
                     g.fix(l, 1)    = true;
                 end
             end
-            Hu1            = Hum(r, 1);
-            Zb1            =-H_m(r, 1)+Z_1;
-            g.x  (r, :, 1) = Z_1;
-            g.x  (r, :, 2) = Hu1;
-            g.zb (r, :)    = Zb1;
+            g.x  (r, :, 1) = Z_X;
+            g.x  (r, :, 2) = Hum(r, 1);
+            g.zb (r, :)    =-H_m(r, 1)+Z_X;
             g.fix(r, 1)    = true;
             %--------------------------------------------------------------
 
-            f2 = figure;
-            subplot(1, 2, 1);
-            hold on;
-            for j = l-1:r+1
-                plot(g.xydc(j, aux), Z_dof(j, aux), '--ob');
-                plot(g.xydc(j, aux), Zbdof(j, aux)+drytol,  ':*k');
-            end
-            subplot(1, 2, 2);
-            hold on;
-            for j = l-1:r+1
-                plot(g.xydc(j, aux), g.x (j, aux, 1), '--ob');
-                plot(g.xydc(j, aux), g.zb(j, aux)+drytol, ':*k');
-            end
-            close(f2);
+%             f2 = figure;
+%             subplot(1, 2, 1);
+%             hold on;
+%             for j = l-1:r+1
+%                 plot(g.xydc(j, aux), Z_dof(j, aux), '--ob');
+%                 plot(g.xydc(j, aux), Zbdof(j, aux)+drytol,  ':*k');
+%             end
+%             subplot(1, 2, 2);
+%             hold on;
+%             for j = l-1:r+1
+%                 plot(g.xydc(j, aux), g.x (j, aux, 1), '--ob');
+%                 plot(g.xydc(j, aux), g.zb(j, aux)+drytol, ':*k');
+%             end
+%             close(f2);
 
         end
     else
         %------------------------------------------------------------------
         % WET/DRY
         %------------------------------------------------------------------
-        if 0
+        if Z_L > Z_R
+            Z_X = Z_R;
         else
-            Z_1 = Z_r(L, 1);
-            if Z_l(r, 1) < Z_1
-                Hu2            = Hum(r, 1);
-                Zb2            =-H_m(r, 1)+Z_1;
-                g.x  (r, :, 1) = Z_1;
-                g.x  (r, :, 2) = Hu2;
-                g.zb (r, :)    = Zb2;
+            Z_X = Z_L;
+            if Z_l(r, 1) < Z_X
+                g.x  (r, :, 1) = Z_X;
+                g.x  (r, :, 2) = Hum(r, 1);
+                g.zb (r, :)    =-H_m(r, 1)+Z_X;
                 g.fix(r, 1)    = true;
             end
         end
-        Hu1            = Hum(l, 1);
-        Zb1            =-H_m(l, 1)+Z_1;
-        g.x  (l, :, 1) = Z_1;
-        g.x  (l, :, 2) = Hu1;
-        g.zb (l, :)    = Zb1;
+        g.x  (l, :, 1) = Z_X;
+        g.x  (l, :, 2) = Hum(l, 1);
+        g.zb (l, :)    =-H_m(l, 1)+Z_X;
         g.fix(l, 1)    = true;
         %------------------------------------------------------------------
 
@@ -248,20 +243,20 @@ for i = 1:n
 end
 
 
-% H_dofnew = g.x(:, :, 1)-g.zbinit-drytol;
-% a2 = find(H_dofnew(:, 1) < 0, 1, 'last');
-% %%p0
-% % if H_dofnew(a2-1, 1) > 0
-% %     xx = 1;
-% % end
-% %%p1
-% if H_dofnew(a2-1, 2) > 0
+H_dofnew = g.x(:, :, 1)-g.zbinit-drytol;
+a2 = find(H_dofnew(:, 1) < 0, 1, 'last');
+%%p0
+% if H_dofnew(a2-1, 1) > 0
 %     xx = 1;
 % end
-% 
-% if any(H_dof < 0, 'all')
-%     xx = 1;
-% end
+%%p1
+if H_dofnew(a2-1, 2) > 0
+    xx = 1;
+end
+
+if any(H_dof < 0, 'all')
+    xx = 1;
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end

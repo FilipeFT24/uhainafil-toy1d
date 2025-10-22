@@ -427,16 +427,16 @@ switch test
         % 14) T14 - Lake at rest
         %------------------------------------------------------------------
         wetdry   = 1;
-        h0       = 0.225;
+        h0       = 0.2;
         nm       = 0;
-        option   = 0;
+        option   = 1;
         %------------------------------------------------------------------
         abslayer = 0;
         alpha    = 1;
         G        = 1;
         xm       =-3;
         xM       = 3;
-        K        = 60;
+        K        = 609;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -445,8 +445,8 @@ switch test
         %------------------------------------------------------------------
         switch option
             case 0 % EXP (DOESN'T WORK NUMERICALLY I.E., DOESN'T KEEP REST STATE)
-                zb1 =-0.22.*exp(-50.*(x+1).^2); % WET
-                zb2 = 0.22.*exp(-25.*(x-1).^2); % DRY
+                zb1 =-0.215.*exp(-50.*(x+1).^2); % WET
+                zb2 = 0.215.*exp(-25.*(x-1).^2); % DRY
             case 1 % LINEAR
                 zb1 =-0.50.*((x+1.50).*heaviside(x+1.50).*heaviside(-(1.00+x))+(-0.50-x).*heaviside(-0.50-x).*heaviside(x+1.00));
                 zb2 = 0.50.*((x-0.50).*heaviside(x-0.50).*heaviside( (1.00-x))+( 1.50-x).*heaviside( 1.50-x).*heaviside(x-1.00));
@@ -461,7 +461,7 @@ switch test
         h        = z-zb;
         u        = 0;
         hu       = h.*u;
-        tend     = 100;
+        tend     = 10e3;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 15
@@ -567,7 +567,7 @@ switch test
         G        = 1;
         xm       =-0.5;
         xM       = 0.5;
-        K        = 400;
+        K        = 300;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K

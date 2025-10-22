@@ -56,8 +56,8 @@ switch vellim
         return
 end
 %
-%Huquad (H_quad < drytol | H_quad < veltol) = 0;
-%W11quad(H_quad < drytol | H_quad < veltol) = 0;
+Huquad (H_quad < drytol | H_quad < veltol) = 0;
+W11quad(H_quad < drytol | H_quad < veltol) = 0;
 %
 Huquad (H_quad < rtol) = 0;
 W11quad(H_quad < rtol) = 0;
