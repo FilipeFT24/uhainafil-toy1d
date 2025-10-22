@@ -65,6 +65,9 @@ W11quad(H_quad < rtol) = 0;
 if max(abs(Huquad), [], 'all') > 1
     xx = 1;
 end
+if max(abs(W11quad), [], 'all') > 1
+    xx = 1;
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DK            = g.DKc;
