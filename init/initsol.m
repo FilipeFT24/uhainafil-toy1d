@@ -64,7 +64,6 @@ g.bfl       = bfl;
 g.bfr       = bfr;
 g.bfD       = bfD;
 g.Wbf       = Wbf;
-
 g.DKc       = D_perquadK;
 g.fkc       = F_perquadK;
 g.Fi_hyp    = Fi;
@@ -80,10 +79,8 @@ Zbdof       = inittype(itype, @(x) g.data.Zb(x, t), xydc, xyqc, fi_aux);
 g.x         = X;
 g.zbinit    = Zbdof;
 g.zb        = Zbdof;
-
-g.xydc = xydc;
-
-
+%
+g.xydc      = xydc;
 %--------------------------------------------------------------------------
 g.fix       = false(K, 1);
 if g.data.wetdry

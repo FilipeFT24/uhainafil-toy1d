@@ -436,7 +436,7 @@ switch test
         G        = 1;
         xm       =-3;
         xM       = 3;
-        K        = 609;
+        K        = 490;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -558,7 +558,7 @@ switch test
         % 16) T16 - Drying of a lake
         %------------------------------------------------------------------
         wetdry   = 1;
-        h0       = 0.45;
+        h0       = 0.40;
         nm       = 0;
         option   = 1;
         %------------------------------------------------------------------
@@ -567,7 +567,7 @@ switch test
         G        = 1;
         xm       =-0.5;
         xM       = 0.5;
-        K        = 300;
+        K        = 400;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -578,19 +578,8 @@ switch test
         b        = 0.10;
         k        = pi./b;
         zb       = a.*(cos(k.*x)+1).*heaviside(x+b).*heaviside(b-x);
-        switch option
-            case 1
-                z = h0;
-                %{
-                v = 0.4;
-                z = h0.*heaviside(-x)+(v+(zb-v).*heaviside(zb-v)).*heaviside(x);
-                %}
-            case 2
-                v = 0.1;
-                z = h0.*heaviside(-(x+0.25))+(v+(zb-v).*heaviside(zb-v)).*heaviside(x+0.25);
-            otherwise
-                return
-        end
+        z        = h0+(zb-h0).*heaviside(zb-h0);
+        %
         h        = z-zb;
         u        = 0;
         hu       = h.*u;

@@ -39,6 +39,12 @@ hutildei (hi < rtol) = 0;
 hutildee (he < rtol) = 0;
 huutildei(hi < rtol) = 0;
 huutildee(he < rtol) = 0;
+
+hutildei (hi < drytol | hi < veltol) = 0;
+hutildee (he < drytol | he < veltol) = 0;
+huutildei(hi < drytol | hi < veltol) = 0;
+huutildee(he < drytol | he < veltol) = 0;
+
 %--------------------------------------------------------------------------
 gzi       = G.*z_tildei.*(1./2.*z_tildei-zbtilde);
 gze       = G.*z_tildee.*(1./2.*z_tildee-zbtilde);
