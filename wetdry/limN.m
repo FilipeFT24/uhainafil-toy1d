@@ -94,12 +94,6 @@ H_x = [H_l, H_r];
 H_aux = [H_l, H_r]-drytol;
 flag = 1;
 
-% Z_dof = g.x(:, :, 1);
-% 
-% figure;
-% plot(reshape(g.xydc', [], 1), reshape(Z_dof', [], 1), '-ok');
-% 
-
 
 if n > 3
     stop = 1;
@@ -120,8 +114,8 @@ for i = 1:n
             %--------------------------------------------------------------
             % DRY/DRY
             %--------------------------------------------------------------
-            H_L            = H_r(L, 1); %if H_L < rtol, Z_L = realmax; end
-            H_R            = H_l(R, 1); %if H_R < rtol, Z_R = realmax; end
+            H_L            = H_r(L, 1); if H_L < rtol, Z_L = realmax; end
+            H_R            = H_l(R, 1); if H_R < rtol, Z_R = realmax; end
             Z_M            = min(Z_L, Z_R);
 
             %{

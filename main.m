@@ -74,7 +74,7 @@ for i = 1:size(fc, 1)
     set(groot, strrep(fn{fc(i, 1)}, 'factory', 'default'), 'latex');
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p         = 2;
+p         = 1;
 test      = 16;
 data      = setdata(test, 0);
 g         = MSH(data.xv, p);
