@@ -1,5 +1,5 @@
 function [F] = ...
-    hydro_reconstruction2(drytol, veltol, rtol, G, zi, ze, hui, hue, zbi, zbe, LAMBDA, n) %#ok<INUSL> 
+    hydro_reconstruction2(drytol, veltol, G, zi, ze, hui, hue, zbi, zbe, LAMBDA, n)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % HYDRO RECONSTRUCTION:
 hi        = zi-zbi;
@@ -29,22 +29,11 @@ huutildee = h_tildee.*kurganov_desingularise(he.^2, hue.^2);
 %         = hutildee.*kurganov_desingularise(h_tildee, hutildee);
 %         = h_tildei.*kurganov_desingularise(h_tildei.^2, hutildei.^2);
 %         = h_tildee.*kurganov_desingularise(h_tildee.^2, hutildee.^2);
-%
-hutildei (hi < drytol | hi < veltol) = 0;
-hutildee (he < drytol | he < veltol) = 0;
-huutildei(hi < drytol | hi < veltol) = 0;
-huutildee(he < drytol | he < veltol) = 0;
 %}
-hutildei (hi < rtol) = 0;
-hutildee (he < rtol) = 0;
-huutildei(hi < rtol) = 0;
-huutildee(he < rtol) = 0;
-
 hutildei (hi < drytol | hi < veltol) = 0;
 hutildee (he < drytol | he < veltol) = 0;
 huutildei(hi < drytol | hi < veltol) = 0;
 huutildee(he < drytol | he < veltol) = 0;
-
 %--------------------------------------------------------------------------
 gzi       = G.*z_tildei.*(1./2.*z_tildei-zbtilde);
 gze       = G.*z_tildee.*(1./2.*z_tildee-zbtilde);
