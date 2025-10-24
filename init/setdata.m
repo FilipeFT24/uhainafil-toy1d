@@ -567,7 +567,7 @@ switch test
         G        = 1;
         xm       =-0.5;
         xM       = 0.5;
-        K        = 250;
+        K        = 200;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -575,7 +575,7 @@ switch test
         end
         %------------------------------------------------------------------
         a        = 0.25;
-        b        = 0.20;
+        b        = 0.10;
         k        = pi./b;
         zb       = a.*(cos(k.*x)+1).*heaviside(x+b).*heaviside(b-x);
         z        = h0+(zb-h0).*heaviside(zb-h0);
