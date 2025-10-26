@@ -436,7 +436,7 @@ switch test
         G        = 1;
         xm       =-3;
         xM       = 3;
-        K        = 600;
+        K        = 1000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -445,8 +445,8 @@ switch test
         %------------------------------------------------------------------
         switch option
             case 0 % EXP (DOESN'T WORK NUMERICALLY I.E., DOESN'T KEEP REST STATE)
-                zb1 =-0.215.*exp(-50.*(x+1).^2); % WET
-                zb2 = 0.215.*exp(-25.*(x-1).^2); % DRY
+                zb1 =-0.25.*exp(-50.*(x+1).^2); % WET
+                zb2 = 0.25.*exp(-25.*(x-1).^2); % DRY
             case 1 % LINEAR
                 zb1 =-0.50.*((x+1.50).*heaviside(x+1.50).*heaviside(-(1.00+x))+(-0.50-x).*heaviside(-0.50-x).*heaviside(x+1.00));
                 zb2 = 0.50.*((x-0.50).*heaviside(x-0.50).*heaviside( (1.00-x))+( 1.50-x).*heaviside( 1.50-x).*heaviside(x-1.00));
@@ -558,7 +558,7 @@ switch test
         % 16) T16 - Drying of a lake
         %------------------------------------------------------------------
         wetdry   = 1;
-        h0       = 0.7;
+        h0       = 0.65;
         nm       = 0;
         option   = 1;
         %------------------------------------------------------------------
@@ -567,7 +567,7 @@ switch test
         G        = 1;
         xm       =-0.5;
         xM       = 0.5;
-        K        = 200;
+        K        = 300;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
