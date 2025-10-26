@@ -40,7 +40,7 @@ H_r    = Z_r-Zbr;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Loop through "problematic" cells:
 %--------------------------------------------------------------------------
-log1 = (H_l(:, 1) < drytol & H_r(:, 1) < drytol); 
+log1 = H_m(:, 1) < 0 | (H_l(:, 1) < drytol & H_r(:, 1) < drytol);
 c    = find(log1);
 m    = size(c, 1);
 %--------------------------------------------------------------------------
@@ -68,34 +68,31 @@ log2r           = H_r(1:K, 1) < drytol;
 log2            = false(Kf, 1);
 log2(1:Kf-1, 1) = log2(1:Kf-1, 1) | log2l;
 log2(2:Kf  , 1) = log2(2:Kf  , 1) | log2r;
+log3            = true(Kf, 1);
 for i = 2:Kf-1
-    if log2(i, 1) && (log2l(i-1, 1) && log2r(i, 1)) % face surrounded by (externally) "dry" cells
-        log2(i, 1) = false;
+    if log2(i-1, 1) && log2(i+1, 1)
+        log3(i, 1) = false;
     end
 end
 log2( 1, 1)     = false;
 log2(Kf, 1)     = false;
+log2            = log2 & log3;
 f               = find(log2);
 n               = size(f, 1);
 %--------------------------------------------------------------------------
 
-wrong = false;
-itstop = 150360000;
-if g.nit > itstop
-    wrong = true;
-    
-end
-
-H_x = [H_l, H_r];
-H_aux = [H_l, H_r]-drytol;
-
-
-H_dofold = g.x(:, :, 1)-g.zbinit-drytol;
-a2_old = find(H_dofold(:, 1) < 0, 1, 'last');
+H1    = g.x(:, :, 1)-g.zbinit-drytol;
+Haux1 = [H1*fl', H1*fr'];
+flag = 0;
 if n > 2
     stop = 1;
+    flag = 0;
 end
-flag = 0;
+
+if g.nit > 6500
+    flag = 0;
+    x = 1;
+end
 
 %--------------------------------------------------------------------------
 for i = 1:n
@@ -104,132 +101,70 @@ for i = 1:n
     l   = r-1;
     L   = l-1;
     R   = r+1;
-    Z_L = g.x (L, :, 1)*fr';
-    Z_R = g.x (R, :, 1)*fl';
-    ZbL = g.zb(L, :, 1)*fr';
-    ZbR = g.zb(R, :, 1)*fl';
-    H_L = Z_L-ZbL;
-    H_R = Z_R-ZbR;
-    Z_X = min(Z_L, Z_R);
+    Z_L = Z_r(L, 1);
+    Z_R = Z_l(R, 1);
+    H_L = H_r(L, 1);
+    H_R = H_l(r, 1);
     %----------------------------------------------------------------------
-    if log2r(l, 1)
-        if log2l(r, 1)
-            %if Z_R < Z_L %H_L < rtol && H_R > rtol
-
-               % if Zbl(r, 1) < Z_R
-                    Z_X            = min(Z_L, Z_l(r, 1));
-                    if Z_X > Z_L
-                        zz = 1;
-                    end
-
-                    g.x  (l, :, 1) = Z_X;
-                    g.x  (l, :, 2) = Hum(l, 1);
-                    g.zb (l, :)    =-H_m(l, 1)+Z_X;
-                    g.fix(l, 1)    = true;
-
-
-%                     g.x  (r, :, 1) = Z_X;
-%                     g.x  (r, :, 2) = Hum(r, 1);
-%                     g.zb (r, :)    =-H_m(r, 1)+Z_X;
-%                     g.fix(r, 1)    = true;
-                %end
-
-
-
-            %else
-%                 Z_X            = Z_L;
-%                 g.x  (r, :, 1) = Z_X;
-%                 g.x  (r, :, 2) = Hum(r, 1);
-%                 g.zb (r, :)    =-H_m(r, 1)+Z_X;
-%                 g.fix(r, 1)    = true;
-%                 if Zbr(l, 1) < Z_X
-%                     g.x  (l, :, 1) = Z_X;
-%                     g.x  (l, :, 2) = Hum(l, 1);
-%                     g.zb (l, :)    =-H_m(l, 1)+Z_X;
-%                     g.fix(l, 1)    = true;
-% 
-%                     flag = 0;
-%                 end
-            %end
-
-
-
-%             if Zbl(r, 1) < Z_R
-%                 flag = 0;
-%                 xx = 1;
-%             end
-% 
-%             Z_X = min(Z_L, Z_l(r, 1));
-%             g.x  (l, :, 1) = Z_X;
-%             g.x  (l, :, 2) = Hum(l, 1);
-%             g.zb (l, :)    =-H_m(l, 1)+Z_X;
-%             g.fix(l, 1)    = true;
-        else
-            %--------------------------------------------------------------
-            % DRY/WET
-            %--------------------------------------------------------------
+    if log2l(r, 1) && (~log2r(l, 1) || log2r(l, 1) && H_R > H_L)
+        %------------------------------------------------------------------
+        % WET/DRY
+        %------------------------------------------------------------------
+        Z_X            = min(Z_L, Z_R);
+        g.x  (l, :, 1) = Z_X;
+        g.x  (l, :, 2) = Hum(l, 1);
+        g.zb (l, :)    =-H_m(l, 1)+Z_X;
+        g.fix(l, 1)    = true;
+        if (Z_L < Z_R && Z_l(r, 1) < Z_X) || (Z_L > Z_R && Z_l(r, 1) < Z_X) % up/down %%% ta aqui qq coisa mal mas as condiçoes parecem ser estas
             g.x  (r, :, 1) = Z_X;
             g.x  (r, :, 2) = Hum(r, 1);
             g.zb (r, :)    =-H_m(r, 1)+Z_X;
             g.fix(r, 1)    = true;
-            if Z_r(l, 1) < Z_X
-                g.x  (l, :, 1) = Z_X;
-                g.x  (l, :, 2) = Hum(l, 1);
-                g.zb (l, :)    =-H_m(l, 1)+Z_X;
-                g.fix(l, 1)    = true;
-            end
-            %--------------------------------------------------------------
+
+            flag = 0;
         end
+        %------------------------------------------------------------------
+        %flag = 0;
+        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
     else
-        if log2l(r, 1)
-            %--------------------------------------------------------------
-            % WET/DRY
-            %--------------------------------------------------------------
+        %------------------------------------------------------------------
+        % DRY/WET
+        %------------------------------------------------------------------
+        Z_X            = min(Z_L, Z_R);
+        g.x  (r, :, 1) = Z_X;
+        g.x  (r, :, 2) = Hum(r, 1);
+        g.zb (r, :)    =-H_m(r, 1)+Z_X;
+        g.fix(r, 1)    = true;
+        if (Z_R < Z_L && Z_r(l, 1) < Z_X) || (Z_R > Z_L && Z_r(l, 1) < Z_X) % up/down
             g.x  (l, :, 1) = Z_X;
             g.x  (l, :, 2) = Hum(l, 1);
             g.zb (l, :)    =-H_m(l, 1)+Z_X;
             g.fix(l, 1)    = true;
-            if Z_l(r, 1) < Z_X
-                g.x  (r, :, 1) = Z_X;
-                g.x  (r, :, 2) = Hum(r, 1);
-                g.zb (r, :)    =-H_m(r, 1)+Z_X;
-                g.fix(r, 1)    = true;
-            end
-            %--------------------------------------------------------------
+
+            flag = 0;
         end
+        %------------------------------------------------------------------
+        %flag = 0;
+        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
     end
-    PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
     %----------------------------------------------------------------------
 end
 
-Z_m = meanval(g, g.x(:, :, 1));
+H2    = g.x(:, :, 1)-g.zbinit-drytol;
+Haux2 = [H2*fl', H2*fr'];
+a1f   = find(Haux1(:, 2) < 0, 1, 'first');
+a1l   = find(Haux1(:, 1) < 0, 1, 'last');
 
-H_dofnew = g.x(:, :, 1)-g.zbinit-drytol;
-%a2 = find(H_dofnew(:, 1) < 0, 1, 'last');
-
-% if ~isempty(a2_old)
-%     if H_dofnew(a2_old, 1) > 0 && H_dofold(a2_old, 1) < 0 && any(H_dofnew < 0, 'all')
-%         xx = 1;
-%     end
-% end
-
-%
-%%p0
-% if H_dofnew(a2-1, 1) > 0
-%     xx = 1;
-% end
-%%p1
-
-% if ~isempty(a1)
-%     if ~all(H_dofnew(1:a1-1, 1) > 0, 1)
-%         xx = 1;
-%     end
-% end
-% if ~isempty(a2)
-%     if H_dofnew(a2-2, 2) < 0
-%         xx = 1;
-%     end
-% end
+if ~isempty(a1f)
+    if Haux2(a1f-1, 2) < 0% && Haux1(a1l, 1) < 0
+        xx = 1;
+    end
+end
+if ~isempty(a1l)
+    if Haux2(a1l+1, 1) < Haux2(a1l, 2)
+        xx = 1;
+    end
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -256,13 +191,13 @@ if flag
     hold on;
     for j = l-1:r+1
         plot(g.xydc(j, aux), Z_dof(j, aux), '--ob');
-        plot(g.xydc(j, aux), Zbdof(j, aux),  ':*k');
+        plot(g.xydc(j, aux), Zbdof(j, aux)+drytol,  ':*k');
     end
     subplot(1, 2, 2);
     hold on;
     for j = l-1:r+1
         plot(g.xydc(j, aux), g.x (j, aux, 1), '--ob');
-        plot(g.xydc(j, aux), g.zbinit(j, aux), ':*k');
+        plot(g.xydc(j, aux), g.zb(j, aux)+drytol, ':*k');
     end
     close(f1);
 end
