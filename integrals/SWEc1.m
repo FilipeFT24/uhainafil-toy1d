@@ -7,7 +7,6 @@ bf       = g.bf;
 G        = g.data.G;
 drytol   = g.drytol;
 veltol   = g.velcutoff;
-rtol     = eps;
 vellim   = g.vellim;
 S        = zeros(K, N);
 if ismembc(test, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
@@ -55,20 +54,8 @@ switch vellim
     otherwise
         return
 end
-%
 Huquad (H_quad < drytol | H_quad < veltol) = 0;
 W11quad(H_quad < drytol | H_quad < veltol) = 0;
-%
-% Huquad (H_quad < rtol) = 0;
-% W11quad(H_quad < rtol) = 0;
-
-if max(abs(Huquad), [], 'all') > 1
-    xx = 1;
-end
-if max(abs(W11quad), [], 'all') > 1
-    xx = 1;
-end
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DK            = g.DKc;
 fk_           = g.fkc;

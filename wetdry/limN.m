@@ -47,7 +47,7 @@ for i = 1:m
     %----------------------------------------------------------------------
     o              = c    (i, 1);
     Zbo            = Zbdof(o, :);
-    H_o            = 0.9.*drytol;
+    H_o            = drytol-eps.*10;
     %----------------------------------------------------------------------
     H_dof(o, :)    = H_o;
     Hudof(o, :)    = 0;
@@ -59,6 +59,8 @@ for i = 1:m
     H_r  (o, 1)    = H_o;
     Z_l  (o, 1)    = Z_dof(o, :)*fl';
     Z_r  (o, 1)    = Z_dof(o, :)*fr';
+    Zbl  (o, 1)    = Z_l  (o, 1);
+    Zbr  (o, 1)    = Z_r  (o, 1);
     %----------------------------------------------------------------------
     g.x  (o, :, 1) = Z_dof(o, :);
     g.x  (o, :, 2) = Hudof(o, :);
@@ -90,8 +92,12 @@ H1    = g.x(:, :, 1)-g.zb-drytol;
 Haux1 = [H1*fl', H1*fr'];
 
 flag = 0;
+if n > 2 || g.nit > 6753
+    flag = 0;
+end
+
 if n > 2
-    flag = 1;
+    xx = 1;
 end
 
 %--------------------------------------------------------------------------
@@ -116,6 +122,12 @@ for i = 1:n
             g.zb (r, :)    =-H_m(r, 1)+Z_L;
             g.fix(r, 1)    = true;
         end
+        if (Z_r(l, 1) < Z_l(r, 1) && Z_l(r, 1) > Z_L)
+            xx = 1;
+        end
+
+
+        PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
         %------------------------------------------------------------------
     else
         %------------------------------------------------------------------
@@ -129,13 +141,16 @@ for i = 1:n
             g.zb (l, :)    =-H_m(l, 1)+Z_R;
             g.fix(l, 1)    = true;
         end
+        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
+        
+
+
         %------------------------------------------------------------------
     end
-    PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
     %----------------------------------------------------------------------
 end
 
-H2    = g.x(:, :, 1)-g.zbinit-drytol;
+H2    = g.x(:, :, 1)-g.zb-drytol;
 Haux2 = [H2*fl', H2*fr'];
 a1f   = find(Haux1(:, 2) < 0, 1, 'first');
 a1l   = find(Haux1(:, 1) < 0, 1, 'last');
@@ -149,6 +164,10 @@ if ~isempty(a1l)
     if Haux2(a1l+1, 1) < Haux2(a1l, 2)
         xx = 1;
     end
+end
+
+if Haux2(323, 1) < Haux2(322, 2)
+    xx = 1;
 end
 
 
@@ -181,8 +200,8 @@ if flag
     subplot(1, 2, 2);
     hold on;
     for j = l-1:r+1
-        plot(g.xydc(j, aux), g.x (j, aux, 1), '--ob');
-        plot(g.xydc(j, aux), g.zb(j, aux), ':*k');
+        plot(g.xydc(j, aux), g.x  (j, aux, 1), '--ob');
+        plot(g.xydc(j, aux), Zbdof(j, aux), ':*k');
     end
     close(f1);
 end
