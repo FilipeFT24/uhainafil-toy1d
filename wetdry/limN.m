@@ -92,7 +92,7 @@ H1    = g.x(:, :, 1)-g.zb-drytol;
 Haux1 = [H1*fl', H1*fr'];
 
 flag = 0;
-if n > 2 || g.nit > 6753
+if n > 2 || g.nit > 14552
     flag = 0;
 end
 
@@ -122,10 +122,6 @@ for i = 1:n
             g.zb (r, :)    =-H_m(r, 1)+Z_L;
             g.fix(r, 1)    = true;
         end
-        if (Z_r(l, 1) < Z_l(r, 1) && Z_l(r, 1) > Z_L)
-            xx = 1;
-        end
-
 
         PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
         %------------------------------------------------------------------
@@ -141,9 +137,8 @@ for i = 1:n
             g.zb (l, :)    =-H_m(l, 1)+Z_R;
             g.fix(l, 1)    = true;
         end
-        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
-        
 
+        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
 
         %------------------------------------------------------------------
     end
@@ -165,12 +160,6 @@ if ~isempty(a1l)
         xx = 1;
     end
 end
-
-if Haux2(323, 1) < Haux2(322, 2)
-    xx = 1;
-end
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 
