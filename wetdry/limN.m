@@ -94,17 +94,17 @@ Haux0 = [H0*fl', H0*fr'];
 Haux1 = [H1*fl', H1*fr'];
 
 flag = 0;
-if n > 2 || g.nit > 14520
-    flag = 0;
-    %pause(0.10);
-end
+%{
+figure;
+plot(reshape(Haux0', [], 1), '-b');
+%}
 
 if n > 2
     xx = 1;
 end
 
 %--------------------------------------------------------------------------
-for i = 1:n
+for i = 1:min(n, 2)
     %----------------------------------------------------------------------
     r      = f(i, 1);
     l      = r-1;
@@ -115,78 +115,51 @@ for i = 1:n
     Z_X    = min(Z_L, Z_R);
     %----------------------------------------------------------------------
     if Z_r(l, 1) > Z_l(r, 1)
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %------------------------------------------------------------------
         g.x  (l, :, 1) = Z_X;
         g.x  (l, :, 2) = Hum(l, 1);
         g.zb (l, :)    =-H_m(l, 1)+Z_X;
         g.fix(l, 1)    = true;
-        flag11         = Z_L < Z_R && Z_l(r, 1) < Z_L; % run-up   (l->r)
-        flag12         = Z_L > Z_R && Z_r(l, 1) > Z_R; % run-down (l->r)
-        flag13         = Z_L < Z_R && Z_l(r, 1) > Z_L; % trans. 1 (l->r) : modified run-up   (l->r)
-        flag14         = Z_L > Z_R && Z_r(l, 1) < Z_R; % trans. 2 (l->r) : modified run-down (l->r)
+%         flagL1         = Z_L < Z_R && Z_l(r, 1) < Z_L; % run-down (l->r)
+%         %              = Z_L < Z_R && Z_l(r, 1) > Z_L; % run-down (l->r)
+%         flagL21        = Z_L > Z_R && Z_r(l, 1) > Z_R; % run-up   (l->r)
+%         flagL22        = Z_L > Z_R && Z_r(l, 1) < Z_R; % run-up   (l->r)
         %
-        if flag11 || flag12
+        if Z_l(r, 1) < Z_X
             g.x  (r, :, 1) = Z_X;
             g.x  (r, :, 2) = Hum(r, 1);
             g.zb (r, :)    =-H_m(r, 1)+Z_X;
             g.fix(r, 1)    = true;
-        else
-            if flag13
-                disp("13");
-            end
-            if flag14
-                disp("14");
-            end
-            if flag13 || flag14
-                g.x  (r, :, 1) = min(Z_r(l, 1), Z_X);
-                g.x  (r, :, 2) = Hum(r, 1);
-                g.zb (r, :)    =-H_m(r, 1)+Z_X;
-                g.fix(r, 1)    = true;
-            else
-                xx = 1;
-            end
-            flag = 1;
         end
-        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
         %------------------------------------------------------------------
+
+        %fprintf("flag1=[%d,%d,%d]", flagL1, flagL21, flagL22);
+
+        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
     else
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %------------------------------------------------------------------
         g.x  (r, :, 1) = Z_X;
         g.x  (r, :, 2) = Hum(r, 1);
         g.zb (r, :)    =-H_m(r, 1)+Z_X;
         g.fix(r, 1)    = true;
-        flag21         = Z_L > Z_R && Z_r(l, 1) < Z_R; % run-up   (r->l)
-        flag22         = Z_L < Z_R && Z_l(r, 1) > Z_L; % run-down (r->l)
-        flag23         = Z_L > Z_R && Z_r(l, 1) > Z_R; % trans. 1 (r->l) : modified run-up   (r->l)
-        flag24         = Z_L < Z_R && Z_l(r, 1) < Z_L; % trans. 2 (r->l) : modified run-down (r->l)
+%         flagR1         = Z_L > Z_R && Z_r(l, 1) < Z_R; % run-down (r->l)
+%         %              = Z_L > Z_R && Z_r(l, 1) > Z_R; % run-down (r->l)
+%         flagR21        = Z_L < Z_R && Z_l(r, 1) > Z_L; % run-up   (r->l)
+%         flagR22        = Z_L < Z_R && Z_l(r, 1) < Z_L; % run-up   (r->l)
         %
-        if flag21 || flag22
+        if Z_r(l, 1) < Z_X
             g.x  (l, :, 1) = Z_X;
             g.x  (l, :, 2) = Hum(l, 1);
             g.zb (l, :)    =-H_m(l, 1)+Z_X;
             g.fix(l, 1)    = true;
         else
-            if flag23
-                disp("23");
-            end
-            if flag24
-                disp("24");
-            end
-
-            if flag23 || flag24
-                g.x  (l, :, 1) = min(Z_l(r, 1), Z_X);
-                g.x  (l, :, 2) = Hum(l, 1);
-                g.zb (l, :)    =-H_m(l, 1)+Z_X;
-                g.fix(l, 1)    = true;
-            else
-                xx = 1;
-            end
-            flag = 1;
+            flag = 0;
         end
-        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
         %------------------------------------------------------------------
+        
+        %fprintf("flag2=[%d,%d,%d,%d]", flagR1, flagR21, flagR22);
+        
+        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
     end
 
 
@@ -283,9 +256,9 @@ end
 H2    = g.x(:, :, 1)-g.zbinit-drytol;
 Haux2 = [H2*fl', H2*fr'];
 a1   = find(Haux1(:, 1) < 0, 1, 'last');
-if g.nit > 14450
+if g.nit > 1
     if ~isempty(a1)
-        if any(Haux2(a1+2:a1+11, 1)-Haux2(a1+1:a1+10, 1) < 0, 1)
+        if any(Haux2(a1+2:a1+4, 1)-Haux2(a1+1:a1+3, 1) < 0, 1)
             xx = 1;
         end
     end
@@ -312,16 +285,15 @@ if flag
     f1 = figure;
     subplot(1, 2, 1);
     hold on;
-    for j = l-1:r+3
+    for j = l-1:r+1
         plot(g.xydc(j, aux), Z_dof(j, aux), '--ob');
         plot(g.xydc(j, aux), g.zbinit(j, aux)+drytol,  ':*k');
     end
     subplot(1, 2, 2);
     hold on;
-    for j = l-1:r+3
+    for j = l-1:r+1
         plot(g.xydc(j, aux), g.x  (j, aux, 1), '--ob');
         plot(g.xydc(j, aux), g.zbinit(j, aux)+drytol, ':*k');
-        %disp(g.x(j, aux, 1)-Zbdof(j, aux));
     end
     close(f1);
 end

@@ -76,6 +76,11 @@ X           = zeros(K, N, 2);
 X(:, :, 1)  = inittype(itype, @(x) g.data.Z (x, t), xydc, xyqc, fi_aux);
 X(:, :, 2)  = inittype(itype, @(x) g.data.HU(x, t), xydc, xyqc, fi_aux);
 Zbdof       = inittype(itype, @(x) g.data.Zb(x, t), xydc, xyqc, fi_aux);
+
+
+%X(651, 2, 1) = 0.202;
+%X(683, 1, 1) = 0.204;
+
 g.x         = X;
 g.zbinit    = Zbdof;
 g.zb        = Zbdof;
