@@ -1,16 +1,16 @@
 function [g] = limN(g)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% VARS:
+%--------------------------------------------------------------------------
 K      = g.numE;
 Kf     = K+1;
-fc     = g.bf;
 fl     = g.bfl;
 fr     = g.bfr;
 drytol = g.drytol;
-tol    = drytol;
 g.fix  = false(K, 1);
 g.zb   = g.zbinit;
 %--------------------------------------------------------------------------
-g      = limX(g);
+g      = lim0(g);
 %--------------------------------------------------------------------------
 Z_dof  = g.x(:, :, 1);
 Hudof  = g.x(:, :, 2);
@@ -35,8 +35,8 @@ Zbr    = Zbdof*fr';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Loop through "problematic" faces:
 %--------------------------------------------------------------------------
-log2l           = H_l(1:K, 1) < tol;
-log2r           = H_r(1:K, 1) < tol;
+log2l           = H_l(1:K, 1) < drytol;
+log2r           = H_r(1:K, 1) < drytol;
 log2            = false(Kf, 1);
 log2(1:Kf-1, 1) = log2(1:Kf-1, 1) | log2l;
 log2(2:Kf  , 1) = log2(2:Kf  , 1) | log2r;
@@ -53,14 +53,6 @@ f               = find(log2);
 n               = size(f, 1);
 %--------------------------------------------------------------------------
 
-if n > 2
-    xx = 1;
-end
-
-Z_dof = g.x(:, :, 1);
-Hudof = g.x(:, :, 2);
-Zbdof = g.zb;
-H_dof = Z_dof-Zbdof;
 
 flag = 0;
 if g.nit > 6145
@@ -83,12 +75,12 @@ for i = 1:n
     Zrl  = Z_r(l, 1);
     Zlr  = Z_l(r, 1);
     Z_R  = Z_l(R, 1);
-    dryl = H_l(l, 1) < tol & H_r(l, 1) < tol;
-    dryr = H_l(r, 1) < tol & H_r(r, 1) < tol;
+    dryl = H_l(l, 1) < drytol & H_r(l, 1) < drytol;
+    dryr = H_l(r, 1) < drytol & H_r(r, 1) < drytol;
     %----------------------------------------------------------------------
     %
     if dryr
-        if Zbl(r, 1) > Z_L-drytol
+        if Z_l(r, 1) > Z_L%Zbl(r, 1) > Z_L-drytol
             g.x  (l, :, 1) = Z_L;
             g.x  (l, :, 2) = Hum(l, 1);
             g.zb (l, :)    =-H_m(l, 1)+Z_L;
@@ -100,10 +92,11 @@ for i = 1:n
             g.zb (r, :)    = Zrl;
             g.fix(r, 1)    = true;
         end
+        PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
     end
     %
     if dryl
-        if Zbr(l, 1) > Z_R-drytol
+        if Z_r(l, 1) > Z_R%Zbr(l, 1) > Z_R-drytol
             g.x  (r, :, 1) = Z_R;
             g.x  (r, :, 2) = Hum(r, 1);
             g.zb (r, :)    =-H_m(r, 1)+Z_R;
@@ -115,12 +108,25 @@ for i = 1:n
             g.zb (l, :)    = Zlr;
             g.fix(l, 1)    = true;
         end
-        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
+        PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
     end
     %----------------------------------------------------------------------
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% POSITIVITY-PRESERVING LIMITER:
 %--------------------------------------------------------------------------
+if g.p > 0
+    g = lim1(g);
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+end
+
+
+
+
+
+
+
 
 function [] = PLOT(flag, g, l, r, Z_dof, Zbdof, drytol)
 %

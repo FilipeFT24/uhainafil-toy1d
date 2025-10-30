@@ -56,6 +56,16 @@ switch vellim
 end
 Huquad (H_quad < drytol | H_quad < veltol) = 0;
 W11quad(H_quad < drytol | H_quad < veltol) = 0;
+
+
+if any(H_quad < 0, 'all')
+    xx = 1;
+end
+
+if max(abs(W11quad), [], 'all') > 1
+    xx = 1;
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DK            = g.DKc;
 fk_           = g.fkc;
