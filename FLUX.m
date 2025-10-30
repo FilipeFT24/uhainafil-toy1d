@@ -23,17 +23,10 @@ f2 = g.Fluxf(:, :, 2);
 r1 = g.res  (:, :, 1);
 r2 = g.res  (:, :, 2);
 
-% if max(abs())
-%     xx = 1;
-% end
-
-Z_dof = g.x(:, :, 1);
-Hudof = g.x(:, :, 2);
-Zbdof = g.zb;
-H_dof = Z_dof-Zbdof;
-
-if any(H_dof < 0, 'all')
+if abs(r1(12, 1)) > 1e-09
     xx = 1;
 end
+
+
 
 end

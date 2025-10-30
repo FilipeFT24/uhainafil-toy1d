@@ -14,7 +14,7 @@ Hum   = meanval(g, Hudof);
 H_l   = H_dof*fl';
 H_r   = H_dof*fr';
 %--------------------------------------------------------------------------
-log1  = H_m < 0 | (H_l(:, 1) < drytol & H_r(:, 1) < drytol);
+log1  = H_m < rtol | (H_l(:, 1) < rtol & H_r(:, 1) < rtol);
 c1    = find(log1);
 m1    = size(c1, 1);
 %log2  = (H_l(:, 1) < drytol & H_r(:, 1) > drytol) | (H_l(:, 1) > drytol & H_r(:, 1) < drytol);

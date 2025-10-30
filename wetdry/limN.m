@@ -6,7 +6,7 @@ fc     = g.bf;
 fl     = g.bfl;
 fr     = g.bfr;
 drytol = g.drytol;
-rtol   = eps;
+tol    = drytol;
 g.fix  = false(K, 1);
 g.zb   = g.zbinit;
 %--------------------------------------------------------------------------
@@ -35,8 +35,8 @@ Zbr    = Zbdof*fr';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Loop through "problematic" faces:
 %--------------------------------------------------------------------------
-log2l           = H_l(1:K, 1) < rtol;
-log2r           = H_r(1:K, 1) < rtol;
+log2l           = H_l(1:K, 1) < tol;
+log2r           = H_r(1:K, 1) < tol;
 log2            = false(Kf, 1);
 log2(1:Kf-1, 1) = log2(1:Kf-1, 1) | log2l;
 log2(2:Kf  , 1) = log2(2:Kf  , 1) | log2r;
@@ -57,59 +57,69 @@ if n > 2
     xx = 1;
 end
 
+Z_dof = g.x(:, :, 1);
+Hudof = g.x(:, :, 2);
+Zbdof = g.zb;
+H_dof = Z_dof-Zbdof;
+
+flag = 0;
+if g.nit > 6145
+    flag = 0;
+    xx = 1;
+end
+
+if n > 1
+    yy = 1;
+end
+
 %--------------------------------------------------------------------------
-for i = 1:1%n
+for i = 1:n
     %----------------------------------------------------------------------
     r    = f(i, 1);
     l    = r-1;
     L    = l-1;
     R    = r+1;
     Z_L  = Z_r(L, 1);
+    Zrl  = Z_r(l, 1);
+    Zlr  = Z_l(r, 1);
     Z_R  = Z_l(R, 1);
-    dryl = H_l(l, 1) < rtol & H_r(l, 1) < rtol;
-    dryr = H_l(r, 1) < rtol & H_r(r, 1) < rtol;
+    dryl = H_l(l, 1) < tol & H_r(l, 1) < tol;
+    dryr = H_l(r, 1) < tol & H_r(r, 1) < tol;
     %----------------------------------------------------------------------
-    %{
+    %
     if dryr
         if Zbl(r, 1) > Z_L-drytol
             g.x  (l, :, 1) = Z_L;
             g.x  (l, :, 2) = Hum(l, 1);
             g.zb (l, :)    =-H_m(l, 1)+Z_L;
             g.fix(l, 1)    = true;
-            if Z_l(r, 1) <= Z_L
-                g.x  (r, :, 1) = Z_L;
-                g.x  (r, :, 2) = Hum(r, 1);
-                g.zb (r, :)    =-H_m(r, 1)+Z_L;
-                g.fix(r, 1)    = true;
-            end
         end
-        PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
+        if Zlr < Zrl
+            g.x  (r, :, 1) = Zrl;
+            g.x  (r, :, 2) = 0;
+            g.zb (r, :)    = Zrl;
+            g.fix(r, 1)    = true;
+        end
     end
-    %}
+    %
     if dryl
-        %if Zbr(l, 1) > Z_R-drytol % ESTA CONDIÇÃO NAO ESTÁ A SER ATINGIDA
-            %SEMPRE
+        if Zbr(l, 1) > Z_R-drytol
             g.x  (r, :, 1) = Z_R;
             g.x  (r, :, 2) = Hum(r, 1);
             g.zb (r, :)    =-H_m(r, 1)+Z_R;
             g.fix(r, 1)    = true;
-            if Z_r(l, 1) <= Z_R
-                g.x  (l, :, 1) = Z_R;
-                g.x  (l, :, 2) = Hum(l, 1);
-                g.zb (l, :)    = Z_R;
-                g.fix(l, 1)    = true;
-            end
-        %else
-        %    PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
-        %end
+        end
+        if Zrl < Zlr
+            g.x  (l, :, 1) = Zlr;
+            g.x  (l, :, 2) = 0;
+            g.zb (l, :)    = Zlr;
+            g.fix(l, 1)    = true;
+        end
+        PLOT(flag, g, l, r, Z_dof, Zbdof, drytol);
     end
+    %----------------------------------------------------------------------
 end
-
-% H_AFTER = g.x(:, :, 1)-g.zb;
-% a1 = find(H_AFTER(:, 1) <= 0, 1, 'last');
-% if g.nit > 7e3 || (H_AFTER(a1, 1) < 0 && H_AFTER(a1, 2) > 0 && H_AFTER(a1+1, 1) < 0)
-%     xx = 1;
-% end
+%--------------------------------------------------------------------------
 end
 
 function [] = PLOT(flag, g, l, r, Z_dof, Zbdof, drytol)
