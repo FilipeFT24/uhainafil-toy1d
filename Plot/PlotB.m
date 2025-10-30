@@ -5,7 +5,7 @@ test = g.test;
 Za   = g.data.Z(obj.xc, g.t);
 H_   = sum(pagemtimes(g.x(:, :, 1)-g.zb, g.Wbf'), 2)./sum(g.W, 2);
 Z_   = sum(pagemtimes(g.x(:, :, 1)         , g.Wbf'), 2)./sum(g.W, 2);
-if test ~= 13 && test ~= 16
+if test ~= 13 && test ~= 14 && test ~= 16
     Za = Za./h0;
     Z_ = Z_./h0;
 end
@@ -15,7 +15,7 @@ if mod(g.nit, 1) == 0
         if ismembc(test, [6, 8, 12, 13])
             set(obj.Ph{1, 1}, 'YData', Za);
             set(obj.Ph{1, 2}, 'YData', Z_);
-        elseif ismembc(test, [1, 2, 3, 4, 5, 9, 11, 15, 16])
+        elseif ismembc(test, [1, 2, 3, 4, 5, 9, 11, 14, 15, 16])
             set(obj.Ph{1, 2}, 'YData', Z_);
         elseif test == 10
             set(obj.Ph{1, 2}, 'YData', H_);

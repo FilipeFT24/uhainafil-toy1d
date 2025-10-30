@@ -436,7 +436,7 @@ switch test
         G        = 1;
         xm       =-3;
         xM       = 3;
-        K        = 300;
+        K        = 600;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
