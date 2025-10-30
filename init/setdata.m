@@ -494,10 +494,10 @@ switch test
                 return
         end
         gamma    = sqrt(3.*A1./(4.*h0));
-        xs       = 1./slope+1./gamma.*acosh(sqrt(1./0.05));
+        xs       = 15;%1./slope+1./gamma.*acosh(sqrt(1./0.05));
         xm       =-20;
-        xM       = 80;
-        K        = 1200;
+        xM       = 60;
+        K        = 1500;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -558,16 +558,16 @@ switch test
         % 16) T16 - Drying of a lake
         %------------------------------------------------------------------
         wetdry   = 1;
-        h0       = 0.55;
+        h0       = 0.45;
         nm       = 0;
         option   = 1;
         %------------------------------------------------------------------
         abslayer = 0;
         alpha    = 1;
         G        = 1;
-        xm       =-0.5;
+        xm       = 0;
         xM       = 0.5;
-        K        = 100;
+        K        = 300;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -578,7 +578,17 @@ switch test
         b        = 0.10;
         k        = pi./b;
         zb       = a.*(cos(k.*x)+1).*heaviside(x+b).*heaviside(b-x);
+
+      
+%         z = h0 + ( ( zb.*(1 - heaviside(x)) + ( zb.*heaviside(zb - hi) + hi.*(1 - heaviside(zb - hi)) ).*heaviside(x) ) - h0 ) ...
+%             .* heaviside( ( zb.*(1 - heaviside(x)) + ( zb.*heaviside(zb - hi) + hi.*(1 - heaviside(zb - hi)) ).*heaviside(x) ) - h0 );
+
+
         z        = h0+(zb-h0).*heaviside(zb-h0);
+%         hi = 0.2;
+%         z = (h0 + (zb - h0).*heaviside(zb - h0)).*(1 - heaviside(x)) + ( zb.*heaviside(zb - hi) + hi.*(1 - heaviside(zb - hi)) ).*heaviside(x);
+
+
         %
         h        = z-zb;
         u        = 0;

@@ -4,7 +4,7 @@ h0   = g.data.h0;
 test = g.test;
 Za   = g.data.Z(obj.xc, g.t);
 H_   = sum(pagemtimes(g.x(:, :, 1)-g.zb, g.Wbf'), 2)./sum(g.W, 2);
-Z_   = sum(pagemtimes(g.x(:, :, 1)     , g.Wbf'), 2)./sum(g.W, 2);
+Z_   = sum(pagemtimes(g.x(:, :, 1)         , g.Wbf'), 2)./sum(g.W, 2);
 if test ~= 13 && test ~= 16
     Za = Za./h0;
     Z_ = Z_./h0;

@@ -240,9 +240,9 @@ switch test
         %------------------------------------------------------------------
         path        = "Plot/T16 - Drying of a lake/DATA/Dl_";
         %------------------------------------------------------------------
-        xlim        = [-0.50, 0.50];
-        xtick       =-0.50:0.25:0.50;
-        xticklabel  = ["-0.50", "-0.25", "0.00", "0.25", "0.50"];
+        xlim        = [0.00, 0.50];
+        xtick       =-0.00:0.25:0.50;
+        xticklabel  = ["0.00", "0.25", "0.50"];
         %------------------------------------------------------------------
         ylim        = [0.0, 0.8];
         ytick       = 0.0:0.2:0.8;
@@ -303,8 +303,14 @@ if test ~= 7
                 [xlim(1, 1), xlim(1, 1), -19.85.*ylim(1, 1)], [ylim(1, 1), -xlim(1, 1)./19.85, ylim(1, 1)], grey, 'EdgeColor', grey);
         end
         if test == 16
+            %{
             xbathy = linspace(-0.5, 0.5, 1000);
             ybathy = g.data.Zb(xbathy, 0);
+            patch(...
+                xbathy, ybathy, grey, 'EdgeColor', grey);
+            %}
+            xbathy = g.xydc;
+            ybathy = g.zbinit;
             patch(...
                 xbathy, ybathy, grey, 'EdgeColor', grey);
         end
