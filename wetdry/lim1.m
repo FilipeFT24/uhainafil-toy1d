@@ -3,7 +3,7 @@ function [g] = lim1(g)
 % VARS:
 %--------------------------------------------------------------------------
 p              = g.p;
-tol            = eps;
+tol            = 0;
 q              = quadGaussLobatto(p+1, 'Domain', [0, 1]);
 N              = g.N;
 R              = numel(q.Points);
@@ -18,15 +18,15 @@ Zbdof          = g.zb;
 H_dof          = Z_dof-Zbdof;
 H_m            = meanval(g, H_dof);
 Hum            = meanval(g, Hudof);
-%--------------------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LIMITER:
+%--------------------------------------------------------------------------
 log            =~g.fix;
 H_dofw         = H_dof(log, :);
 Hudofw         = Hudof(log, :);
 Zbdofw         = Zbdof(log, :);
 H_mw           = H_m  (log, 1);
 Humw           = Hum  (log, 1);
-%
 H_quadw        = H_dofw*bf';
 min_H          = min(H_quadw, [], 2);
 theta          = min(1, (H_mw-tol)./(H_mw-min_H));

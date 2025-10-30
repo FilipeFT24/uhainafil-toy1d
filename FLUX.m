@@ -23,10 +23,6 @@ f2 = g.Fluxf(:, :, 2);
 r1 = g.res  (:, :, 1);
 r2 = g.res  (:, :, 2);
 
-if abs(r1(12, 1)) > 1e-09
-    xx = 1;
-end
-
 
 
 end
