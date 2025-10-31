@@ -74,16 +74,16 @@ for i = 1:size(fc, 1)
     set(groot, strrep(fn{fc(i, 1)}, 'factory', 'default'), 'latex');
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p         = 3;
+p         = 1;
 test      = 16;
 data      = setdata(test, 1);
 g         = MSH(data.xv, p);
-drytol    = 1.0e-01;
+drytol    = 1.0e-02;
 velcutoff = drytol;
 vellim    = 1;
 itype     = 1;     % 0: uhaina: interpolation
                    % 1: my:     projection
-CFL       = 0.02;  % CFL./(2.*p+1);
+CFL       = 0.03;  % CFL./(2.*p+1);
 penParam  = 1000;
 run       = 1;
 %--------------------------------------------------------------------------

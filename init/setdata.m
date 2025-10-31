@@ -436,7 +436,7 @@ switch test
         G        = 1;
         xm       =-3;
         xM       = 3;
-        K        = 1000;
+        K        = 300;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -496,8 +496,8 @@ switch test
         gamma    = sqrt(3.*A1./(4.*h0));
         xs       = 15;%1./slope+1./gamma.*acosh(sqrt(1./0.05));
         xm       =-20;
-        xM       = 60;
-        K        = 1500;
+        xM       = 80;
+        K        = 1000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -558,7 +558,7 @@ switch test
         % 16) T16 - Drying of a lake
         %------------------------------------------------------------------
         wetdry   = 1;
-        h0       = 0.45;
+        h0       = 0.49;
         nm       = 0;
         option   = 1;
         %------------------------------------------------------------------
@@ -566,8 +566,8 @@ switch test
         alpha    = 1;
         G        = 1;
         xm       = 0.00;
-        xM       = 0.50;
-        K        = 200;
+        xM       = 0.20;
+        K        = 300;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
