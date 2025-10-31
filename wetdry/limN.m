@@ -76,7 +76,7 @@ for i = 1:n
             g.zb (r, :)    =-H_m(r, 1)+Zlr;
             g.fix(r, 1)    = true;
         end
-        if log2l(l, 1)
+        if log2l(l, 1) && Zrl < Zlr
             g.x  (l, :, 1) = Zlr;
             g.x  (l, :, 2) = 0;
             g.zb (l, :)    = Zlr;
@@ -95,12 +95,12 @@ for i = 1:n
             g.zb (l, :)    =-H_m(l, 1)+Zrl;
             g.fix(l, 1)    = true;
         end
-%         if log2r(r, 1)
-%             g.x  (r, :, 1) = Zrl;
-%             g.x  (r, :, 2) = 0;
-%             g.zb (r, :)    = Zrl;
-%             g.fix(r, 1)    = true;
-%         end
+        if log2r(r, 1) && Zlr < Zrl
+            g.x  (r, :, 1) = Zrl;
+            g.x  (r, :, 2) = 0;
+            g.zb (r, :)    = Zrl;
+            g.fix(r, 1)    = true;
+        end
         %------------------------------------------------------------------
     end
     PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
