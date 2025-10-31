@@ -436,7 +436,7 @@ switch test
         G        = 1;
         xm       =-3;
         xM       = 3;
-        K        = 100;
+        K        = 1000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -565,8 +565,8 @@ switch test
         abslayer = 0;
         alpha    = 1;
         G        = 1;
-        xm       = 0;
-        xM       = 0.5;
+        xm       = 0.00;
+        xM       = 0.50;
         K        = 200;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
@@ -578,18 +578,7 @@ switch test
         b        = 0.10;
         k        = pi./b;
         zb       = a.*(cos(k.*x)+1).*heaviside(x+b).*heaviside(b-x);
-
-      
-%         z = h0 + ( ( zb.*(1 - heaviside(x)) + ( zb.*heaviside(zb - hi) + hi.*(1 - heaviside(zb - hi)) ).*heaviside(x) ) - h0 ) ...
-%             .* heaviside( ( zb.*(1 - heaviside(x)) + ( zb.*heaviside(zb - hi) + hi.*(1 - heaviside(zb - hi)) ).*heaviside(x) ) - h0 );
-
-
         z        = h0+(zb-h0).*heaviside(zb-h0);
-%         hi = 0.2;
-%         z = (h0 + (zb - h0).*heaviside(zb - h0)).*(1 - heaviside(x)) + ( zb.*heaviside(zb - hi) + hi.*(1 - heaviside(zb - hi)) ).*heaviside(x);
-
-
-        %
         h        = z-zb;
         u        = 0;
         hu       = h.*u;

@@ -1,6 +1,5 @@
 function [g] = SWEc1(g, t, penParam)
 %--------------------------------------------------------------------------
-test     = g.test;
 K        = g.numE;
 N        = g.N;
 bf       = g.bf;
@@ -8,6 +7,7 @@ G        = g.data.G;
 drytol   = g.drytol;
 veltol   = g.velcutoff;
 vellim   = g.vellim;
+test     = g.test;
 S        = zeros(K, N);
 if ismembc(test, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
     g = computephi(g, t, penParam);
@@ -43,26 +43,22 @@ Huquad   = Hudof*bf';
 %--------------------------------------------------------------------------
 switch vellim
     case 1
-        %{
-        Huquad  = H_quad.*(Huquad./H_quad);
-        %}
-        W11quad = H_quad.*(Huquad./H_quad).^2;
+        W2quad = H_quad.*(Huquad./H_quad).^2;
     case 2
-        W11quad = H_quad.*kurganov_desingularise(H_quad.^2, Huquad.^2);
-        %       =         kurganov_desingularise(H_quad   , Huquad.^2); % DO NOT ATTEMPT THIS!
-        %       = Huquad.*kurganov_desingularise(H_quad   , Huquad);
+        W2quad = H_quad.*kurganov_desingularise(H_quad.^2, Huquad.^2);
+        %      =         kurganov_desingularise(H_quad   , Huquad.^2); % DO NOT ATTEMPT THIS!
+        %      = Huquad.*kurganov_desingularise(H_quad   , Huquad);
     otherwise
         return
 end
-Huquad (H_quad < drytol | H_quad < veltol) = 0;
-W11quad(H_quad < drytol | H_quad < veltol) = 0;
-
+log         = H_quad < drytol | H_quad < veltol;
+Huquad(log) = 0;
+W2quad(log) = 0;
 
 if any(H_quad < 0, 'all')
     xx = 1;
 end
-
-if max(abs(W11quad), [], 'all') > 1
+if max(abs(W2quad), [], 'all') > 1
     xx = 1;
 end
 
@@ -71,8 +67,8 @@ DK            = g.DKc;
 fk_           = g.fkc;
 HU            = permute(Huquad , [2, 3, 1]);
 GZ2           = permute(GZ2quad, [2, 3, 1]);
-W11           = permute(W11quad, [2, 3, 1]);
-F_            = pagemtimes(DK, [HU, W11+GZ2]);
+W2            = permute(W2quad , [2, 3, 1]);
+F_            = pagemtimes(DK, [HU, W2+GZ2]);
 F_            = permute(F_, [3, 1, 2]);
 F_(:, :, 2)   = F_(:, :, 2)-GZ1quad*fk_'+S;
 %--------------------------------------------------------------------------

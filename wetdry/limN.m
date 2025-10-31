@@ -29,7 +29,7 @@ Zbr    = Zbdof*fr';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Loop through "problematic" faces:
 %--------------------------------------------------------------------------
-log2l           = H_l(1:K, 1) < drytol; % maybe este criterio tem de ser refinado, nao?
+log2l           = H_l(1:K, 1) < drytol;
 log2r           = H_r(1:K, 1) < drytol;
 log2            = false(Kf, 1);
 log2(1:Kf-1, 1) = log2(1:Kf-1, 1) | log2l;
@@ -47,14 +47,7 @@ f               = find(log2);
 n               = size(f, 1);
 %--------------------------------------------------------------------------
 
-
-flag = 0;
-if g.nit > 6145
-    flag = 0;
-    xx = 1;
-end
-
-if n > 1
+if n > 2
     yy = 1;
 end
 
@@ -77,29 +70,25 @@ for i = 1:n
         %  Z_l(r, 1) > Z_L
         if Zbl(r, 1) > Z_L-drytol % WHY
             Zrl            = Z_L;
-            g.x  (l, :, 1) = Z_L;
+            g.x  (l, :, 1) = Zrl;
             g.x  (l, :, 2) = Hum(l, 1);
-            g.zb (l, :)    =-H_m(l, 1)+Z_L;
+            g.zb (l, :)    =-H_m(l, 1)+Zrl;
             g.fix(l, 1)    = true;
         end
-        if Zlr <= Zrl
-            g.x  (r, :, 1) = Zrl;
-            g.x  (r, :, 2) = 0;
-            g.zb (r, :)    = Zrl;
-            g.fix(r, 1)    = true;
-        end
+        g.x  (r, :, 1) = Zrl;
+        g.x  (r, :, 2) = 0;
+        g.zb (r, :)    = Zrl;
+        g.fix(r, 1)    = true;
         %------------------------------------------------------------------
-
-        PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
     end
     if dryl
         %------------------------------------------------------------------
         %  Z_r(l, 1) > Z_R
         if Zbr(l, 1) > Z_R-drytol % WHY
             Zlr            = Z_R;
-            g.x  (r, :, 1) = Z_R;
+            g.x  (r, :, 1) = Zlr;
             g.x  (r, :, 2) = Hum(r, 1);
-            g.zb (r, :)    =-H_m(r, 1)+Z_R;
+            g.zb (r, :)    =-H_m(r, 1)+Zlr;
             g.fix(r, 1)    = true;
         end
         g.x  (l, :, 1) = Zlr;
@@ -107,10 +96,8 @@ for i = 1:n
         g.zb (l, :)    = Zlr;
         g.fix(l, 1)    = true;
         %------------------------------------------------------------------
-  
-
-        PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
     end
+    PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
     %----------------------------------------------------------------------
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

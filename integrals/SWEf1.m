@@ -8,6 +8,7 @@ bfr    = g.bfr;
 G      = g.data.G;
 drytol = g.drytol;
 veltol = g.velcutoff;
+vellim   = g.vellim;
 Fi_    = g.Fi_hyp;
 Fil    = g.Fi_hypl;
 Fir    = g.Fi_hypr;
@@ -70,16 +71,16 @@ vollambda(isinf(vollambda) | isnan(vollambda)) = 1./eps;
 % FLUX:
 %--------------------------------------------------------------------------
 % INT:
-F_l = hydro_reconstruction2(drytol, veltol, G, ...
+F_l = hydro_reconstruction2(drytol, veltol, vellim, G, ...
     Z_l(2:K  , 1), Z_r(1:K-1, 1), ...
     Hul(2:K  , 1), Hur(1:K-1, 1), Zbl(2:K  , 1), Zbr(1:K-1, 1), LAMBDA, -1);
-F_r = hydro_reconstruction2(drytol, veltol, G, ...
+F_r = hydro_reconstruction2(drytol, veltol, vellim, G, ...
     Z_r(1:K-1, 1), Z_l(2:K  , 1), ...
     Hur(1:K-1, 1), Hul(2:K  , 1), Zbr(1:K-1, 1), Zbl(2:K  , 1), LAMBDA, +1);
 %--------------------------------------------------------------------------
 % BND:
-Fbl = hydro_reconstruction2(drytol, veltol, G, Z_l(1, 1), Z_lb, Hul(1, 1), Hulb, Zbl(1, 1), Zbl(1, 1), LAMBDA, -1);
-Fbr = hydro_reconstruction2(drytol, veltol, G, Z_r(K, 1), Z_rb, Hur(K, 1), Hurb, Zbr(K, 1), Zbr(K, 1), LAMBDA, +1);
+Fbl = hydro_reconstruction2(drytol, veltol, vellim, G, Z_l(1, 1), Z_lb, Hul(1, 1), Hulb, Zbl(1, 1), Zbl(1, 1), LAMBDA, -1);
+Fbr = hydro_reconstruction2(drytol, veltol, vellim, G, Z_r(K, 1), Z_rb, Hur(K, 1), Hurb, Zbr(K, 1), Zbr(K, 1), LAMBDA, +1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % INTEGRALS:
 %--------------------------------------------------------------------------
