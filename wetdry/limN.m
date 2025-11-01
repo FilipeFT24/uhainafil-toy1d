@@ -47,8 +47,14 @@ f               = find(log2);
 n               = size(f, 1);
 %--------------------------------------------------------------------------
 
+H_aux = H_dof-drytol;
+
 if n > 1
     yy = 1;
+end
+
+if g.nit > 3793
+    disp(f);
 end
 
 %--------------------------------------------------------------------------
@@ -66,28 +72,25 @@ for i = 1:n
     %----------------------------------------------------------------------
 %     if ~log2l(l, 1) && ~log2r(r, 1)
 %         continue
-%         xx = 1;
 %     end
 
 
-    if log2r(l, 1) && (~log2l(r, 1) || log2l(l, 1))
+    if g.nit > 3793
+        x = 1;
+    end
+
+    if (log2r(l, 1) && (~log2l(r, 1) || log2l(l, 1)))
         %------------------------------------------------------------------
         % DRY/WET
         %------------------------------------------------------------------
-
-        if ((Z_r(l, 1) > Z_R) && ~(Zbr(l, 1) > Z_R-drytol)) || (~(Z_r(l, 1) > Z_R) && (Zbr(l, 1) > Z_R-drytol))
-            xx = 1;
-        end
-
-        % Z_r(l, 1) > Z_R
-        if Zbr(l, 1) > Z_R-drytol % WHY
-            Zlr            = Z_R;
+        if Zbr(l, 1) > Z_R-drytol %Z_r(l, 1) > Z_R
+            Zlr            = min(Z_R, Z_L);
             g.x  (r, :, 1) = Zlr;
             g.x  (r, :, 2) = Hum(r, 1);
             g.zb (r, :)    =-H_m(r, 1)+Zlr;
             g.fix(r, 1)    = true;
         end
-        if Zrl < Zlr%log2l(l, 1) && 
+        if Zrl < Zlr
             g.x  (l, :, 1) = Zlr;
             g.x  (l, :, 2) = 0;
             g.zb (l, :)    = Zlr;
@@ -98,14 +101,8 @@ for i = 1:n
         %------------------------------------------------------------------
         % WET/DRY
         %------------------------------------------------------------------
-
-        if ((Z_l(r, 1) > Z_L) && ~(Zbl(r, 1) > Z_L-drytol)) || (~(Z_l(r, 1) > Z_L) && (Zbl(r, 1) > Z_L-drytol))
-            xx = 1;
-        end
-
-        % Z_l(r, 1) > Z_L
-        if Zbl(r, 1) > Z_L-drytol
-            Zrl            = Z_L;
+        if Zbl(r, 1) > Z_L-drytol %Z_l(r, 1) > Z_L
+            Zrl            = min(Z_L, Z_R);
             g.x  (l, :, 1) = Zrl;
             g.x  (l, :, 2) = Hum(l, 1);
             g.zb (l, :)    =-H_m(l, 1)+Zrl;
@@ -113,8 +110,8 @@ for i = 1:n
         end
         if Zlr < Zrl
             g.x  (r, :, 1) = Zrl;
-            g.x  (r, :, 2) = Hum(r, 1);
-            g.zb (r, :)    =-H_m(r, 1)+Zrl;
+            g.x  (r, :, 2) = 0;
+            g.zb (r, :)    = Zrl;
             g.fix(r, 1)    = true;
         end
         %------------------------------------------------------------------

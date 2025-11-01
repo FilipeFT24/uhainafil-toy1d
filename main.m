@@ -83,7 +83,7 @@ velcutoff = drytol;
 vellim    = 1;
 itype     = 1;     % 0: uhaina: interpolation
                    % 1: my:     projection
-CFL       = 0.02;  % CFL./(2.*p+1);
+CFL       = 0.05;  % CFL./(2.*p+1);
 penParam  = 1000;
 run       = 1;
 %--------------------------------------------------------------------------
