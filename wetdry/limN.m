@@ -92,6 +92,7 @@ for i = 1:n
             g.zb (r, :)    = Zrl;
             g.fix(r, 1)    = true;
         end
+        PLOT(1, g, l, r, Z_dof, Zbdof, drytol);
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % DRY/WET
@@ -110,6 +111,7 @@ for i = 1:n
             g.zb (l, :)    = Zlr;
             g.fix(l, 1)    = true;
         end
+        PLOT(1, g, l, r, Z_dof, Zbdof, drytol);
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
