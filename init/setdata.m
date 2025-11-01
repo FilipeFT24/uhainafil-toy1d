@@ -427,7 +427,7 @@ switch test
         % 14) T14 - Lake at rest
         %------------------------------------------------------------------
         wetdry   = 1;
-        h0       = 0.2;
+        h0       = 0.21;
         nm       = 0;
         option   = 0;
         %------------------------------------------------------------------
@@ -436,7 +436,7 @@ switch test
         G        = 1;
         xm       =-3;
         xM       = 3;
-        K        = 300;
+        K        = 10000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -445,14 +445,14 @@ switch test
         %------------------------------------------------------------------
         switch option
             case 0 % EXP (DOESN'T WORK NUMERICALLY I.E., DOESN'T KEEP REST STATE)
-                zb1 =-0.25.*exp(-50.*(x+1).^2); % WET
-                zb2 = 0.25.*exp(-25.*(x-1).^2); % DRY
+                zb1 =-0.40.*exp(-50.*(x+1).^2); % WET
+                zb2 = 0.40.*exp(-25.*(x-1).^2); % DRY
             case 1 % LINEAR
                 zb1 =-0.50.*((x+1.50).*heaviside(x+1.50).*heaviside(-(1.00+x))+(-0.50-x).*heaviside(-0.50-x).*heaviside(x+1.00));
                 zb2 = 0.50.*((x-0.50).*heaviside(x-0.50).*heaviside( (1.00-x))+( 1.50-x).*heaviside( 1.50-x).*heaviside(x-1.00));
             case 2 % QUADRATIC
-                zb1 =-0.5.*(1-((x+1)./0.5).^2).*heaviside(x+1.5).*heaviside(-0.5-x);
-                zb2 = 0.5.*(1-((x-1)./0.5).^2).*heaviside(x-0.5).*heaviside( 1.5-x);
+                zb1 =-0.25.*(1-((x+1)./0.5).^2).*heaviside(x+1.5).*heaviside(-0.5-x);
+                zb2 = 0.25.*(1-((x-1)./0.5).^2).*heaviside(x-0.5).*heaviside( 1.5-x);
             otherwise
                 return
         end
@@ -558,7 +558,7 @@ switch test
         % 16) T16 - Drying of a lake
         %------------------------------------------------------------------
         wetdry   = 1;
-        h0       = 0.48;
+        h0       = 0.45;
         nm       = 0;
         option   = 1;
         %------------------------------------------------------------------
@@ -567,7 +567,7 @@ switch test
         G        = 1;
         xm       = 0.00;
         xM       = 0.20;
-        K        = 300;
+        K        = 600;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
