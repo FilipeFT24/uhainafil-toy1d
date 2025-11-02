@@ -79,20 +79,37 @@ for i = 1:n
     % WET/DRY
     %----------------------------------------------------------------------
     if log2l(r, 1)
-        %if Zbl(r, 1) > Z_L-drytol %Z_l(r, 1) > Z_L
-            Zrl            = Z_R;
-            g.x  (l, :, 1) = Zrl;
-            g.x  (l, :, 2) = Hum(l, 1);
-            g.zb (l, :)    =-H_m(l, 1)+Zrl;
-            g.fix(l, 1)    = true;
-        %end
+
+        if Zrl > Z_L
+            Zrl = Z_L;
+        elseif Zrl > Z_R
+            Zrl = Z_R;
+        end
+
+
+
+
+        if Zlr > Zrl
+            yy = 1;
+        end
+
+%         %if Zbl(r, 1) > Z_L-drytol %Z_l(r, 1) > Z_L
+%             Zrl            = Z_X;
+%             g.x  (l, :, 1) = Zrl;
+%             g.x  (l, :, 2) = Hum(l, 1);
+%             g.zb (l, :)    =-H_m(l, 1)+Zrl;
+%             g.fix(l, 1)    = true;
+%         %end
         if Zlr < Zrl
             g.x  (r, :, 1) = Zrl;
             g.x  (r, :, 2) = 0;
             g.zb (r, :)    = Zrl;
             g.fix(r, 1)    = true;
         end
-        PLOT(1, g, l, r, Z_dof, Zbdof, drytol);
+
+        if g.nit > 4e3
+            PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
+        end
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % DRY/WET
@@ -111,7 +128,7 @@ for i = 1:n
             g.zb (l, :)    = Zlr;
             g.fix(l, 1)    = true;
         end
-        PLOT(1, g, l, r, Z_dof, Zbdof, drytol);
+        PLOT(0, g, l, r, Z_dof, Zbdof, drytol);
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end

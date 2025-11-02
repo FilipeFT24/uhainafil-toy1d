@@ -567,7 +567,7 @@ switch test
         G        = 1;
         xm       =-0.20;
         xM       = 0.20;
-        K        = 100;
+        K        = 200;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K

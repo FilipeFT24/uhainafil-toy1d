@@ -42,7 +42,7 @@ else
         otherwise
             return
     end
-    Hulb = 0;%-Hul(1, 1);
+    Hulb =-Hul(1, 1);
     Hurb = 0;
     %{
     Z_lb = 1;
