@@ -46,60 +46,80 @@ n               = size(f, 1);
 %--------------------------------------------------------------------------
 
 H_aux = H_dof-tol;
-if n > 2
+if n > 1
     yy = 1;
 end
 
 %--------------------------------------------------------------------------
 for i = 1:n
     %----------------------------------------------------------------------
-    r   = f(i, 1);
-    l   = r-1;
-    L   = l-1;
-    R   = r+1;
-    Z_L = g.x(L, :, 1)*fr';
-    Zrl = g.x(l, :, 1)*fr';
-    Zlr = g.x(r, :, 1)*fl';
-    Z_R = g.x(R, :, 1)*fl';
+    r    = f(i, 1);
+    l    = r-1;
+    L    = l-1;
+    R    = r+1;
+    Z_L  = g.x(L, :, 1)*fr';
+    Zrl  = g.x(l, :, 1)*fr';
+    Zlr  = g.x(r, :, 1)*fl';
+    Z_R  = g.x(R, :, 1)*fl';
+    dryl = log2l(l, 1) && log2r(l, 1);
+    dryr = log2l(r, 1) && log2r(r, 1);
     %{
     Z_L = Z_r(L, 1);
     Zrl = Z_r(l, 1);
     Zlr = Z_l(r, 1);
     Z_R = Z_l(R, 1);
     %}
-    if log2l(r, 1) % hard-coded for p0
-        if Zlr > Z_L
+    %----------------------------------------------------------------------
+    if dryr % wet/dry
+        if Zbl(r, 1) > Z_L-tol %Zlr > Z_L xxx
             Zrl            = Z_L;
             g.x  (l, :, 1) = Zrl;
             g.x  (l, :, 2) = Hum(l, 1);
             g.zb (l, :)    =-H_m(l, 1)+Zrl;
             g.fix(l, 1)    = true;
         end
-        %if Zlr < Zrl
-            g.x  (r, :, 1) = Z_R;%Zlr;
-            g.x  (r, :, 2) = 0;
-            g.zb (r, :)    = Z_R;%Zlr;
+
+        if Zlr-Zbr(l, 1) > tol%tol
+
+            Zlr            = Zrl;
+            g.x  (r, :, 1) = Zlr;
+            g.x  (r, :, 2) = Hum(r, 1);
+            g.zb (r, :)    =-H_m(r, 1)+Zlr;
             g.fix(r, 1)    = true;
-        %end
-    else
-        if Zrl > Z_R
+
+            xx = 1;
+        end
+
+        
+
+
+
+%         if Zlr > Zbl(r, 1)+tol
+% 
+%             Zlr            = Z_R;%Zrl;
+%             g.x  (r, :, 1) = Zlr;
+%             g.x  (r, :, 2) = Hum(r, 1);
+%             g.zb (r, :)    =-H_m(r, 1)+Zlr;
+%             g.fix(r, 1)    = true;
+% 
+%             %PLOT(1, g, l, r, Z_dof, Zbdof, tol);
+%         end
+    end
+    if dryl % dry/wet
+        if Zbr(l, 1) > Z_R-tol %Zrl > Z_R xxx
             Zlr            = Z_R;
             g.x  (r, :, 1) = Zlr;
             g.x  (r, :, 2) = Hum(r, 1);
             g.zb (r, :)    =-H_m(r, 1)+Zlr;
             g.fix(r, 1)    = true;
         end
-        %if Zrl < Zlr
-            g.x  (l, :, 1) = Zrl;
-            g.x  (l, :, 2) = Hum(l, 1);
-            g.zb (l, :)    =-H_m(l, 1)+Zrl;
-            g.fix(l, 1)    = true;
-        %else
-        %    PLOT(0, g, l, r, Z_dof, Zbdof, tol);
-        %end
-        
+        Zrl            = Zlr; % Z_L
+        g.x  (l, :, 1) = Zrl;
+        g.x  (l, :, 2) = Hum(l, 1);
+        g.zb (l, :)    =-H_m(l, 1)+Zrl;
+        g.fix(l, 1)    = true;
     end
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %----------------------------------------------------------------------
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % POSITIVITY-PRESERVING LIMITER:
