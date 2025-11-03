@@ -494,7 +494,7 @@ switch test
                 return
         end
         gamma    = sqrt(3.*A1./(4.*h0));
-        xs       = 15;%1./slope+1./gamma.*acosh(sqrt(1./0.05));
+        xs       = 1./slope+1./gamma.*acosh(sqrt(1./0.05));
         xm       =-20;
         xM       = 80;
         K        = 1000;

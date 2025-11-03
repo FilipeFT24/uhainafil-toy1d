@@ -8,7 +8,7 @@ bfr    = g.bfr;
 G      = g.data.G;
 drytol = g.drytol;
 veltol = g.velcutoff;
-vellim   = g.vellim;
+vellim = g.vellim;
 Fi_    = g.Fi_hyp;
 Fil    = g.Fi_hypl;
 Fir    = g.Fi_hypr;
@@ -34,7 +34,7 @@ if g.test ~= 16
 else
     switch g.data.opt
         case 1
-            Z_lb = Z_l(1, 1);
+            Z_lb = 0.40;%Z_l(1, 1);
             Z_rb = 0.40;
         case 2
             Z_lb = 0.60;
@@ -42,7 +42,7 @@ else
         otherwise
             return
     end
-    Hulb =-Hul(1, 1);
+    Hulb = 0;%-Hul(1, 1);
     Hurb = 0;
     %{
     Z_lb = 1;

@@ -14,16 +14,14 @@ g     = lim0(g);
 %--------------------------------------------------------------------------
 Z_dof = g.x(:, :, 1);
 Hudof = g.x(:, :, 2);
-Zbdof = g.zb;
-H_dof = Z_dof-Zbdof;
+B_dof = g.zb;
+H_dof = Z_dof-B_dof;
 H_m   = meanval(g, H_dof);
 Hum   = meanval(g, Hudof);
+B_l   = B_dof*fl';
+B_r   = B_dof*fr';
 H_l   = H_dof*fl';
 H_r   = H_dof*fr';
-Z_l   = Z_dof*fl';
-Z_r   = Z_dof*fr';
-Zbl   = Zbdof*fl';
-Zbr   = Zbdof*fr';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Loop through "problematic" faces:
 %--------------------------------------------------------------------------
@@ -46,7 +44,7 @@ n               = size(f, 1);
 %--------------------------------------------------------------------------
 
 H_aux = H_dof-tol;
-if n > 1
+if n > 2
     yy = 1;
 end
 
@@ -57,10 +55,12 @@ for i = 1:n
     l    = r-1;
     L    = l-1;
     R    = r+1;
-    Z_L  = g.x(L, :, 1)*fr';
-    Zrl  = g.x(l, :, 1)*fr';
-    Zlr  = g.x(r, :, 1)*fl';
-    Z_R  = g.x(R, :, 1)*fl';
+    Brl  = g.zb(l, :   )*fr';
+    Blr  = g.zb(r, :   )*fl';
+    Z_L  = g.x (L, :, 1)*fr';
+    Zrl  = g.x (l, :, 1)*fr';
+    Zlr  = g.x (r, :, 1)*fl';
+    Z_R  = g.x (R, :, 1)*fl';
     dryl = log2l(l, 1) && log2r(l, 1);
     dryr = log2l(r, 1) && log2r(r, 1);
     %{
@@ -69,55 +69,58 @@ for i = 1:n
     Zlr = Z_l(r, 1);
     Z_R = Z_l(R, 1);
     %}
+
+    % falta o tratamento de quando tens uma face entre wets
+
     %----------------------------------------------------------------------
-    if dryr % wet/dry
-        if Zbl(r, 1) > Z_L-tol %Zlr > Z_L xxx
-            Zrl            = Z_L;
-            g.x  (l, :, 1) = Zrl;
-            g.x  (l, :, 2) = Hum(l, 1);
-            g.zb (l, :)    =-H_m(l, 1)+Zrl;
-            g.fix(l, 1)    = true;
-        end
-
-        if Zlr-Zbr(l, 1) > tol%tol
-
-            Zlr            = Zrl;
-            g.x  (r, :, 1) = Zlr;
-            g.x  (r, :, 2) = Hum(r, 1);
-            g.zb (r, :)    =-H_m(r, 1)+Zlr;
-            g.fix(r, 1)    = true;
-
+    if ~dryl
+        if ~dryr
+            %--------------------------------------------------------------
+            % wet/wet
             xx = 1;
-        end
+            %--------------------------------------------------------------
+        else
+            %--------------------------------------------------------------
+            % wet/dry
+            if Z_L < Brl+tol % compare downstream water level to max. bathymetry level: if not enough to flood, set to Z_L
+                Zrl            = Z_L;
+                Brl            =-H_m(l, 1)+Zrl;
+                g.x  (l, :, 1) = Zrl;
+                g.x  (l, :, 2) = Hum(l, 1);
+                g.zb (l, :)    = Brl;
+                g.fix(l, 1)    = true;
+            end
+            %if Zrl < Zlr && B_r(l, 1) < B_l(r, 1)
+                Zlr            = Zrl;%Brl+tol;%Zrl;%Brl+tol;
+                g.x  (r, :, 1) = Zlr;
+                g.x  (r, :, 2) = 0;
+                g.zb (r, :)    = Zlr;
+                g.fix(r, 1)    = true;
+                
+                PLOT(0, g, l, r, Z_dof, B_dof, tol);
+            %end
 
         
 
-
-
-%         if Zlr > Zbl(r, 1)+tol
-% 
-%             Zlr            = Z_R;%Zrl;
-%             g.x  (r, :, 1) = Zlr;
-%             g.x  (r, :, 2) = Hum(r, 1);
-%             g.zb (r, :)    =-H_m(r, 1)+Zlr;
-%             g.fix(r, 1)    = true;
-% 
-%             %PLOT(1, g, l, r, Z_dof, Zbdof, tol);
-%         end
-    end
-    if dryl % dry/wet
-        if Zbr(l, 1) > Z_R-tol %Zrl > Z_R xxx
+            %--------------------------------------------------------------
+        end
+    else
+        %------------------------------------------------------------------
+        % dry/wet
+        if Z_R < Brl+tol
             Zlr            = Z_R;
+            Blr            =-H_m(r, 1)+Zlr; 
             g.x  (r, :, 1) = Zlr;
             g.x  (r, :, 2) = Hum(r, 1);
-            g.zb (r, :)    =-H_m(r, 1)+Zlr;
+            g.zb (r, :)    = Blr;
             g.fix(r, 1)    = true;
         end
         Zrl            = Zlr; % Z_L
         g.x  (l, :, 1) = Zrl;
-        g.x  (l, :, 2) = Hum(l, 1);
-        g.zb (l, :)    =-H_m(l, 1)+Zrl;
+        g.x  (l, :, 2) = 0;
+        g.zb (l, :)    = Zrl;
         g.fix(l, 1)    = true;
+        %------------------------------------------------------------------
     end
     %----------------------------------------------------------------------
 end
@@ -131,7 +134,7 @@ end
 end
 
 
-function [] = PLOT(flag, g, l, r, Z_dof, Zbdof, drytol)
+function [] = PLOT(flag, g, l, r, Z_dof, B_dof, tol)
 %
 if flag
     switch g.p
@@ -152,7 +155,7 @@ if flag
     hold on;
     for j = l-1:r+1
         plot(g.xydc(j, aux), Z_dof(j, aux), '--ob');
-        plot(g.xydc(j, aux), Zbdof(j, aux),  ':*k');
+        plot(g.xydc(j, aux), B_dof(j, aux),  ':*k');
     end
     subplot(1, 2, 2);
     hold on;
