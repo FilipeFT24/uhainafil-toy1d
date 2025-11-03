@@ -35,7 +35,7 @@ else
     switch g.data.opt
         case 1
             Z_lb = Z_l(1, 1);
-            Z_rb = 0.30;%Z_r(K, 1);%0.30;
+            Z_rb = 0.40;
         case 2
             Z_lb = 0.60;
             Z_rb = 0.40;
