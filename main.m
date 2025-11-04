@@ -59,7 +59,10 @@ dirs = [...
     "Plot/T15 - Synolakis/FRAMES/", ...
     "Plot/T16 - Drying of a lake/", ...
     "Plot/T16 - Drying of a lake/DATA/", ...
-    "Plot/T16 - Drying of a lake/FRAMES/"];
+    "Plot/T16 - Drying of a lake/FRAMES/", ...
+    "Plot/T17 - Wave generation/", ...
+    "Plot/T17 - Wave generation/DATA/", ...
+    "Plot/T17 - Wave generation/FRAMES/"];
 for i = 1:numel(dirs)
     folder = dirs(1, i);
     if ~isfolder(folder)
@@ -74,16 +77,16 @@ for i = 1:size(fc, 1)
     set(groot, strrep(fn{fc(i, 1)}, 'factory', 'default'), 'latex');
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p         = 2;
-test      = 16;
+p         = 1;
+test      = 17;
 data      = setdata(test, 1);
 g         = MSH(data.xv, p);
-drytol    = 2.0e-02;
-velcutoff = drytol;
+drytol    = 1.0e-02;
+velcutoff = drytol; %change
 vellim    = 1;
 itype     = 1;     % 0: uhaina: interpolation
                    % 1: my:     projection
-CFL       = 0.01;  % CFL./(2.*p+1);
+CFL       = 0.02;  % CFL./(2.*p+1);
 penParam  = 1000;
 run       = 1;
 %--------------------------------------------------------------------------
@@ -99,7 +102,7 @@ if run
     switch test
         case {1, 2, 3, 4, 5}
             obj = PlotA1(g);
-        case {6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+        case {6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17}
             obj = PlotA2(g);
         otherwise
             return

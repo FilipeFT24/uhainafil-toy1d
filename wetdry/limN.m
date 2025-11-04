@@ -44,7 +44,7 @@ n               = size(f, 1);
 %--------------------------------------------------------------------------
 
 H_aux = H_dof-tol;
-if n > 2
+if n > 1
     yy = 1;
 end
 
@@ -53,14 +53,18 @@ for i = 1:n
     %----------------------------------------------------------------------
     r    = f(i, 1);
     l    = r-1;
+    %{
     L    = l-1;
     R    = r+1;
+    Z_L  = g.x (L, :, 1)*fr';
+    Z_R  = g.x (R, :, 1)*fl';
+    %}
     Brl  = g.zb(l, :   )*fr';
     Blr  = g.zb(r, :   )*fl';
-    Z_L  = g.x (L, :, 1)*fr';
+    Z_L  = g.x (l, :, 1)*fl';
+    Z_R  = g.x (r, :, 1)*fr';
     Zrl  = g.x (l, :, 1)*fr';
     Zlr  = g.x (r, :, 1)*fl';
-    Z_R  = g.x (R, :, 1)*fl';
     dryl = log2l(l, 1) && log2r(l, 1);
     dryr = log2l(r, 1) && log2r(r, 1);
     %{
@@ -90,18 +94,24 @@ for i = 1:n
                 g.zb (l, :)    = Brl;
                 g.fix(l, 1)    = true;
             end
-            %if Zrl < Zlr && B_r(l, 1) < B_l(r, 1)
-                Zlr            = Zrl;%Brl+tol;%Zrl;%Brl+tol;
+            %
+            if Zrl > Zlr && Brl < Blr
+                Zlr            = Zrl;%min(Zrl, Brl+tol);%Zrl;
                 g.x  (r, :, 1) = Zlr;
-                g.x  (r, :, 2) = 0;
-                g.zb (r, :)    = Zlr;
+                g.x  (r, :, 2) = Hum(r, 1);
+                g.zb (r, :)    =-H_m(r, 1)+Zlr;
                 g.fix(r, 1)    = true;
-                
-                PLOT(0, g, l, r, Z_dof, B_dof, tol);
-            %end
+            end
+%             if Zrl < Blr+tol
+%                 Zlr            = min(Zrl, Blr+tol);
+%                 g.x  (r, :, 1) = Zlr;
+%                 g.x  (r, :, 2) = 0;
+%                 g.zb (r, :)    = Zlr;
+%                 g.fix(r, 1)    = true;
+%             end
 
-        
-
+    
+         
             %--------------------------------------------------------------
         end
     else
@@ -155,13 +165,13 @@ if flag
     hold on;
     for j = l-1:r+1
         plot(g.xydc(j, aux), Z_dof(j, aux), '--ob');
-        plot(g.xydc(j, aux), B_dof(j, aux),  ':*k');
+        plot(g.xydc(j, aux), B_dof(j, aux)+tol,  ':*k');
     end
     subplot(1, 2, 2);
     hold on;
     for j = l-1:r+1
         plot(g.xydc(j, aux), g.x(j, aux, 1), '--ob');
-        plot(g.xydc(j, aux), g.zb(j, aux), ':*k');
+        plot(g.xydc(j, aux), g.zb(j, aux)+tol, ':*k');
     end
     close(f1);
 end

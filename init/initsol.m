@@ -53,6 +53,7 @@ for o = 1:K
     end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+g.itype     = itype;
 g.drytol    = drytol;
 g.velcutoff = velcutoff;
 g.vellim    = vellim;
@@ -76,11 +77,12 @@ X           = zeros(K, N, 2);
 X(:, :, 1)  = inittype(itype, @(x) g.data.Z (x, t), xydc, xyqc, fi_aux);
 X(:, :, 2)  = inittype(itype, @(x) g.data.HU(x, t), xydc, xyqc, fi_aux);
 Zbdof       = inittype(itype, @(x) g.data.Zb(x, t), xydc, xyqc, fi_aux);
+g.xydc      = xydc;
+g.xyqc      = xyqc;
+g.fi_aux    = fi_aux;
 g.x         = X;
 g.zbinit    = Zbdof;
 g.zb        = Zbdof;
-%
-g.xydc      = xydc;
 %--------------------------------------------------------------------------
 g.fix       = false(K, 1);
 if g.data.wetdry

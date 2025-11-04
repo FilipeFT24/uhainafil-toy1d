@@ -497,7 +497,7 @@ switch test
         xs       = 1./slope+1./gamma.*acosh(sqrt(1./0.05));
         xm       =-20;
         xM       = 80;
-        K        = 1000;
+        K        = 300;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -567,7 +567,7 @@ switch test
         G        = 1;
         xm       =-0.20;
         xM       = 0.20;
-        K        = 200;
+        K        = 201;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -585,8 +585,72 @@ switch test
         tend     = 1000;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    otherwise
-        return;
+    case 17
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % 17) T17 - Wave generation
+        %------------------------------------------------------------------
+        wetdry   = 0;
+        h0       = 0.4;
+        nm       = 0;
+        %------------------------------------------------------------------
+        abslayer = 0;
+        alpha    = 1;
+        %        = 1.159;
+        G        = 9.81;
+        sqrth0_G = sqrt(h0./G);
+        A1       = 0.025.*h0;
+        xm       =-15;
+        xM       = 30;
+        K        = 1000;
+        xv       = linspace(xm, xM, K+1)';
+        dx       = zeros(K, 1);
+        for i = 1:K
+            dx(i, 1) = xv(i+1, 1)-xv(i, 1);
+        end
+        %------------------------------------------------------------------
+        zb       =-h0;
+        %{
+        c        = sqrt(G.*(h0+A1));
+        k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
+        xs       = 0;
+        z        = A1.*sech(k.*(x-xs-c.*t)).^2;
+        h        = z-zb;
+        u        = c.*(1-h0./(h0+z));
+        hu       = h.*u;
+        %}
+        z        = 0;
+        h        = z-zb;
+        u        = 0;
+        hu       = 0;
+        tend     = 1000.*sqrth0_G;
+        tk       = tend;
+        %------------------------------------------------------------------
+        % WAVE GEN.
+        T        = 2.02;
+        omega    = 2.*pi/T;
+        wd       = omega.*h0;
+        wd2      = wd.^2;
+        kj       = sqrt(omega.^2./(G.*h0-1./3.*wd2));
+        %{
+        var1     = 1./3.*(alpha-1).*wd2-G.*h0;
+        var2     = var1.^2+4./3.*alpha.*G.*h0.*wd2;
+        var3     = (var1+sqrt(var2))./(2./3.*alpha.*G.*h0.^3);
+        kj       = sqrt(var3);
+        %}
+        a        = 0.01;
+        ur1      = @(x, t) a.*sin(omega.*t-kj.*x);
+        ur2      = @(x, t) ur1(x, t).*(omega./(kj.*h0));
+        data.Ur1 = ur1;
+        data.Ur2 = ur2;
+        %{
+        figure;
+        hold on;
+        plot(xv, ur1(xv, -5, 0), '-b');
+        plot(xv, ur2(xv, -5, 0), '-r');
+        %}
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+otherwise
+    return;
 end
 %--------------------------------------------------------------------------
 if test ~= 12

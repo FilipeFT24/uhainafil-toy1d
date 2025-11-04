@@ -235,6 +235,21 @@ switch test
         xtitle      = "$x$";
         ytitle      = "$\zeta$";
         %------------------------------------------------------------------
+    case 17
+        %------------------------------------------------------------------
+        path        = "Plot/T17 - Wave generation/DATA/Wg_";
+        %------------------------------------------------------------------
+        xlim        = [-15, 30];
+        xtick       =-15:15:30;
+        xticklabel  = ["-15", "0", "15", "30"];
+        %------------------------------------------------------------------
+        ylim        = [-0.050, 0.050];
+        ytick       =-0.050:0.025:0.050;
+        yticklabel  = ["-0.050", "-0.025", "0.000", "0.025", "0.050"];
+        %------------------------------------------------------------------
+        xtitle      = "$x$";
+        ytitle      = "$\zeta$";
+        %------------------------------------------------------------------
     otherwise
         return
 end
@@ -281,7 +296,7 @@ if test ~= 7
         Ph{1, 2} = plot(xc , Z_ , 'Color', Color(2, :), 'LineWidth', LW(1, 2));
         PlotX2(...
             ph(1, :), legendlabel, 'northeast', numcols);
-    elseif ismembc(test, [9, 11, 14, 15, 16])
+    elseif ismembc(test, [9, 11, 14, 15, 16, 17])
         if test == 15
             patch(...
                 [xlim(1, 1), xlim(1, 1), -19.85.*ylim(1, 1)], [ylim(1, 1), -xlim(1, 1)./19.85, ylim(1, 1)], grey, 'EdgeColor', grey);
@@ -297,6 +312,12 @@ if test ~= 7
             ybathy = meanval(g, g.zbinit);
             patch(...
                 xbathy, ybathy, grey, 'EdgeColor', grey);
+        end
+        if test == 17
+            xline(-10.00, '--', 'Color', 'k');
+            xline( 25.00, '--', 'Color', 'k');
+            yline(- 0.01,  ':', 'Color', 'r');
+            yline(  0.01,  ':', 'Color', 'r');
         end
         Ph{1, 2} = plot(xc , Z_ , 'Color', Color(2, :), 'LineWidth', LW(1, 2));
     elseif test == 10
@@ -355,7 +376,7 @@ switch test
             otherwise
                 return
         end
-    case {8, 10, 11, 13, 14, 16}
+    case {8, 10, 11, 13, 14, 16, 17}
         num1 = '';
     case 9
         switch g.data.opt
