@@ -19,21 +19,34 @@ for j = 1:ns
         xbr          = xv(K+1, 1);
         X            = zeros(K, N, V);
         X(:, :, 1)   = inittype(g.itype, @(x) g.data.Ur1(x, g.t), g.xydc, g.xyqc, g.fi_aux);
-        X(:, :, 2)   = inittype(g.itype, @(x) g.data.Ur2(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+        X(:, :, 2)   = inittype(g.itype, @(x) g.data.Ur2(x, g.t), g.xydc, g.xyqc, g.fi_aux); % em p2 isto nao deve ser g.t
         %------------------------------------------------------------------
-        La           = 40;
+        La           = 20;
         Lr           = 10;
-        xra          = (g.xydc-(xbr-La))./La;
-        xrg          = (g.xydc-(xbl   ))./Lr;
+        xra          = (g.xydc-(g.xydc(end)-La))./La;
+        xrg          = (g.xydc-(g.xydc(1)))./Lr;
         xra(xra < 0) = 0;
         xrg(xrg > 1) = 1;
         Cra          = sqrt(1-xra.^2);
-        Crg          = (1-xrg).^5;
-        for i = 1:V
+        Crg          = (1-xrg).^1;
+
+        sol1_old = g.x(:, :, 1);
+        sol2_old = g.x(:, :, 2);
+
+        for i = 1:2
             g.x(:, :, i) = (1-Crg).*g.x(:, :, i)+Crg.*X(:, :, i);
+            switch i
+                case 1
+                    sol1_new = g.x(:, :, 1);
+                case 2
+                    sol2_new = g.x(:, :, 2);
+                otherwise
+                    return
+            end
+        end
+        for i = 1:V
             g.x(:, :, i) = Cra.*g.x(:, :, i);
         end
-        %------------------------------------------------------------------
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     t = t0+dt.*g.tlvls(1, j);

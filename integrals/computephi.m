@@ -71,6 +71,7 @@ GHd1Z_quad_perm = permute(GHd1Z_quad, [2, 3, 1]);
 GHd1Z           = reshape(pagemtimes(g.F_Kc, GHd1Z_quad_perm), [N, K])';
 ghd1z1          = reshape(GHd1Z', [], 1);
 g.GHd1ZN        = GHd1Z_quad*g.fc;
+g.GHd1ZNX       = d1Z_quad*g.fc;
 %
 Q11_quad        = 2.*H_quad.*(d1H_quad+d1Zbquad./2).*kurganov_desingularise(H_quad.^4, W1quad.^2);
 %               = 2.*H_quad.*(d1H_quad+d1Zbquad./2).*(W1quad.^2./H_quad.^4);

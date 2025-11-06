@@ -4,11 +4,19 @@ h0   = g.data.h0;
 test = g.test;
 Za   = g.data.Z(obj.xc, g.t);
 H_   = sum(pagemtimes(g.x(:, :, 1)-g.zb, g.Wbf'), 2)./sum(g.W, 2);
-Z_   = sum(pagemtimes(g.x(:, :, 1)     , g.Wbf'), 2)./sum(g.W, 2);
+Z_   = sum(pagemtimes(g.x(:, :, 1), g.Wbf'), 2)./sum(g.W, 2);
 if test ~= 13 && test ~= 14 && test ~= 16 && test ~= 17
     Za = Za./h0;
     Z_ = Z_./h0;
 end
+
+if test == 17
+    Z_ = Z_./0.025;
+end
+
+
+
+
 %--------------------------------------------------------------------------
 if mod(g.nit, 1) == 0
     if test ~= 7
@@ -22,13 +30,13 @@ if mod(g.nit, 1) == 0
         end
     else
         PHIa = g.data.PHI(obj.xc, g.t);
-        HYDa = g.data.HYD(obj.xc, g.t);
+        HYDa = g.data.d1Z(obj.xc, g.t);
         HQ1a = g.data.HQ1(obj.xc, g.t);
         PHIh = sum(pagemtimes(g.PHIN  , g.Wbf'), 2)./sum(g.W, 2);
-        HYDh = sum(pagemtimes(g.GHd1ZN, g.Wbf'), 2)./sum(g.W, 2);
+        HYDh = sum(pagemtimes(g.GHd1ZNX, g.Wbf'), 2)./sum(g.W, 2);
         HQ1h = sum(pagemtimes(g.HQ1N  , g.Wbf'), 2)./sum(g.W, 2);
         set(obj.Ph{1, 1}, 'YData', Za);
-        set(obj.Ph{1, 2}, 'YData', Z_);
+        set(obj.Ph{1, 2}, 'YData', Z_); disp(max(Z_));
         set(obj.Ph{2, 1}, 'YData', PHIa);
         set(obj.Ph{2, 2}, 'YData', PHIh);
         set(obj.Ph{3, 1}, 'YData', HYDa);

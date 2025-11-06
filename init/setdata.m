@@ -214,7 +214,7 @@ switch test
             otherwise
                 return
         end
-        xm       =-100;
+        xm       =-200;
         xM       = 0;
         K        = 1000;
         xv       = linspace(xm, xM, K+1)';
@@ -225,7 +225,7 @@ switch test
         %------------------------------------------------------------------
         c        = sqrt(G.*(h0+A1));
         k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
-        xs       =-50;
+        xs       =-100;
         z        = A1.*sech(k.*(x-xs-c.*t)).^2;
         zb       =-h0+eps.*x;
         h        = z-zb;
@@ -426,7 +426,7 @@ switch test
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % 14) T14 - Lake at rest
         %------------------------------------------------------------------
-        wetdry   = 1;
+        wetdry   = 0;
         h0       = 0.21;
         nm       = 0;
         option   = 0;
@@ -445,8 +445,8 @@ switch test
         %------------------------------------------------------------------
         switch option
             case 0 % EXP (DOESN'T WORK NUMERICALLY I.E., DOESN'T KEEP REST STATE)
-                zb1 =-0.40.*exp(-50.*(x+1).^2); % WET
-                zb2 = 0.40.*exp(-25.*(x-1).^2); % DRY
+                zb1 = 0;%-0.40.*exp(-50.*(x+1).^2); % WET
+                zb2 = 0;%0.40.*exp(-25.*(x-1).^2); % DRY
             case 1 % LINEAR
                 zb1 =-0.50.*((x+1.50).*heaviside(x+1.50).*heaviside(-(1.00+x))+(-0.50-x).*heaviside(-0.50-x).*heaviside(x+1.00));
                 zb2 = 0.50.*((x-0.50).*heaviside(x-0.50).*heaviside( (1.00-x))+( 1.50-x).*heaviside( 1.50-x).*heaviside(x-1.00));
@@ -456,7 +456,7 @@ switch test
             otherwise
                 return
         end
-        zb       = zb1+zb2;
+        zb       = 0;%zb1+zb2;
         z        = h0+(zb-h0).*(0.5.*(sign(zb2.*heaviside(x)-h0)+1));
         h        = z-zb;
         u        = 0;
@@ -590,17 +590,16 @@ switch test
         % 17) T17 - Wave generation
         %------------------------------------------------------------------
         wetdry   = 0;
-        h0       = 1;
+        h0       = 0.5;
         nm       = 0;
         %------------------------------------------------------------------
         abslayer = 0;
         alpha    = 1;
-        %        = 1.159;
         G        = 10;
         sqrth0_G = sqrt(h0./G);
         xm       = 0;
         xM       = 100;
-        K        = 500;
+        K        = 1000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -608,21 +607,30 @@ switch test
         end
         %------------------------------------------------------------------
         % WAVE GEN.
-        T        = pi;
+        a1       = -(alpha-1)./3;
+        a        = -alpha./3;
+        T        = 4;
         omega    = 2.*pi./T;
         wd       = omega.*h0;
         wd2      = wd.^2;
-        k        = omega.*sqrt(1./(G.*h0-1./3.*wd2));
-        kd       = k.*h0;
-        a        = 0.01.*h0;
+        k        = roots([G.*h0.^3.*a1 0 -a.*wd2-G.*h0 0 omega.^2]);
+        %        = omega.*sqrt(1./(G.*h0-1./3.*wd2));
+        kd       = k(1, 1).*h0;
+        lambda   = 2.*pi./k(1, 1); %#ok<NASGU> 
+        A        = 0.05.*h0;
         %------------------------------------------------------------------
         zb       =-h0;
         z        = 0;
         h        = z-zb;
         u        = 0;
         hu       = 0;
-        ur1      = @(x, t) a.*sin(omega.*t-eps.*x);
-        ur2      = @(x, t) h0.*ur1(x, t).*(omega./(kd));
+
+        c        = sqrt(G.*(h0+A));
+        %z        = A.*sech(k.*(x-c.*t)).^2;
+
+
+        ur1      = @(x, t) A.*sech(k(1, 1).*(x-c.*t)).^2;%A.*cos(omega.*t-k(1, 1).*x);
+        ur2      = @(x, t) c.*(1-h0./(h0+ur1(x, t)));%h0.*ur1(x, t).*(omega./(kd));
         data.Ur1 = ur1;
         data.Ur2 = ur2;
         %{
@@ -654,6 +662,7 @@ data.nf       = 1800;
 data.tend     = tend;
 data.tk       = tk;
 data.xv       = xv;
+data.dx       = dx;
 if ismembc(test, [1, 2, 3, 4, 5, 6, 7, 9, 11, 12, 15, 16])
     if ismembc(test, [1, 11])
         data.bathy = bathy;

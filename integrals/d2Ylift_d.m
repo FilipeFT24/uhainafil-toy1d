@@ -64,19 +64,19 @@ if withbnd
 end
 MATd       = MATd+MATc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if g.data.wetdry
-    % CORRECT WET/DRY (only if specified):
-    dry_              = g.WD > 1;
-    ndry              = sum(dry_, 1);
-    dryu              = dry_;
-    dryl              = dry_;
-    if ~dry_(1, 1)
-        dryl = circshift(dryl, -1);
-    end
-    MATd (:, :, dry_) = repmat(eye  (N), 1, 1, ndry);
-    MATou(:, :, dryu) = repmat(zeros(N), 1, 1, ndry);
-    MATol(:, :, dryl) = repmat(zeros(N), 1, 1, ndry);
-end
+% if g.data.wetdry
+%     % CORRECT WET/DRY (only if specified):
+%     dry_              = g.WD > 1;
+%     ndry              = sum(dry_, 1);
+%     dryu              = dry_;
+%     dryl              = dry_;
+%     if ~dry_(1, 1)
+%         dryl = circshift(dryl, -1);
+%     end
+%     MATd (:, :, dry_) = repmat(eye  (N), 1, 1, ndry);
+%     MATou(:, :, dryu) = repmat(zeros(N), 1, 1, ndry);
+%     MATol(:, :, dryl) = repmat(zeros(N), 1, 1, ndry);
+% end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 MATo     = cat(3, MATol, MATou);
