@@ -12,8 +12,8 @@ Xj        = g.Xj;
 %--------------------------------------------------------------------------
 Z_dof     = g.x(:, :, 1);
 Hudof     = g.x(:, :, 2);
-Zbdof     = g.Zbdof;
-H_dof     = Z_dof-Zbdof;
+B_dof     = g.zb;
+H_dof     = Z_dof-B_dof;
 %--------------------------------------------------------------------------
 fl        = g.fl_disp;
 fr        = g.fr_disp;
@@ -21,18 +21,18 @@ Hul       = Hudof*fl';
 Hur       = Hudof*fr';
 Zl        = Z_dof*fl';
 Zr        = Z_dof*fr';
-Zbl       = Zbdof*fl';
-Zbr       = Zbdof*fr';
+Bl       = B_dof*fl';
+Br       = B_dof*fr';
 [H_jmpl, Hujmpl, Z_jmpl, Zbjmpl] = ...
-    hydro_reconstruction1(Hul(2:K  , 1), Hur(1:K-1, 1), Zl(2:K  , 1), Zr(1:K-1, 1), Zbl(2:K  , 1), Zbr(1:K-1, 1));
+    hydro_reconstruction1(Hul(2:K  , 1), Hur(1:K-1, 1), Zl(2:K  , 1), Zr(1:K-1, 1), Bl(2:K  , 1), Br(1:K-1, 1));
 [H_jmpr, Hujmpr, Z_jmpr, Zbjmpr] = ...
-    hydro_reconstruction1(Hur(1:K-1, 1), Hul(2:K  , 1), Zr(1:K-1, 1), Zl(2:K  , 1), Zbr(1:K-1, 1), Zbl(2:K  , 1));
+    hydro_reconstruction1(Hur(1:K-1, 1), Hul(2:K  , 1), Zr(1:K-1, 1), Zl(2:K  , 1), Br(1:K-1, 1), Bl(2:K  , 1));
 %--------------------------------------------------------------------------
 d1H_dof   = d1Xlift_d(g,   H_dof         ,   H_jmpl,   H_jmpr, 1); % eq.1: cont.
 d2H_dof   = d2Xlift_d(g,   H_dof, d1H_dof,   H_jmpl,   H_jmpr, 1); % eq.1: cont.
 d1Z_dof   = d1Xlift_d(g,   Z_dof         ,   Z_jmpl,   Z_jmpr, 1); % eq.1: cont.
-d1Zbdof   = d1Xlift_d(g,   Zbdof         ,   Zbjmpl,   Zbjmpr, 1); % eq.1: cont.
-d2Zbdof   = d2Xlift_d(g,   Zbdof, d1Zbdof,   Zbjmpl,   Zbjmpr, 1); % eq.1: cont.
+d1Zbdof   = d1Xlift_d(g,   B_dof         ,   Zbjmpl,   Zbjmpr, 1); % eq.1: cont.
+d2Zbdof   = d2Xlift_d(g,   B_dof, d1Zbdof,   Zbjmpl,   Zbjmpr, 1); % eq.1: cont.
 %--------------------------------------------------------------------------
 d1Zbl     = d1Zbdof*fl';
 d1Zbr     = d1Zbdof*fr';
@@ -64,14 +64,14 @@ MATc            = reshape(sum(pagemtimes(g.FFKc, beta_perm), 3), [N, N, K]);
 aux             = d2Ylift_d(g, H_dof, @(x) -1./3.*x.^3, penParam, MATc);  
 MATd            = aux.MATd;
 MATo            = aux.MATo;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------------------------------------------------
 % RHS
 GHd1Z_quad      = G.*H_quad.*d1Z_quad;
 GHd1Z_quad_perm = permute(GHd1Z_quad, [2, 3, 1]);
 GHd1Z           = reshape(pagemtimes(g.F_Kc, GHd1Z_quad_perm), [N, K])';
 ghd1z1          = reshape(GHd1Z', [], 1);
 g.GHd1ZN        = GHd1Z_quad*g.fc;
-%--------------------------------------------------------------------------
+%
 Q11_quad        = 2.*H_quad.*(d1H_quad+d1Zbquad./2).*kurganov_desingularise(H_quad.^4, W1quad.^2);
 %               = 2.*H_quad.*(d1H_quad+d1Zbquad./2).*(W1quad.^2./H_quad.^4);
 Q12_quad        = 4./3.*H_quad.^2.*kurganov_desingularise(H_quad.^5, W1quad.*W2quad);
@@ -85,7 +85,7 @@ HQ1_quad_perm   = permute(HQ1_quad, [2, 3, 1]);
 HQ1             = reshape(pagemtimes(g.F_Kc, HQ1_quad_perm), [N, K])';
 hq1             = reshape(HQ1', [], 1);
 g.HQ1N          = HQ1_quad*g.fc;
-%--------------------------------------------------------------------------
+%
 b               =-ghd1z1./alpha-hq1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{
@@ -146,6 +146,18 @@ g.PSI_H1   = psi_h1;
 g.PSI_HN   = psi_hN;
 g.PSIN     = psi_quad*g.fc;
 g.PHIN     = g.PSIN+g.GHd1ZN;
+
+% phia    = inittype(g.itype, @(x) g.data.PHI(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+% g.PHIN = phia;
+
+% phia    = inittype(g.itype, @(x) g.data.PHI(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+% figure;
+% hold on;
+% plot(reshape(g.PHIN', [], 1), '-b');
+% plot(reshape(phia', [], 1), '-b');
+% 
+% xx = 1;
+
 %{
 psi_ha1    = reshape(inittype(g.inittype, g.data.PSI_H, g.BF, g.points, g.xydc, g.t)', [], 1);
 e1         = psi_ha1-psi_h1;

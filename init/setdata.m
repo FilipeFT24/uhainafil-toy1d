@@ -590,56 +590,39 @@ switch test
         % 17) T17 - Wave generation
         %------------------------------------------------------------------
         wetdry   = 0;
-        h0       = 0.4;
+        h0       = 1;
         nm       = 0;
         %------------------------------------------------------------------
         abslayer = 0;
         alpha    = 1;
         %        = 1.159;
-        G        = 9.81;
+        G        = 10;
         sqrth0_G = sqrt(h0./G);
-        A1       = 0.025.*h0;
-        xm       =-15;
-        xM       = 30;
-        K        = 1000;
+        xm       = 0;
+        xM       = 100;
+        K        = 500;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
             dx(i, 1) = xv(i+1, 1)-xv(i, 1);
         end
         %------------------------------------------------------------------
+        % WAVE GEN.
+        T        = pi;
+        omega    = 2.*pi./T;
+        wd       = omega.*h0;
+        wd2      = wd.^2;
+        k        = omega.*sqrt(1./(G.*h0-1./3.*wd2));
+        kd       = k.*h0;
+        a        = 0.01.*h0;
+        %------------------------------------------------------------------
         zb       =-h0;
-        %{
-        c        = sqrt(G.*(h0+A1));
-        k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
-        xs       = 0;
-        z        = A1.*sech(k.*(x-xs-c.*t)).^2;
-        h        = z-zb;
-        u        = c.*(1-h0./(h0+z));
-        hu       = h.*u;
-        %}
         z        = 0;
         h        = z-zb;
         u        = 0;
         hu       = 0;
-        tend     = 1000.*sqrth0_G;
-        tk       = tend;
-        %------------------------------------------------------------------
-        % WAVE GEN.
-        T        = 2.02;
-        omega    = 2.*pi/T;
-        wd       = omega.*h0;
-        wd2      = wd.^2;
-        kj       = sqrt(omega.^2./(G.*h0-1./3.*wd2));
-        %{
-        var1     = 1./3.*(alpha-1).*wd2-G.*h0;
-        var2     = var1.^2+4./3.*alpha.*G.*h0.*wd2;
-        var3     = (var1+sqrt(var2))./(2./3.*alpha.*G.*h0.^3);
-        kj       = sqrt(var3);
-        %}
-        a        = 0.01;
-        ur1      = @(x, t) a.*sin(omega.*t-kj.*x);
-        ur2      = @(x, t) ur1(x, t).*(omega./(kj.*h0));
+        ur1      = @(x, t) a.*sin(omega.*t-eps.*x);
+        ur2      = @(x, t) h0.*ur1(x, t).*(omega./(kd));
         data.Ur1 = ur1;
         data.Ur2 = ur2;
         %{
@@ -648,6 +631,8 @@ switch test
         plot(xv, ur1(xv, -5, 0), '-b');
         plot(xv, ur2(xv, -5, 0), '-r');
         %}
+        tend     = 1000.*sqrth0_G;
+        tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 otherwise
     return;
@@ -680,7 +665,7 @@ if ismembc(test, [1, 2, 3, 4, 5, 6, 7, 9, 11, 12, 15, 16])
         data.opt = option;
     end
 end
-if ismembc(test, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15])
+if ismembc(test, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 17])
     data.alpha = alpha;
 end
 if test == 10
@@ -700,7 +685,7 @@ else
     data.h0       = h0;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if ismembc(test, [0, 1, 6, 7, 8, 14, 15])
+if ismembc(test, [0, 1, 6, 7, 8, 14, 15, 17])
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if test == 3 || test == 7
         z1 = z;
@@ -721,7 +706,7 @@ if ismembc(test, [0, 1, 6, 7, 8, 14, 15])
     d1u        = diff(u , x, 1);
     d1hu       = diff(hu, x, 1);
     d1z        = diff(z , x, 1);
-    d1zb       = diff(zb, x, 1);
+    d1b        = diff(zb, x, 1);
     d2h        = diff(h , x, 2);
     d2u        = diff(u , x, 2);
     d2hu       = diff(hu, x, 2);
@@ -729,7 +714,7 @@ if ismembc(test, [0, 1, 6, 7, 8, 14, 15])
     d3zb       = diff(zb, x, 3);
     %----------------------------------------------------------------------
     ghd1z      = G.*h.*d1z;
-    q1         = 2.*h.*(d1h+d1zb./2).*d1u.^2+4./3.*h.^2.*d1u.*d2u+h.*d2zb.*u.*d1u+(d1h.*d2zb+h./2.*d3zb).*u.^2;
+    q1         = 2.*h.*(d1h+d1b./2).*d1u.^2+4./3.*h.^2.*d1u.*d2u+h.*d2zb.*u.*d1u+(d1h.*d2zb+h./2.*d3zb).*u.^2;
     hq1        = h.*q1;
     huu        = hu.*u;
     tp         = diff(huu, x, 1);
@@ -738,21 +723,16 @@ if ismembc(test, [0, 1, 6, 7, 8, 14, 15])
     psi_h      = psi./h;
     %----------------------------------------------------------------------
     div1       = diff(psi_h, x, 1);
-    div2       = d1zb.*psi_h;
-    lhs        = psi-alpha.*(1./3.*diff(h.^3.*div1, x, 1)+1./2.*diff(h.^2.*div2, x, 1)-1./2.*h.^2.*div1.*d1zb+h.*div2.*d1zb);
+    div2       = d1b.*psi_h;
+    lhs        = psi-alpha.*(1./3.*diff(h.^3.*div1, x, 1)+1./2.*diff(h.^2.*div2, x, 1)-1./2.*h.^2.*div1.*d1b+h.*div2.*d1b);
     rhs        =-ghd1z./alpha-hq1;
     frict      =-G.*nm.^2.*h.^(-1/3).*(u.^2.*heaviside(u)-u.^2.*heaviside(-u)).*heaviside(h);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    data.Z     = mymatlabFunction(vpa(z    , 16), [x, t]); % sol1
-    data.HU    = mymatlabFunction(vpa(hu   , 16), [x, t]); % sol2
-    data.H     = mymatlabFunction(vpa(h    , 16), [x, t]);
-    data.Zb    = mymatlabFunction(vpa(zb   , 16), [x, t]);
-    %----------------------------------------------------------------------
     data.d1H   = mymatlabFunction(vpa(d1h  , 16), [x, t]);
     data.d1Hu  = mymatlabFunction(vpa(d1hu , 16), [x, t]);
     data.d1U   = mymatlabFunction(vpa(d1u  , 16), [x, t]);
     data.d1Z   = mymatlabFunction(vpa(d1z  , 16), [x, t]);
-    data.d1Zb  = mymatlabFunction(vpa(d1zb , 16), [x, t]);
+    data.d1Zb  = mymatlabFunction(vpa(d1b , 16), [x, t]);
     data.d2H   = mymatlabFunction(vpa(d2h  , 16), [x, t]);
     data.d2U   = mymatlabFunction(vpa(d2u  , 16), [x, t]);
     data.d2Hu  = mymatlabFunction(vpa(d2hu , 16), [x, t]);

@@ -11,29 +11,27 @@ for j = 1:ns
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if test == 17
         %------------------------------------------------------------------
-        K          = g.numE;
-        N          = g.N;
-        V          = 2;
-        xv         = g.coordV(:, 1);
-        xc         = 1./2.*(xv(1:end-1, 1)+xv(2:end, 1));
+        K            = g.numE;
+        N            = g.N;
+        V            = 2;
+        xv           = g.coordV(:, 1);
+        xbl          = xv(  1, 1);
+        xbr          = xv(K+1, 1);
+        X            = zeros(K, N, V);
+        X(:, :, 1)   = inittype(g.itype, @(x) g.data.Ur1(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+        X(:, :, 2)   = inittype(g.itype, @(x) g.data.Ur2(x, g.t), g.xydc, g.xyqc, g.fi_aux);
         %------------------------------------------------------------------
-        La         = 10;
-        Lg         = 5;
-        Ka         = sum(xc > xv(K+1, 1)-La, 1);
-        Kg         = sum(xc < xv(  1, 1)+Lg, 1);
-        xa         = (1-linspace(0, 1, Ka)).^5;
-        xg         = (1-linspace(0, 1, Kg)).^5;
-        Ca         = ones (K, 1);
-        Cg         = zeros(K, 1);
-        ia         = K-Ka+1:K;
-        ig         = 1:Kg;
-        Ca(ia, 1)  = xa';
-        Cg(ig, 1)  = xg';
-        X          = zeros(K, N, V);
-        X(:, :, 1) = inittype(g.itype, @(x) g.data.Ur1(x, g.t), g.xydc, g.xyqc, g.fi_aux);
-        X(:, :, 2) = inittype(g.itype, @(x) g.data.Ur2(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+        La           = 40;
+        Lr           = 10;
+        xra          = (g.xydc-(xbr-La))./La;
+        xrg          = (g.xydc-(xbl   ))./Lr;
+        xra(xra < 0) = 0;
+        xrg(xrg > 1) = 1;
+        Cra          = sqrt(1-xra.^2);
+        Crg          = (1-xrg).^5;
         for i = 1:V
-            g.x(:, :, i) = Cg.*X(:, :, 1)+(1-Cg).*Ca.*g.x(:, :, i);
+            g.x(:, :, i) = (1-Crg).*g.x(:, :, i)+Crg.*X(:, :, i);
+            g.x(:, :, i) = Cra.*g.x(:, :, i);
         end
         %------------------------------------------------------------------
     end

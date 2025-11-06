@@ -165,7 +165,7 @@ for o = 1:K
 end
 g.d2kc      = d2kc;
 g.fc        = Wbf/mass;
-g.Wbf_disp = Wbf;
+g.Wbf_disp  = Wbf;
 
 %--------------------------------------------------------------------------
 g.fl_disp   = bfl;

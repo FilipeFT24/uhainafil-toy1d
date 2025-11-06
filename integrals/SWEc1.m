@@ -9,7 +9,7 @@ veltol   = g.velcutoff;
 vellim   = g.vellim;
 test     = g.test;
 S        = zeros(K, N);
-if ismembc(test, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+if ismembc(test, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 17])
     g = computephi(g, t, penParam);
     S = g.PHIN;
 end
@@ -54,14 +54,6 @@ end
 log         = H_quad < drytol | H_quad < veltol;
 Huquad(log) = 0;
 W2quad(log) = 0;
-
-if any(H_quad < 0, 'all')
-    xx = 1;
-end
-if max(abs(W2quad), [], 'all') > 1
-    xx = 1;
-end
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 DK            = g.DKc;
 fk_           = g.fkc;

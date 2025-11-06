@@ -42,14 +42,8 @@ else
         otherwise
             return
     end
-    Hulb = 0;%-Hul(1, 1);
+    Hulb =-Hul(1, 1);
     Hurb = 0;
-    %{
-    Z_lb = 1;
-    Hulb = 10;
-    Z_rb = Z_r(K, 1);
-    Hurb =-Hur(K, 1);
-    %}
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LAMBDA:
