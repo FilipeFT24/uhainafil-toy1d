@@ -43,16 +43,16 @@ for i = 1:size(fc, 1)
     set(groot, strrep(fn{fc(i, 1)}, 'factory', 'default'), 'latex');
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p         = 1;
-test      = 17;
+p         = 2;
+test      = 1;
 data      = setdata(test, 0);
 g         = MSH(data.xv, p);
 drytol    = 1.0e-02;
-velcutoff = drytol; %change
+velcutoff = drytol;
 vellim    = 1;
 itype     = 0;     % 0: uhaina: interpolation
                    % 1: my:     projection
-CFL       = 0.03;  % CFL./(2.*p+1);
+CFL       = 0.05;  % CFL./(2.*p+1);
 penParam  = 1000;
 run       = 1;
 %--------------------------------------------------------------------------
@@ -61,47 +61,46 @@ g.t       = 0;
 g.nit     = 0;
 g.test    = test;
 g.data    = data;
-g         = initsol    (g, itype, drytol, velcutoff, vellim);
+g         = initsol    (g, itype, drytol, velcutoff, vellim, data.wetdry);
 g         = initsoldisp(g);
 %--------------------------------------------------------------------------
 if run
-    switch test
-        case {1, 2, 3, 4, 5}
-            obj = PlotA1(g);
-        case {6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17}
-            obj = PlotA2(g);
-        otherwise
-            return
-    end
+    obj = PlotA2(g);
     while g.t < g.data.tend
         [g, obj] = ADVt(g, obj, penParam);
     end
 else
     switch test %#ok<UNRCH>
         case 1
-            PlotT01C(g, [0, 0]); % DONE
+            PlotT01C(g, [0, 0]);
         case 2
+            PlotT02C(g, [0, 0]);
         case 3
             PlotT03C(g, [0, 0]);
         case 4
-            PlotT04C(g, [0, 0]); % DONE
+            PlotT04C(g, [0, 0]);
         case 5
-        case {6, 7}
-            PlotT06C(g, [0, 0]); % DONE
-        case 8
-            PlotT08C(g, [0, 0]); % DONE
+            PlotT05C(g, [0, 0]);
+        case 6
+            PlotT06C(g, [0, 0]);
+        case {7, 8}
+            PlotT07C(g, [0, 0]);
         case 9
-            PlotT09C(g, [0, 0]); % DONE
+            PlotT09C(g, [0, 0]);
         case 10
-            PlotT10C(g, [0, 0]); % DONE
+            PlotT10C(g, [0, 0]);
         case 11
-            PlotT11C(g, [0, 0]); % DONE
+            PlotT11C(g, [0, 0]);
         case 12
+            PlotT12C(g, [0, 0]);
         case 13
-            PlotT13C(g, [0, 0]); % DONE
+            PlotT13C(g, [0, 0]);
         case 14
+            PlotT14C(g, [0, 0]);
         case 15
-            PlotT15C(g, [0, 0]); % DONE
+            PlotT15C(g, [0, 0]);
+        case 16
+        case 17
         otherwise
             return
     end

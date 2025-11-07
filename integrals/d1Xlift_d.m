@@ -9,7 +9,6 @@ d1Xquad       = reshape(pagemtimes(bfD, X_perm), [R, K])';
 d1X           = d1Xquad*g.fc;
 %--------------------------------------------------------------------------
 % FACE
-withbnd       = g.data.abslayer == 0;
 N             = g.N;
 theta         =-1;
 fl            = g.fl_disp;
@@ -21,16 +20,14 @@ Xr            = X*fr';
 JMP           = zeros(K, N);
 JMP(2:K  , :) = JMP(2:K  , :)-flK(2:K  , :).*Xjmpl;
 JMP(1:K-1, :) = JMP(1:K-1, :)+frK(1:K-1, :).*Xjmpr;
-if withbnd
-    switch eq
-        case 1
-            % DO NOTHING
-        case 2
-            JMP(1, :) = JMP(1, :)-flK(1, :).*Xl(1, 1); % Ue = -Ui
-            JMP(K, :) = JMP(K, :)+frK(K, :).*Xr(K, 1); % Ue = -Ui
-        otherwise
-            return
-    end
+switch eq
+    case 1
+        % DO NOTHING
+    case 2
+        JMP(1, :) = JMP(1, :)-flK(1, :).*Xl(1, 1); % Ue = -Ui
+        JMP(K, :) = JMP(K, :)+frK(K, :).*Xr(K, 1); % Ue = -Ui
+    otherwise
+        return
 end
 %--------------------------------------------------------------------------
 d1X           = d1X+theta.*JMP;

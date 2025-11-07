@@ -1,42 +1,39 @@
 function [F] = ...
-    hydro_reconstruction2(drytol, veltol, vellim, G, zi, ze, hui, hue, zbi, zbe, LAMBDA, n)
+    hydro_reconstruction2(drytol, veltol, vellim, wetdry, G, zi, ze, hui, hue, zbi, zbe, LAMBDA, n)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % HYDRO RECONSTRUCTION:
 %--------------------------------------------------------------------------
-hi       = zi-zbi;
-he       = ze-zbe;
-zbmax    = max(zbi, zbe);
-delta    = max(0, zbmax-zi);
-zbtilde  = zbmax-delta;
-h_tildei = max(0, zi-zbmax); % =NEW hi
-h_tildee = max(0, ze-zbmax); % =NEW he
-z_tildei = h_tildei+zbtilde; % =NEW zi = free-surface elev.
-z_tildee = h_tildee+zbtilde; % =NEW ze = free-surface elev.
+hi        = zi-zbi;
+he        = ze-zbe;
+zbmax     = max(zbi, zbe);
+delta     = max(0, zbmax-zi);
+zbtilde   = zbmax-delta;
+h_tildei  = max(0, zi-zbmax); % =NEW hi
+h_tildee  = max(0, ze-zbmax); % =NEW he
+z_tildei  = h_tildei+zbtilde; % =NEW zi = free-surface elev.
+z_tildee  = h_tildee+zbtilde; % =NEW ze = free-surface elev.
 %--------------------------------------------------------------------------
-switch vellim
-    case 1
-        ui1 = hui./hi;
-        ue1 = hue./he;
-        ui2 = ui1.^2;
-        ue2 = ue1.^2;
-    case 2
-        ui1 = kurganov_desingularise(hi, hui);
-        ue1 = kurganov_desingularise(he, hue);
-        ui2 = kurganov_desingularise(hi.^2, hui.^2);
-        ue2 = kurganov_desingularise(he.^2, hue.^2);
-    otherwise
-        return
+if vellim == 1 || (vellim == 2 && wetdry == 0)
+    ui1       = hui./hi;
+    ue1       = hue./he;
+    ui2       = ui1.^2;
+    ue2       = ue1.^2;
+else
+    ui1       = kurganov_desingularise(hi, hui);
+    ue1       = kurganov_desingularise(he, hue);
+    ui2       = kurganov_desingularise(hi.^2, hui.^2);
+    ue2       = kurganov_desingularise(he.^2, hue.^2);
+    logi      = hi < drytol | hi < veltol;
+    loge      = he < drytol | he < veltol;
+    ui1(logi) = 0;
+    ue1(loge) = 0;
+    ui2(logi) = 0;
+    ue2(loge) = 0;
 end
-hutildei        = h_tildei.*ui1;
-hutildee        = h_tildee.*ue1;
-huutildei       = h_tildei.*ui2;
-huutildee       = h_tildee.*ue2;
-logi            = hi < drytol | hi < veltol;
-loge            = he < drytol | he < veltol;
-hutildei (logi) = 0;
-hutildee (loge) = 0;
-huutildei(logi) = 0;
-huutildee(loge) = 0;
+hutildei  = h_tildei.*ui1;
+hutildee  = h_tildee.*ue1;
+huutildei = h_tildei.*ui2;
+huutildee = h_tildee.*ue2;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FLUX:
 %--------------------------------------------------------------------------

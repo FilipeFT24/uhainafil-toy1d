@@ -1,17 +1,17 @@
-function [lambda] = lambdaLF(drytol, veltol, G, zi, ze, hui, hue, zbi, zbe)
+function [lambda] = lambdaLF(drytol, veltol, vellim, wetdry, G, zi, ze, hui, hue, zbi, zbe)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LIMIT VELOCITY:
-hi       = zi-zbi;
-he       = ze-zbe;
-ui       = hui./hi;
-ue       = hue./he;
-%{
-ui       = kurganov_desingularise(hi, hui);
-ue       = kurganov_desingularise(he, hue);
-%}
-%--------------------------------------------------------------------------
-ui(hi < drytol | ui < veltol) = 0;
-ue(he < drytol | ue < veltol) = 0;
+hi = zi-zbi;
+he = ze-zbe;
+if vellim == 1 || (vellim == 2 && wetdry == 0)
+    ui = hui./hi;
+    ue = hue./he;
+else
+    ui = kurganov_desingularise(hi, hui);
+    ue = kurganov_desingularise(he, hue);
+    ui(hi < drytol | ui < veltol) = 0;
+    ue(he < drytol | ue < veltol) = 0;
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % HYDRO RECONSTRUCTION:
 zbmax    = max(zbi, zbe);

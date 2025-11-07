@@ -1,4 +1,4 @@
-function [g] = initsol(g, itype, drytol, velcutoff, vellim)
+function [g] = initsol(g, itype, drytol, velcutoff, vellim, wetdry)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 degreec      = max(2, 2.*g.p-1);
 %            = max(3.*g.p-1, 1);
@@ -57,6 +57,7 @@ g.itype     = itype;
 g.drytol    = drytol;
 g.velcutoff = velcutoff;
 g.vellim    = vellim;
+g.wetdry    = wetdry;
 g.inradius  = g.detJ0T; % in_r = dx
 g.R         = R;
 g.W         = W;
@@ -76,7 +77,7 @@ t           = 0;
 X           = zeros(K, N, 2);
 X(:, :, 1)  = inittype(itype, @(x) g.data.Z (x, t), xydc, xyqc, fi_aux);
 X(:, :, 2)  = inittype(itype, @(x) g.data.HU(x, t), xydc, xyqc, fi_aux);
-Zbdof       = inittype(itype, @(x) g.data.Zb(x, t), xydc, xyqc, fi_aux);
+Zbdof       = inittype(itype, @(x) g.data.B (x, t), xydc, xyqc, fi_aux);
 g.xydc      = xydc;
 g.xyqc      = xyqc;
 g.fi_aux    = fi_aux;

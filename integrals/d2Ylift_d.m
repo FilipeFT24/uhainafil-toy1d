@@ -13,7 +13,6 @@ kquad_perm = permute(kquad, [3, 4, 2, 1]);
 MATd       =-reshape(sum(pagemtimes(D2Kc, kquad_perm), 3), [N, N, K]);
 %--------------------------------------------------------------------------
 % FACE
-withbnd    = g.data.abslayer == 0;
 theta      =-1;
 MATol      = zeros(N, N, K-1);
 MATou      = zeros(N, N, K-1);
@@ -58,11 +57,9 @@ MATou      = MATou+pagemtimes(FiDe2, kl_perm(1, 1, 2:K  ))+pagemtimes(DiFe2, kr_
 %--------------------------------------------------------------------------
 % 0-Dirichlet condition (p = 0): see section 4.2.1. of F. Marche (p. 303)
 %                                see section 4.5.1. of FESTUNG paper.
-if withbnd
-    MATd(:, :, 1) = MATd(:, :, 1)+(2.*FiDil-DiFil-Penil).*kl_perm(1, 1, 1); % sign = previous MATd!
-    MATd(:, :, K) = MATd(:, :, K)+(2.*FiDir-DiFir-Penir).*kr_perm(1, 1, K); % =
-end
-MATd       = MATd+MATc;
+MATd(:, :, 1) = MATd(:, :, 1)+(2.*FiDil-DiFil-Penil).*kl_perm(1, 1, 1); % sign = previous MATd!
+MATd(:, :, K) = MATd(:, :, K)+(2.*FiDir-DiFir-Penir).*kr_perm(1, 1, K); % =
+MATd          = MATd+MATc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % if g.data.wetdry
 %     % CORRECT WET/DRY (only if specified):
