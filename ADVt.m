@@ -21,20 +21,31 @@ for j = 1:ns
         X(:, :, 1)   = inittype(g.itype, @(x) g.data.Ur1(x, g.t), g.xydc, g.xyqc, g.fi_aux);
         X(:, :, 2)   = inittype(g.itype, @(x) g.data.Ur2(x, g.t), g.xydc, g.xyqc, g.fi_aux); % em p2 isto nao deve ser g.t
         %------------------------------------------------------------------
-        La           = 20;
+        La           = 10;
         Lr           = 10;
         xra          = (g.xydc-(g.xydc(end)-La))./La;
         xrg          = (g.xydc-(g.xydc(1)))./Lr;
+        %
+
+%         Fa = 1-(exp(xrg.^3)-1)./(exp(1)-1);
+%         Fg = 1-(exp((1-xrg).^3)-1)./(exp(1)-1);
+%         log = Fa < 0;
+%         Fa(log) = 0;
+%         A = Fa;
+%         B = (1-Fa).*Fg;
+
         xra(xra < 0) = 0;
         xrg(xrg > 1) = 1;
         Cra          = sqrt(1-xra.^2);
-        Crg          = (1-xrg).^1;
+        Crg          = (1-xrg).^5;
+
 
         sol1_old = g.x(:, :, 1);
         sol2_old = g.x(:, :, 2);
 
         for i = 1:2
             g.x(:, :, i) = (1-Crg).*g.x(:, :, i)+Crg.*X(:, :, i);
+            %g.x(:, :, i) = A.*g.x(:, :, i)+B.*X(:, :, i);
             switch i
                 case 1
                     sol1_new = g.x(:, :, 1);

@@ -62,7 +62,7 @@ GZ2           = permute(GZ2quad, [2, 3, 1]);
 W2            = permute(W2quad , [2, 3, 1]);
 F_            = pagemtimes(DK, [HU, W2+GZ2]);
 F_            = permute(F_, [3, 1, 2]);
-F_(:, :, 2)   = F_(:, :, 2)-GZ1quad*fk_'+S;
+F_(:, :, 2)   = F_(:, :, 2)-GZ1quad*fk_'+S.*0;
 %--------------------------------------------------------------------------
 % P0 fix:
 fix           = g.fix;

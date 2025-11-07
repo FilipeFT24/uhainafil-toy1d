@@ -5,20 +5,20 @@ test = g.test;
 Za   = g.data.Z(obj.xc, g.t);
 H_   = sum(pagemtimes(g.x(:, :, 1)-g.zb, g.Wbf'), 2)./sum(g.W, 2);
 Z_   = sum(pagemtimes(g.x(:, :, 1), g.Wbf'), 2)./sum(g.W, 2);
-if test ~= 13 && test ~= 14 && test ~= 16 && test ~= 17
-    Za = Za./h0;
-    Z_ = Z_./h0;
-end
+% if test ~= 13 && test ~= 14 && test ~= 16 && test ~= 17
+%     Za = Za./h0;
+%     Z_ = Z_./h0;
+% end
 
-if test == 17
-    Z_ = Z_./0.025;
-end
+% if test == 17
+%     Z_ = Z_./0.005;
+% end
 
 
 
 
 %--------------------------------------------------------------------------
-if mod(g.nit, 1) == 0
+if mod(g.nit, 10) == 0
     if test ~= 7
         if ismembc(test, [6, 8, 12, 13])
             set(obj.Ph{1, 1}, 'YData', Za);
