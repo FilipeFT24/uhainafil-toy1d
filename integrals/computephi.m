@@ -99,7 +99,7 @@ b               =-ghd1z1./alpha-hq1;
 %{
 n         = 100;
 penParami = logspace(-3, 6, n);
-psi_ha1   = reshape(inittype(g.itype, @(x) g.data.PSI_H(x, g.t), g.BF, g.xydc, g.xyqc, g.fi_aux)', [], 1);
+psi_ha1   = reshape(inittype(g.itype, @(x) g.data.PSI_H(x, g.t), g.xydc, g.xyqc, g.fi_aux)', [], 1);
 ec        = zeros(K, n);
 tc        = zeros(K, n);
 e2        = zeros(1, n);

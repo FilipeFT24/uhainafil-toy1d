@@ -1,8 +1,7 @@
 function [g] = initsol(g, itype, drytol, velcutoff, vellim, wetdry)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-degreec      = max(2, 2.*g.p-1);
-%            = max(3.*g.p-1, 1);
-degreec      = min(degreec, 12);
+degreec      = max(3.*g.p-1, 1);
+%            = min(degreec, 12);
 [Q1, W]      = quadRule1D(degreec);
 N            = g.N;
 K            = g.numE;
@@ -91,16 +90,19 @@ if g.data.wetdry
 end
 %--------------------------------------------------------------------------
 % RK:
-switch g.p
-    case {0, 1}
+% switch g.p
+%     case {0, 1}
         g.omega = [0, 1];
         g.tlvls = [1]; %#ok<NBRAK2>
-    case 2
-        g.omega = [0, 1; 1./2, 1./2];
-        g.tlvls = [0, 1];
-    case 3
-        g.omega = [0, 1; 3./4, 1./4; 1./3, 2./3];
-        g.tlvls = [0, 1, 1./2];
-end
+%     case 2
+%         g.omega = [0, 1; 1./2, 1./2];
+%         g.tlvls = [0, 1];
+%     case 3
+%         g.omega = [0, 1; 3./4, 1./4; 1./3, 2./3];
+%         g.tlvls = [0, 1, 1./2];
+%     case 4
+%         g.omega = [0, 1; 1/3, 2/3; 1/3, 2/3; 0, 1];
+%         g.tlvls = [0, 1/2, 1/2, 1];
+% end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end

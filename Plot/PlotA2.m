@@ -15,7 +15,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 switch test
     case 1
-        path        = "Plot/S0/T0 - Convergence (Green-Nagdhi)/DATA/C_";
+        path        = "Plot/S0/T0 - Convergence (GN)/DATA/S00";
         xlim        = [0, 200];
         xtick       = 0:50:200;
         xticklabel  = ["0", "50", "100", "150", "200"];
@@ -24,6 +24,18 @@ switch test
         yticklabel  = ["-0.01", "0.00", "0.05", "0.10", "0.15", "0.20", "0.25"];
         xtitle      = "$x$";
         ytitle      = "$\zeta^{\prime}$";
+        legendlabel = ["$\zeta_{a}^{\prime}$", "$\zeta_{h}^{\prime}$"];
+        numcols     = 1;
+    case 2
+        path        = "Plot/S0/T1 - Convergence (SW)/DATA/S00";
+        xlim        = [0.0, 1.0];
+        xtick       = 0.0:0.2:1.0;
+        xticklabel  = ["0.0", "0.2", "0.4", "0.6", "0.8", "1.0"];
+        ylim        = [-1, 3];
+        ytick       = -1:1:3;
+        yticklabel  = ["-1", "0", "1", "2", "3"];
+        xtitle      = "$x$";
+        ytitle      = "$\zeta$";
         legendlabel = ["$\zeta_{a}^{\prime}$", "$\zeta_{h}^{\prime}$"];
         numcols     = 1;
     otherwise
@@ -53,12 +65,20 @@ Ph{1, 1} = plot(xc , Za , 'Color', Color(1, :), 'LineWidth', LW(1, 1));
 Ph{1, 2} = plot(xc , Z_ , 'Color', Color(2, :), 'LineWidth', LW(1, 2));
 PlotX2(...
     ph(1, :), legendlabel, 'northeast', numcols);
+%--------------------------------------------------------------------------
+if test == 2
+    xbathy = sum(g.coordV0T, 2)./2;
+    ybathy = meanval(g, g.zbinit);
+    patch(...
+        xbathy, ybathy, grey, 'EdgeColor', grey);
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CFL  = g.CFL;
 str2 = split(sprintf('%.15g', CFL), '.');
 %--------------------------------------------------------------------------
 switch test
     case 1
+    case 2
     otherwise
         return
 end
@@ -70,7 +90,7 @@ else
     num2 = num2(1, 1:2);
 end
 %--------------------------------------------------------------------------
-fid = sprintf('%sP%d%s_%s_GN.mat', path, g.p, num1, num2);
+fid = sprintf('%s_0512_P%d.mat', path, g.p);
 if isfile(fid)
     delete(fid);
 end

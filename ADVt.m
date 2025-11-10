@@ -12,7 +12,7 @@ for j = 1:ns
     g = FLUX(g, penParam, t);
     if j == 1
         x0 = g.x;
-        dt = g.CFL*min(g.vollambda, [], 'all');
+        dt = 1e-06;%g.CFL*min(g.vollambda, [], 'all');
         for i = 1:nk
             if g.t < tk(1, i) && g.t+dt > tk(1, i)
                 dt = tk(1, i)-g.t;
