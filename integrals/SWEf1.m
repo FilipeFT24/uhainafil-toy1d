@@ -30,10 +30,13 @@ Z_r    = Z_dof*bfr';
 %--------------------------------------------------------------------------
 switch test
     case 2
-        Z_lb = g.data.Z (0, g.t);
-        Z_rb = g.data.Z (1, g.t);
-        Hulb = g.data.HU(0, g.t);
-        Hurb = g.data.HU(1, g.t);
+        xv   = g.coordV0T;
+        xlb  = xv(1, 1);
+        xrb  = xv(K, 2);
+        Z_lb = g.data.Z (xlb, g.t);
+        Z_rb = g.data.Z (xrb, g.t);
+        Hulb = g.data.HU(xlb, g.t);
+        Hurb = g.data.HU(xrb, g.t);
     case 5
         Z_lb = Z_l(1, 1);
         Z_rb = 0.40;

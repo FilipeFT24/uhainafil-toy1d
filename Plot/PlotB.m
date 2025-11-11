@@ -9,7 +9,7 @@ Z_   = sum(pagemtimes(g.x(:, :, 1)     , g.Wbf'), 2)./sum(g.W, 2);
 Za   = Za./h0;
 Z_   = Z_./h0;
 %--------------------------------------------------------------------------
-if mod(g.nit, 50) == 0
+if mod(g.nit, 1000) == 0
     if ismembc(test, [1, 2, 6, 7, 8, 9, 10])
         set(obj.Ph{1, 1}, 'YData', Za);
         set(obj.Ph{1, 2}, 'YData', Z_);
@@ -28,11 +28,8 @@ if ismembc(test, [1, 2])
         ua(:, :, 2) = inittype(g.itype, @(x) g.data.HU(x, g.t), g.xydc, g.xyqc, g.fi_aux);
         uh          = g.x;
         K           = g.numE;
-        N           = g.N;
-        KN          = K.*N;
         D           = 1;
         V           = 1+D;
-        h           = (1./(KN)).^(1./D);
         bf          = g.bf;
         ec          = zeros(K, V);
         e2          = zeros(1, V);
@@ -42,7 +39,7 @@ if ismembc(test, [1, 2])
             ec(:, i) = ((eq.^2)*g.W').*g.detJ0T;
             e2(1, i) = sqrt(sum(ec(:, i), 1));
         end
-        save(obj.fid, 'h', 'uh', 'ec', 'e2');
+        save(obj.fid, 'ec');
     end
     %----------------------------------------------------------------------
 else

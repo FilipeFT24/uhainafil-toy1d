@@ -27,13 +27,13 @@ switch test
         legendlabel = ["$\zeta_{a}^{\prime}$", "$\zeta_{h}^{\prime}$"];
         numcols     = 1;
     case 2
-        path        = "Plot/S0/T1 - Convergence (SW)/DATA/S00";
+        path        = "Plot/S0/T0 - Convergence (SW)/DATA/S00";
         xlim        = [0.0, 1.0];
         xtick       = 0.0:0.2:1.0;
         xticklabel  = ["0.0", "0.2", "0.4", "0.6", "0.8", "1.0"];
-        ylim        = [-1, 3];
-        ytick       = -1:1:3;
-        yticklabel  = ["-1", "0", "1", "2", "3"];
+        ylim        = [0, 5];
+        ytick       = 0:1:5;
+        yticklabel  = ["0", "1", "2", "3", "4", "5"];
         xtitle      = "$x$";
         ytitle      = "$\zeta$";
         legendlabel = ["$\zeta_{a}^{\prime}$", "$\zeta_{h}^{\prime}$"];
