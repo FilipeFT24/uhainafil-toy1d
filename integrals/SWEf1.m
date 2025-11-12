@@ -1,4 +1,4 @@
-function [g] = SWEf1(g)
+function [g] = SWEf1(g, t)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 K      = g.numE;
 Kf     = g.nume;
@@ -33,10 +33,10 @@ switch test
         xv   = g.coordV0T;
         xlb  = xv(1, 1);
         xrb  = xv(K, 2);
-        Z_lb = g.data.Z (xlb, g.t);
-        Z_rb = g.data.Z (xrb, g.t);
-        Hulb = g.data.HU(xlb, g.t);
-        Hurb = g.data.HU(xrb, g.t);
+        Z_lb = g.data.Z (xlb, t);
+        Z_rb = g.data.Z (xrb, t);
+        Hulb = g.data.HU(xlb, t);
+        Hurb = g.data.HU(xrb, t);
     case 5
         Z_lb = Z_l(1, 1);
         Z_rb = 0.40;

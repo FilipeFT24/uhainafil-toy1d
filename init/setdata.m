@@ -4,8 +4,7 @@ syms x t;
 switch test
     case 1
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % S0/T0 - Convergence (Green-Nagdhi)
-        % NOTE: No need to make 3 steps for the RK3 scheme (dt = constant!)
+        % S0/T0 - Convergence (Green-Nagdhi) : W/ INTEGRATION BY PROJECTION
         %------------------------------------------------------------------
         alpha    = 1;
         dispers  = 1;
@@ -14,30 +13,30 @@ switch test
         nm       = 0;
         wetdry   = 0;
         %------------------------------------------------------------------
-        xm       = 0;
-        xM       = 200;
-        K        = 500;
+        xm       =-50;
+        xM       = 50;
+        K        = 5000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
             dx(i, 1) = xv(i+1, 1)-xv(i, 1);
         end
         %------------------------------------------------------------------
-        A1       = 0.2.*h0;
+        A1       = 0.20.*h0;
         c        = sqrt(G.*(h0+A1));
         k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
-        xs       = 75;
+        xs       = 0;
         b        =-h0;
         z        = A1.*sech(k.*(x-xs-c.*t)).^2;
         h        = z-b;
         u        = c.*(1-h0./(h0+z));
         hu       = h.*u;
-        tend     = 10./c;
+        tend     = 0.1;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 2
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % S0/T1 - Convergence (SW)
+        % S0/T1 - Convergence (SW) : W/ INTEGRATION BY PROJECTION
         %------------------------------------------------------------------
         alpha    = 1;
         dispers  = 0;
@@ -48,7 +47,7 @@ switch test
         %------------------------------------------------------------------
         xm       = 0;
         xM       = 1;
-        K        = 2500;
+        K        = 5000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K

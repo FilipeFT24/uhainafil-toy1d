@@ -9,7 +9,7 @@ Z_   = sum(pagemtimes(g.x(:, :, 1)     , g.Wbf'), 2)./sum(g.W, 2);
 Za   = Za./h0;
 Z_   = Z_./h0;
 %--------------------------------------------------------------------------
-if mod(g.nit, 1000) == 0
+if mod(g.nit, 100) == 0
     if ismembc(test, [1, 2, 6, 7, 8, 9, 10])
         set(obj.Ph{1, 1}, 'YData', Za);
         set(obj.Ph{1, 2}, 'YData', Z_);
@@ -36,10 +36,10 @@ if ismembc(test, [1, 2])
         for i = 1:V
             eN       = ua(:, :, i)-uh(:, :, i);
             eq       = eN*bf';
-            ec(:, i) = ((eq.^2)*g.W').*g.detJ0T;
-            e2(1, i) = sqrt(sum(ec(:, i), 1));
+            ec(:, i) = eq*g.W';
+            e2(1, i) = sqrt(sum(((eq.^2)*g.W').*g.detJ0T, 1));
         end
-        save(obj.fid, 'ec');
+        save(obj.fid, 'uh', 'ec');
     end
     %----------------------------------------------------------------------
 else
