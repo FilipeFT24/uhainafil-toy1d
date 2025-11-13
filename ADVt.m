@@ -12,7 +12,7 @@ for j = 1:ns
     g = FLUX(g, penParam, t);
     if j == 1
         x0 = g.x;
-        dt = 5.0e-05;%g.CFL*min(g.vollambda, [], 'all');
+        dt = 1.0e-04;%g.CFL*min(g.vollambda, [], 'all');
         for i = 1:nk
             if g.t < tk(1, i) && g.t+dt > tk(1, i)
                 dt = tk(1, i)-g.t;
@@ -22,7 +22,7 @@ for j = 1:ns
     end
     %----------------------------------------------------------------------
     x   = g.x;
-    x   = g.omega(j, 1).*x0+g.omega(j, 2).*(x+dt.*g.res);
+    x   = g.omega(j, 1).*x0+(1-g.omega(j, 1)).*(x+dt.*g.res);
     g.x = x;
     if g.data.wetdry
         g = limN(g);
