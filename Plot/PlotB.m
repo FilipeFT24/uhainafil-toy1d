@@ -24,9 +24,16 @@ end
 if ismembc(test, [1, 2])
     %----------------------------------------------------------------------
     if g.t+eps >= tend
+        %
         ua(:, :, 1) = inittype(g.itype, @(x) g.data.Z (x, g.t), g.xydc, g.xyqc, g.fi_aux);
         ua(:, :, 2) = inittype(g.itype, @(x) g.data.HU(x, g.t), g.xydc, g.xyqc, g.fi_aux);
         uh          = g.x;
+        %{
+        ua(:, :, 1) = inittype(g.itype, @(x) g.data.HYD(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+        ua(:, :, 2) = inittype(g.itype, @(x) g.data.HQ1(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+        uh(:, :, 1) = g.GHd1ZN;
+        uh(:, :, 2) = g.HQ1N;
+        %}
         K           = g.numE;
         D           = 1;
         V           = 1+D;

@@ -1,43 +1,63 @@
 function [g, obj] = ADVt(g, obj, penParam)
 %--------------------------------------------------------------------------
-ns = size(g.tlvls, 2);
-t0 = g.t;
-dt = 0;
-tk = g.data.tk;
-nk = numel(tk);
+K    = g.numE;
+N    = g.N;
+D    = 1;
+V    = 1+D;
+ns   = size(g.rkc, 1);
+t0   = g.t;
+xold = g.x;
+xtmp = zeros(K, N, V);
+ks   = zeros(K, N, V, ns);
 %--------------------------------------------------------------------------
-for j = 1:ns
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    t = t0+dt.*g.tlvls(1, j);
-    g = FLUX(g, penParam, t);
-    if j == 1
-        x0 = g.x;
-        dt = 1.0e-04;%g.CFL*min(g.vollambda, [], 'all');
-        for i = 1:nk
-            if g.t < tk(1, i) && g.t+dt > tk(1, i)
-                dt = tk(1, i)-g.t;
-                break;
-            end
-        end
+tk   = g.data.tk;
+nk   = size(tk, 2);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+g              = FLUX(g, penParam, t0);
+ks(:, :, :, 1) = g.res;
+dt             = 1e-03;%g.CFL*min(g.vollambda, [], 'all');
+for i = 1:nk
+    if t0 < tk(1, i) && t0+dt > tk(1, i)
+        dt = tk(1, i)-t0;
+        break;
     end
-    %----------------------------------------------------------------------
-    x   = g.x;
-    x   = g.omega(j, 1).*x0+(1-g.omega(j, 1)).*(x+dt.*g.res);
-    g.x = x;
-    if g.data.wetdry
-        g = limN(g);
-    end
-    %----------------------------------------------------------------------
 end
-g.nit = g.nit+1;
-g.t   = g.t+dt;
+xtmp = xtmp+g.rkb(1, 1).*ks(:, :, :, 1);
 %--------------------------------------------------------------------------
+if ns > 1
+    for i = 2:ns
+        ts  = t0+g.rkc(i, 1).*dt;
+        xs  = xold;
+        for j = 1:i-1
+            xs = xs+dt.*g.rka(i, j).*ks(:, :, :, j);
+        end
+        g.x = xs;
+        %{
+        if g.data.wetdry
+            g = limN(g);
+        end
+        %}
+        g              = FLUX(g, penParam, ts);
+        ks(:, :, :, i) = g.res;
+        xtmp           = xtmp+g.rkb(1, i).*ks(:, :, :, i);
+    end
+end
+%--------------------------------------------------------------------------
+g.x         = xold+dt.*xtmp;
+%{
+if g.data.wetdry
+    g = limN(g);
+end
+%}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{
 % IMPLICIT MANNING/FRICTION:
 M            = manning(g);
 g.x(:, :, 2) = g.x(:, :, 2)./(1+dt.*M);
 %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+g.t   = g.t+dt;
+g.nit = g.nit+1;
 resn2 = zeros(1, 2);
 %     = squeeze(max(max(-g.res, [], 1), [], 2))';
 for i = 1:2

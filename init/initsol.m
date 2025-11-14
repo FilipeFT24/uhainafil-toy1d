@@ -92,17 +92,26 @@ end
 % RK:
 switch g.p
     case 0 % RK1
-        g.omega = [0]; %#ok<NBRAK2>
-        g.tlvls = [1]; %#ok<NBRAK2>
+        g.rka = 0;
+        g.rkb = 1;
+        g.rkc = 0;
     case 1 % RK2
-        g.omega = [0; 1./2];
-        g.tlvls = [0, 1];
+        g.rka = [0; 1];
+        g.rkb = [1./2, 1./2];
+        g.rkc = [0; 1];
     case 2 % RK3
-        g.omega = [0; 3./4; 1./3];
-        g.tlvls = [0, 1, 1./2];
+        g.rka = [0, 0; 1./2, 0; -1, 2];
+        g.rkb = [1./6, 2./3, 1./6];
+        g.rkc = [0; 1./2; 1];
+        %{
+        g.rka = [0, 0; 1./3, 0; 0, 2./3];
+        g.rkb = [1./4, 0, 3./4];
+        g.rkc = [0; 1./3; 2./3];
+        %}
     case 3 % RK4
-        g.omega = [0, 1; 1/3, 2/3; 1/3, 2/3; 0, 1];
-        g.tlvls = [0, 1/2, 1/2, 1];
+        g.rka = [0, 0, 0; 1./2, 0, 0; 0, 1./2, 0; 0, 0, 1];
+        g.rkb = [1./6, 1./3, 1./3, 1./6];
+        g.rkc = [0; 1./2; 1./2; 1];
     otherwise
         return
 end

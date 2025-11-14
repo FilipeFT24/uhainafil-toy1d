@@ -1,4 +1,4 @@
-function [aux] = d2Ylift_d(g, kdof, func, penParam, MATc)
+function [aux] = d2Ylift_d(g, kdof, penParam, MATc)
 %--------------------------------------------------------------------------
 alpha      = g.data.alpha;
 %--------------------------------------------------------------------------
@@ -8,7 +8,7 @@ N          = g.N;
 bf         = g.bf_disp;
 D2Kc       = g.D2Kc;
 kquad      = kdof*bf';
-kquad      = func(kquad);
+kquad      =-1./3.*kquad.^3;
 kquad_perm = permute(kquad, [3, 4, 2, 1]);
 MATd       =-reshape(sum(pagemtimes(D2Kc, kquad_perm), 3), [N, N, K]);
 %--------------------------------------------------------------------------
@@ -38,8 +38,8 @@ fl         = g.fl_disp;
 fr         = g.fr_disp;
 kquadl     = kdof*fl';
 kquadr     = kdof*fr';
-kquadl     = func(kquadl);
-kquadr     = func(kquadr);
+kquadl     =-1./3.*kquadl.^3;
+kquadr     =-1./3.*kquadr.^3;
 kl_perm    = permute(kquadl, [3, 2, 1]);
 kr_perm    = permute(kquadr, [3, 2, 1]);
 kav        = abs(1./2.*(kl_perm(1, 1, 2:K)+kr_perm(1, 1, 1:K-1)));

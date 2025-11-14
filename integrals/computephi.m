@@ -61,7 +61,7 @@ W2quad   = H_quad.^2.*d2Huquad-H_quad.*(Huquad.*d2H_quad+2.*d1H_quad.*d1Huquad)+
 beta            = H_quad.*(ones(K, R)+alpha.*(d1H_quad.*d1B_quad+1./2.*H_quad.*d2B_quad+d1B_quad.^2));
 beta_perm       = permute(beta, [3, 4, 2, 1]);
 MATc            = reshape(sum(pagemtimes(g.FFKc, beta_perm), 3), [N, N, K]);
-aux             = d2Ylift_d(g, H_dof, @(x) -1./3.*x.^3, penParam, MATc);  
+aux             = d2Ylift_d(g, H_dof, penParam, MATc);  
 MATd            = aux.MATd;
 MATo            = aux.MATo;
 %--------------------------------------------------------------------------
@@ -71,7 +71,6 @@ GHd1Z_quad_perm = permute(GHd1Z_quad, [2, 3, 1]);
 GHd1Z           = reshape(pagemtimes(g.F_Kc, GHd1Z_quad_perm), [N, K])';
 ghd1z1          = reshape(GHd1Z', [], 1);
 g.GHd1ZN        = GHd1Z_quad*g.fc;
-g.GHd1ZNX       = d1Z_quad*g.fc;
 %--------------------------------------------------------------------------
 if vellim == 1 || (vellim == 2 && wetdry == 0)
     a11 = W1quad.^2./H_quad.^4;
@@ -92,14 +91,16 @@ HQ1_quad        = H_quad.*(Q11_quad+Q12_quad+Q13_quad+Q14_quad);
 HQ1_quad_perm   = permute(HQ1_quad, [2, 3, 1]);
 HQ1             = reshape(pagemtimes(g.F_Kc, HQ1_quad_perm), [N, K])';
 hq1             = reshape(HQ1', [], 1);
+%               = g.MASS_disp*reshape(inittype(g.itype, @(x) g.data.HQ1(x, t), g.xydc, g.xyqc, g.fi_aux)', [], 1);
 g.HQ1N          = HQ1_quad*g.fc;
 %--------------------------------------------------------------------------
 b               =-ghd1z1./alpha-hq1;
+%               = g.MASS_disp*reshape(inittype(g.itype, @(x) g.data.RHS(x, t), g.xydc, g.xyqc, g.fi_aux)', [], 1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{
 n         = 100;
 penParami = logspace(-3, 6, n);
-psi_ha1   = reshape(inittype(g.itype, @(x) g.data.PSI_H(x, g.t), g.xydc, g.xyqc, g.fi_aux)', [], 1);
+psi_ha1   = reshape(inittype(g.itype, @(x) g.data.PSI_H(x, t), g.xydc, g.xyqc, g.fi_aux)', [], 1);
 ec        = zeros(K, n);
 tc        = zeros(K, n);
 e2        = zeros(1, n);
@@ -155,7 +156,7 @@ g.PSI_HN   = psi_hN;
 g.PSIN     = psi_quad*g.fc;
 g.PHIN     = g.PSIN+g.GHd1ZN;
 %{
-psi_ha1    = reshape(inittype(g.itype, @(x) g.data.PSI_H(x, g.t), g.xydc, g.xyqc, g.fi_aux)', [], 1);
+psi_ha1    = reshape(inittype(g.itype, @(x) g.data.PSI_H(x, t), g.xydc, g.xyqc, g.fi_aux)', [], 1);
 e1         = psi_ha1-psi_h1;
 t1         = A*psi_ha1-b;
 eN         = reshape(e1, [N, K])';

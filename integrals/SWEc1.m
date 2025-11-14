@@ -30,7 +30,7 @@ GZ1quad  = GZ_quad.*d1B_quad;
 GZ2quad  = GZ_quad.*(1./2.*Z_quad-B_quad);
 %--------------------------------------------------------------------------
 if vellim == 1 || (vellim == 2 && wetdry == 0)
-    W2quad      = H_quad.*(Huquad./H_quad).^2;
+    W2quad      = Huquad.^2./H_quad;
 else
     W2quad      = H_quad.*kurganov_desingularise(H_quad.^2, Huquad.^2);
     %           =         kurganov_desingularise(H_quad   , Huquad.^2); % DO NOT ATTEMPT THIS!

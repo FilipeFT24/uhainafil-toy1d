@@ -8,14 +8,14 @@ switch test
         %------------------------------------------------------------------
         alpha    = 1;
         dispers  = 1;
-        G        = 9.81;
+        G        = 1;
         h0       = 1;
         nm       = 0;
         wetdry   = 0;
         %------------------------------------------------------------------
         xm       =-50;
         xM       = 50;
-        K        = 4000;
+        K        = 7000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -25,13 +25,13 @@ switch test
         A1       = 0.20.*h0;
         c        = sqrt(G.*(h0+A1));
         k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
-        xs       =-0.5;
+        xs       = 0;
         b        =-h0;
         z        = A1.*sech(k.*(x-xs-c.*t)).^2;
         h        = z-b;
         u        = c.*(1-h0./(h0+z));
         hu       = h.*u;
-        tend     = 0.01;%1./c;
+        tend     = 0.1./c;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 2
@@ -40,14 +40,15 @@ switch test
         %------------------------------------------------------------------
         alpha    = 1;
         dispers  = 0;
-        G        = 1;
+        G        = 0; %%%%???
         h0       = 1;
+        sqrth0_G = sqrt(h0./G);
         nm       = 0;
         wetdry   = 0;
         %------------------------------------------------------------------
         xm       = 0;
         xM       = 1;
-        K        = 5000;
+        K        = 4000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -59,7 +60,7 @@ switch test
         z        = h+b;
         hu       = exp(h);
         u        = hu./h;
-        tend     = 0.01;
+        tend     = 0.10;%25.*sqrth0_G;
         tk       = tend;
         %------------------------------------------------------------------
         % SOURCE:
@@ -67,8 +68,8 @@ switch test
         dthu     = diff(hu, t, 1);
         dxhu     = diff(hu, x, 1);
         dxzb     = diff(b , x, 1);
-        hu2      = hu.^2./h;
-        f1       = hu2+G./2.*(z.^2-2.*z.*b);
+        hu2      = h.*u.^2;
+        f1       = hu2+G.*(1./2.*z.^2-z.*b);
         dxf1     = diff(f1, x, 1);
         f2       = G.*z.*dxzb;
         s1       = dt_z+dxhu;
@@ -732,6 +733,11 @@ if ismembc(test, [1, 7, 8])
     phi        = diff(hu, t, 1)+tp+ghd1z;
     psi        = phi-ghd1z./alpha;
     psi_h      = psi./h;
+    rhs        =-ghd1z./alpha-hq1;
+
+    data.HYD   = mymatlabFunction(vpa(ghd1z, 16), [x, t]);
+    data.HQ1   = mymatlabFunction(vpa(hq1  , 16), [x, t]);
+    data.RHS   = mymatlabFunction(vpa(rhs  , 16), [x, t]);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flag
