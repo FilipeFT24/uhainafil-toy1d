@@ -69,25 +69,30 @@ for i = 1:size(fc, 1)
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p         = 2;
-test      = 1;
+test      = 2;
+run       = 1;
+%--------------------------------------------------------------------------
 data      = setdata(test, 1);
 g         = MSH(data.xv, p);
 drytol    = 1.0e-02;
 velcutoff = drytol;
 vellim    = 1;
-itype     = 1;     % 0: uhaina: interpolation
-                   % 1: my:     projection
-CFL       = 0.20;  % CFL./(2.*p+1);
+itype     = 1; % 0: uhaina: interpolation
+               % 1: my:     projection
+CFL       = 3./(4.*(2.*p+1));
+theta     =-1;
 penParam  = 1000;
-run       = 1;
 %--------------------------------------------------------------------------
 g.CFL     = CFL;
 g.t       = 0;
 g.nit     = 0;
 g.test    = test;
 g.data    = data;
-g         = initsol    (g, itype, drytol, velcutoff, vellim, data.wetdry);
-g         = initsoldisp(g);
+dispers   = g.data.dispers;
+g         = initsol(g, itype, drytol, velcutoff, vellim, data.wetdry);
+if dispers
+    g = initsoldisp(g, theta, penParam);
+end
 %--------------------------------------------------------------------------
 if run
     obj = PlotA2(g);

@@ -1,52 +1,81 @@
 function [obj] = PlotB(g, obj)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-h0   = g.data.h0;
+xc   = obj.xc;
+t    = g.t;
 tend = g.data.tend;
 test = g.test;
-Za   = g.data.Z(obj.xc, g.t);
-H_   = sum(pagemtimes(g.x(:, :, 1)-g.zb, g.Wbf'), 2)./sum(g.W, 2);
-Z_   = sum(pagemtimes(g.x(:, :, 1)     , g.Wbf'), 2)./sum(g.W, 2);
-Za   = Za./h0;
-Z_   = Z_./h0;
+if test == 11
+    Xa = g.data.H(xc, t);
+    Xh = sum(pagemtimes(g.x(:, :, 1)-g.zbinit, g.Wbf'), 2)./sum(g.W, 2);
+else
+    Xa = g.data.Z(xc, t);
+    Xh = sum(pagemtimes(g.x(:, :, 1), g.Wbf'), 2)./sum(g.W, 2);
+    h0 = g.data.h0;
+    Xa = Xa./h0;
+    Xh = Xh./h0;
+end
 %--------------------------------------------------------------------------
-if mod(g.nit, 100) == 0
-    if ismembc(test, [1, 2, 6, 7, 8, 9, 10])
-        set(obj.Ph{1, 1}, 'YData', Za);
-        set(obj.Ph{1, 2}, 'YData', Z_);
-    elseif ismembc(test, [3, 4, 5, 12, 13, 14, 15, 16, 17])
-        set(obj.Ph{1, 2}, 'YData', Z_);
-    elseif test == 11
-        set(obj.Ph{1, 2}, 'YData', H_);
+if mod(g.nit, 25) == 0
+    if size(obj.Ph, 1) == 1
+        if ismembc(test, [1, 2, 6, 7, 8, 9, 10])
+            set(obj.Ph{1, 1}, 'YData', Xa);
+            set(obj.Ph{1, 2}, 'YData', Xh);
+        elseif ismembc(test, [3, 4, 5, 11, 12, 13, 14, 15, 16, 17])
+            set(obj.Ph{1, 2}, 'YData', Xh);
+        end
+    else
+        PHIa = g.data.PHI(xc, t);
+        HYDa = g.data.d1Z(xc, t);
+        HQ1a = g.data.HQ1(xc, g.t);
+        PHIh = sum(pagemtimes(g.PHIN   , g.Wbf'), 2)./sum(g.W, 2);
+        HYDh = sum(pagemtimes(g.GHd1ZNX, g.Wbf'), 2)./sum(g.W, 2);
+        HQ1h = sum(pagemtimes(g.HQ1N   , g.Wbf'), 2)./sum(g.W, 2);
+        set(obj.Ph{1, 1}, 'YData', Xa);
+        set(obj.Ph{1, 2}, 'YData', Xh);
+        set(obj.Ph{2, 1}, 'YData', PHIa);
+        set(obj.Ph{2, 2}, 'YData', PHIh);
+        set(obj.Ph{3, 1}, 'YData', HYDa);
+        set(obj.Ph{3, 2}, 'YData', HYDh);
+        set(obj.Ph{4, 1}, 'YData', HQ1a);
+        set(obj.Ph{4, 2}, 'YData', HQ1h);
     end
     drawnow limitrate;
 end
 %--------------------------------------------------------------------------
 if ismembc(test, [1, 2])
-    %----------------------------------------------------------------------
     if g.t+eps >= tend
-        %
+        %------------------------------------------------------------------
+        K  = g.numE;
+        N  = g.N;
+        D  = 1;
+        V  = 1+D;
+        bf = g.bf;
+        if test == 2
+            V = V+2;
+        end
+        ua = zeros(K, N, V);
+        uh = zeros(K, N, V);
+        ec = zeros(K, V);
+        e2 = zeros(1, V);
+        %------------------------------------------------------------------
+        for i = 1:1+D
+            uh(:, :, i) = g.x(:, :, i);
+        end
         ua(:, :, 1) = inittype(g.itype, @(x) g.data.Z (x, g.t), g.xydc, g.xyqc, g.fi_aux);
         ua(:, :, 2) = inittype(g.itype, @(x) g.data.HU(x, g.t), g.xydc, g.xyqc, g.fi_aux);
-        uh          = g.x;
-        %{
-        ua(:, :, 1) = inittype(g.itype, @(x) g.data.HYD(x, g.t), g.xydc, g.xyqc, g.fi_aux);
-        ua(:, :, 2) = inittype(g.itype, @(x) g.data.HQ1(x, g.t), g.xydc, g.xyqc, g.fi_aux);
-        uh(:, :, 1) = g.GHd1ZN;
-        uh(:, :, 2) = g.HQ1N;
-        %}
-        K           = g.numE;
-        D           = 1;
-        V           = 1+D;
-        bf          = g.bf;
-        ec          = zeros(K, V);
-        e2          = zeros(1, V);
+        if test == 2
+            uh(:, :, 3) = g.GHd1ZN;
+            uh(:, :, 4) = g.HQ1N;
+            ua(:, :, 3) = inittype(g.itype, @(x) g.data.HYD(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+            ua(:, :, 4) = inittype(g.itype, @(x) g.data.HQ1(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+        end
         for i = 1:V
             eN       = ua(:, :, i)-uh(:, :, i);
             eq       = eN*bf';
             ec(:, i) = eq*g.W';
             e2(1, i) = sqrt(sum(((eq.^2)*g.W').*g.detJ0T, 1));
         end
-        save(obj.fid, 'uh', 'ec');
+        save(obj.fid, 'ua', 'uh', 'ec');
     end
     %----------------------------------------------------------------------
 else

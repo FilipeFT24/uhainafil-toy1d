@@ -15,7 +15,7 @@ nk   = size(tk, 2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 g              = FLUX(g, penParam, t0);
 ks(:, :, :, 1) = g.res;
-dt             = 1e-03;%g.CFL*min(g.vollambda, [], 'all');
+dt             = g.CFL*min(g.vollambda, [], 'all');
 for i = 1:nk
     if t0 < tk(1, i) && t0+dt > tk(1, i)
         dt = tk(1, i)-t0;
