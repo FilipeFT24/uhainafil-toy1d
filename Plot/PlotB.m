@@ -61,13 +61,13 @@ if ismembc(test, [1, 2])
         for i = 1:1+D
             uh(:, :, i) = g.x(:, :, i);
         end
-        ua(:, :, 1) = inittype(g.itype, @(x) g.data.Z (x, g.t), g.xydc, g.xyqc, g.fi_aux);
-        ua(:, :, 2) = inittype(g.itype, @(x) g.data.HU(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+        ua(:, :, 1) = inittype(g.itype, @(x) g.data.Z (x, g.t), g.xydc, g.xyqc, g.fc);
+        ua(:, :, 2) = inittype(g.itype, @(x) g.data.HU(x, g.t), g.xydc, g.xyqc, g.fc);
         if test == 2
             uh(:, :, 3) = g.GHd1ZN;
             uh(:, :, 4) = g.HQ1N;
-            ua(:, :, 3) = inittype(g.itype, @(x) g.data.HYD(x, g.t), g.xydc, g.xyqc, g.fi_aux);
-            ua(:, :, 4) = inittype(g.itype, @(x) g.data.HQ1(x, g.t), g.xydc, g.xyqc, g.fi_aux);
+            ua(:, :, 3) = inittype(g.itype, @(x) g.data.HYD(x, g.t), g.xydc, g.xyqc, g.fc);
+            ua(:, :, 4) = inittype(g.itype, @(x) g.data.HQ1(x, g.t), g.xydc, g.xyqc, g.fc);
         end
         for i = 1:V
             eN       = ua(:, :, i)-uh(:, :, i);

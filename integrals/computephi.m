@@ -4,15 +4,12 @@ function [g] = computephi(g, t, penParam) %#ok<INUSL>
 %--------------------------------------------------------------------------
 K      = g.numE;
 N      = g.N;
-KN     = K*N;
 R      = g.R_disp;
 bf     = g.bf_disp;
-fl     = g.bfl_disp;
-fr     = g.bfr_disp;
+bfl    = g.bfl_disp;
+bfr    = g.bfr_disp;
 alpha  = g.data.alpha;
 G      = g.data.G;
-Xi     = g.Xi;
-Xj     = g.Xj;
 drytol = g.drytol;
 veltol = g.velcutoff;
 vellim = g.vellim;
@@ -25,25 +22,25 @@ Hudof    = g.x(:, :, 2);
 B_dof    = g.zb;
 H_dof    = Z_dof-B_dof;
 %--------------------------------------------------------------------------
-Zl       = Z_dof*fl';
-Zr       = Z_dof*fr';
-Hul      = Hudof*fl';
-Hur      = Hudof*fr';
-Bl       = B_dof*fl';
-Br       = B_dof*fr';
+Zl       = Z_dof*bfl';
+Zr       = Z_dof*bfr';
+Hul      = Hudof*bfl';
+Hur      = Hudof*bfr';
+Bl       = B_dof*bfl';
+Br       = B_dof*bfr';
 [Z_jmpl, Hujmpl, B_jmpl, H_jmpl] = hydro_reconstruction1(drytol, veltol, vellim, wetdry, Zl(2:K  , 1), Zr(1:K-1, 1), Hul(2:K  , 1), Hur(1:K-1, 1), Bl(2:K  , 1), Br(1:K-1, 1));
 [Z_jmpr, Hujmpr, B_jmpr, H_jmpr] = hydro_reconstruction1(drytol, veltol, vellim, wetdry, Zr(1:K-1, 1), Zl(2:K  , 1), Hur(1:K-1, 1), Hul(2:K  , 1), Br(1:K-1, 1), Bl(2:K  , 1));
 %--------------------------------------------------------------------------
-d1B_dof  = d1Xlift_d(g, B_dof         , B_jmpl, B_jmpr, 1); % eq.1: cont.
-d2B_dof  = d2Xlift_d(g, B_dof, d1B_dof, B_jmpl, B_jmpr, 1); % eq.1: cont.
 d1H_dof  = d1Xlift_d(g, H_dof         , H_jmpl, H_jmpr, 1); % eq.1: cont.
 d2H_dof  = d2Xlift_d(g, H_dof, d1H_dof, H_jmpl, H_jmpr, 1); % eq.1: cont.
 d1Z_dof  = d1Xlift_d(g, Z_dof         , Z_jmpl, Z_jmpr, 1); % eq.1: cont.
 d1Hudof  = d1Xlift_d(g, Hudof         , Hujmpl, Hujmpr, 2); % eq.2: mom.
 d2Hudof  = d2Xlift_d(g, Hudof, d1Hudof, Hujmpl, Hujmpr, 2); % eq.2: mom.
-%
-d1B_l    = d1B_dof*fl';
-d1B_r    = d1B_dof*fr';
+%--------------------------------------------------------------------------
+d1B_dof  = d1Xlift_d(g, B_dof         , B_jmpl, B_jmpr, 1); % eq.1: cont.
+d2B_dof  = d2Xlift_d(g, B_dof, d1B_dof, B_jmpl, B_jmpr, 1); % eq.1: cont.
+d1B_l    = d1B_dof*bfl';
+d1B_r    = d1B_dof*bfr';
 d1B_jmpl = 1./2.*(d1B_l(2:K  , 1)-d1B_r(1:K-1, 1));
 d1B_jmpr = 1./2.*(d1B_r(1:K-1, 1)-d1B_l(2:K  , 1));
 d3B_dof  = d2Xlift_d(g, d1B_dof, d2B_dof, d1B_jmpl, d1B_jmpr, 1); % eq.1: cont.
@@ -155,7 +152,15 @@ set(gca, ...
     'YScale', 'log');
 %}
 %--------------------------------------------------------------------------
-A          = sparse(Xi, Xj, reshape(cat(3, MATd, MATo), [], 1), KN, KN);
+val        = reshape(cat(3, MATd, MATo), [], 1);
+%{
+KN         = K*N;
+Xi         = g.Xi;
+Xj         = g.Xj;
+A          = sparse(Xi, Xj, val(:), KN, KN);
+%}
+A          = g.A(val(:));
+%--------------------------------------------------------------------------
 psi_h1     = A\b;
 psi_hN     = reshape(psi_h1, [N, K])';
 psi_h_quad = psi_hN*bf';

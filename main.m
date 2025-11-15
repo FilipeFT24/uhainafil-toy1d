@@ -5,6 +5,7 @@ close all;
 %--------------------------------------------------------------------------
 dirs = [...
     "core/", ...
+    "core/spinit/src", ... requires spinit: https://www.mathworks.com/matlabcentral/fileexchange/30293-spinit?s_tid=srchtitle
     "debug/", ...
     "init/", ...
     "integrals/", ...
@@ -72,7 +73,7 @@ p         = 2;
 test      = 2;
 run       = 1;
 %--------------------------------------------------------------------------
-data      = setdata(test, 1);
+data      = setdata(test, 0);
 g         = MSH(data.xv, p);
 drytol    = 1.0e-02;
 velcutoff = drytol;

@@ -18,5 +18,7 @@ switch str
                 M(o, :, m) = data((o-1)*ND+(m-1)*N+1:(o-1)*ND+m*N);
             end
         end
+    otherwise
+        return
 end
 end

@@ -1,8 +1,12 @@
 function [aux] = d2Ylift_d(g, kdof, penParam, MATc)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% VARS #1:
 %--------------------------------------------------------------------------
 alpha      = g.data.alpha;
+wetdry     = g.data.wetdry;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CELL:
 %--------------------------------------------------------------------------
-% CELL
 K          = g.numE;
 N          = g.N;
 bf         = g.bf_disp;
@@ -11,9 +15,9 @@ kquad      = kdof*bf';
 kquad      =-1./3.*kquad.^3;
 kquad_perm = permute(kquad, [3, 4, 2, 1]);
 MATd       =-reshape(sum(pagemtimes(D2Kc, kquad_perm), 3), [N, N, K]);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FACE:
 %--------------------------------------------------------------------------
-% FACE
-theta      =-1;
 MATol      = zeros(N, N, K-1);
 MATou      = zeros(N, N, K-1);
 FiDi1      = g.FiDi1;
@@ -22,12 +26,12 @@ FiDe1      = g.FiDe1;
 FiDe2      = g.FiDe2;
 FiDil      = g.FiDil;
 FiDir      = g.FiDir;
-DiFi1      = g.DiFi1.*theta;
-DiFi2      = g.DiFi2.*theta;
-DiFe1      = g.DiFe1.*theta;
-DiFe2      = g.DiFe2.*theta;
-DiFil      = g.DiFil.*theta;
-DiFir      = g.DiFir.*theta;
+DiFi1      = g.DiFi1;
+DiFi2      = g.DiFi2;
+DiFe1      = g.DiFe1;
+DiFe2      = g.DiFe2;
+DiFil      = g.DiFil;
+DiFir      = g.DiFir;
 Peni1      = g.Peni1.*penParam;
 Peni2      = g.Peni2.*penParam;
 Pene1      = g.Pene1.*penParam;
@@ -61,7 +65,7 @@ MATd(:, :, 1) = MATd(:, :, 1)+(2.*FiDil-DiFil-Penil).*kl_perm(1, 1, 1); % sign =
 MATd(:, :, K) = MATd(:, :, K)+(2.*FiDir-DiFir-Penir).*kr_perm(1, 1, K); % =
 MATd          = MATd+MATc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% if g.data.wetdry
+% if wetdry
 %     % CORRECT WET/DRY (only if specified):
 %     dry_              = g.WD > 1;
 %     ndry              = sum(dry_, 1);

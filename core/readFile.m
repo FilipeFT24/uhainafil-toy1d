@@ -8,6 +8,6 @@ switch numel(line1)
     case 2
         M = reshape(line2, [line1(1), line1(2)]);
     otherwise
-        return;
+        return
 end
 end
