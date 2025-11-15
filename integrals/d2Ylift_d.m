@@ -1,9 +1,9 @@
-function [aux] = d2Ylift_d(g, kdof, penParam, MATc)
+function [aux] = d2Ylift_d(g, kdof, penParam, MATc) %#ok<INUSL> 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % VARS #1:
 %--------------------------------------------------------------------------
 alpha      = g.data.alpha;
-wetdry     = g.data.wetdry;
+wetdry     = g.data.wetdry; %#ok<NASGU> 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CELL:
 %--------------------------------------------------------------------------
@@ -18,30 +18,26 @@ MATd       =-reshape(sum(pagemtimes(D2Kc, kquad_perm), 3), [N, N, K]);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FACE:
 %--------------------------------------------------------------------------
-MATol      = zeros(N, N, K-1);
-MATou      = zeros(N, N, K-1);
-FiDi1      = g.FiDi1;
-FiDi2      = g.FiDi2;
+auxi1      = g.auxi1;
+auxi2      = g.auxi2;
 FiDe1      = g.FiDe1;
 FiDe2      = g.FiDe2;
 FiDil      = g.FiDil;
 FiDir      = g.FiDir;
-DiFi1      = g.DiFi1;
-DiFi2      = g.DiFi2;
 DiFe1      = g.DiFe1;
 DiFe2      = g.DiFe2;
 DiFil      = g.DiFil;
 DiFir      = g.DiFir;
-Peni1      = g.Peni1.*penParam;
-Peni2      = g.Peni2.*penParam;
-Pene1      = g.Pene1.*penParam;
-Pene2      = g.Pene2.*penParam;
-Penil      = g.Penil.*penParam;
-Penir      = g.Penir.*penParam;
-fl         = g.bfl_disp;
-fr         = g.bfr_disp;
-kquadl     = kdof*fl';
-kquadr     = kdof*fr';
+Peni1      = g.Peni1;
+Peni2      = g.Peni2;
+Pene1      = g.Pene1;
+Pene2      = g.Pene2;
+Penil      = g.Penil;
+Penir      = g.Penir;
+bfl        = g.bfl_disp;
+bfr        = g.bfr_disp;
+kquadl     = kdof*bfl';
+kquadr     = kdof*bfr';
 kquadl     =-1./3.*kquadl.^3;
 kquadr     =-1./3.*kquadr.^3;
 kl_perm    = permute(kquadl, [3, 2, 1]);
@@ -51,13 +47,13 @@ kavl       = cat(3, 0, kav);
 kavr       = cat(3, kav, 0);
 %--------------------------------------------------------------------------
 MATd       = MATd+...
-    pagemtimes(FiDi1-DiFi1, kl_perm)+...
-    pagemtimes(FiDi2-DiFi2, kr_perm)-...
+    pagemtimes(auxi1, kl_perm)+...
+    pagemtimes(auxi2, kr_perm)-...
     pagemtimes(Peni1, kavl)-...
     pagemtimes(Peni2, kavr);
 %--------------------------------------------------------------------------
-MATol      = MATol+pagemtimes(FiDe1, kr_perm(1, 1, 1:K-1))+pagemtimes(DiFe1, kl_perm(1, 1, 2:K  ))+pagemtimes(Pene1, kav);
-MATou      = MATou+pagemtimes(FiDe2, kl_perm(1, 1, 2:K  ))+pagemtimes(DiFe2, kr_perm(1, 1, 1:K-1))+pagemtimes(Pene2, kav);
+MATol      = pagemtimes(FiDe1, kr_perm(1, 1, 1:K-1))+pagemtimes(DiFe1, kl_perm(1, 1, 2:K  ))+pagemtimes(Pene1, kav);
+MATou      = pagemtimes(FiDe2, kl_perm(1, 1, 2:K  ))+pagemtimes(DiFe2, kr_perm(1, 1, 1:K-1))+pagemtimes(Pene2, kav);
 %--------------------------------------------------------------------------
 % 0-Dirichlet condition (p = 0): see section 4.2.1. of F. Marche (p. 303)
 %                                see section 4.5.1. of FESTUNG paper.
@@ -65,19 +61,21 @@ MATd(:, :, 1) = MATd(:, :, 1)+(2.*FiDil-DiFil-Penil).*kl_perm(1, 1, 1); % sign =
 MATd(:, :, K) = MATd(:, :, K)+(2.*FiDir-DiFir-Penir).*kr_perm(1, 1, K); % =
 MATd          = MATd+MATc;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% if wetdry
-%     % CORRECT WET/DRY (only if specified):
-%     dry_              = g.WD > 1;
-%     ndry              = sum(dry_, 1);
-%     dryu              = dry_;
-%     dryl              = dry_;
-%     if ~dry_(1, 1)
-%         dryl = circshift(dryl, -1);
-%     end
-%     MATd (:, :, dry_) = repmat(eye  (N), 1, 1, ndry);
-%     MATou(:, :, dryu) = repmat(zeros(N), 1, 1, ndry);
-%     MATol(:, :, dryl) = repmat(zeros(N), 1, 1, ndry);
-% end
+%{
+if wetdry
+    % CORRECT WET/DRY (only if specified):
+    dry_              = g.WD > 1;
+    ndry              = sum(dry_, 1);
+    dryu              = dry_;
+    dryl              = dry_;
+    if ~dry_(1, 1)
+        dryl = circshift(dryl, -1);
+    end
+    MATd (:, :, dry_) = repmat(eye  (N), 1, 1, ndry);
+    MATou(:, :, dryu) = repmat(zeros(N), 1, 1, ndry);
+    MATol(:, :, dryl) = repmat(zeros(N), 1, 1, ndry);
+end
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 MATo     = cat(3, MATol, MATou);

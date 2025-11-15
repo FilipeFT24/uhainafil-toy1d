@@ -90,12 +90,12 @@ for j = 1:N
 end
 d2R       = permute(d2N, [2, 3, 1]);
 d2c       = mass\sum(d2R, 3);
-%
+%{
 d2kc      = zeros(N, N, K);
 for o = 1:K
     d2kc(:, :, o) = Mass(:, :, o)\sum(D2Kc(:, :, :, o), 3);
 end
-%
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FACE:
 %--------------------------------------------------------------------------
@@ -186,37 +186,51 @@ g.FFKc      = FFKc;
 g.F_Kc      = F_Kc;
 g.fc_disp   = fc_disp;
 g.fx_disp   = fx_disp;
-g.d2c       = d2c;
-%
+%{
 g.d2kc      = d2kc;
-%
+%}
+g.d2c       = d2c;
 %--------------------------------------------------------------------------
 g.bfl_disp  = bfl;
 g.bfr_disp  = bfr;
+DiFi1       = DiFi(:, :, :, 1).*theta;
+DiFi2       = DiFi(:, :, :, 2).*theta;
+FiDi1       = FiDi(:, :, :, 1);
+FiDi2       = FiDi(:, :, :, 2);
+g.auxi1     = FiDi1-DiFi1;
+g.auxi2     = FiDi2-DiFi2;
+%{
 g.DiFi1     = DiFi(:, :, :, 1).*theta;
 g.DiFi2     = DiFi(:, :, :, 2).*theta;
-g.DiFe1     = DiFe(:, :, :, 1).*theta;
-g.DiFe2     = DiFe(:, :, :, 2).*theta;
 g.FiDi1     = FiDi(:, :, :, 1);
 g.FiDi2     = FiDi(:, :, :, 2);
+%}
+g.DiFe1     = DiFe(:, :, :, 1).*theta;
+g.DiFe2     = DiFe(:, :, :, 2).*theta;
 g.FiDe1     = FiDe(:, :, :, 1);
 g.FiDe2     = FiDe(:, :, :, 2);
-g.Peni1     = Peni(:, :, :, 1);
-g.Peni2     = Peni(:, :, :, 2);
-g.Pene1     = Pene(:, :, :, 1);
-g.Pene2     = Pene(:, :, :, 2);
+g.Peni1     = Peni(:, :, :, 1).*penParam;
+g.Peni2     = Peni(:, :, :, 2).*penParam;
+g.Pene1     = Pene(:, :, :, 1).*penParam;
+g.Pene2     = Pene(:, :, :, 2).*penParam;
 g.DiFil     = DiFibl.*theta;
 g.DiFir     = DiFibr.*theta;
 g.FiDil     = FiDibl;
 g.FiDir     = FiDibr;
-g.Penil     = Penibl;
-g.Penir     = Penibr;
+g.Penil     = Penibl.*penParam;
+g.Penir     = Penibr.*penParam;
 g.A         = spinit(Xi, Xj, [KN, KN]);
 %--------------------------------------------------------------------------
+%{
 g.dKl_disp  = dKl;
 g.dKr_disp  = dKr;
 g.fKl_disp  = fKl;
 g.fKr_disp  = fKr;
+%}
+g.dKli_disp = dKl(2:K  , :);
+g.dKri_disp = dKr(1:K-1, :);
+g.dKlb_disp = dKl(1    , :);
+g.dKrb_disp = dKr(K    , :);
 g.fKli_disp = fKl(2:K  , :);
 g.fKri_disp = fKr(1:K-1, :);
 g.fKlb_disp = fKl(1    , :);
