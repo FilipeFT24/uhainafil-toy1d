@@ -134,9 +134,9 @@ if test == 11
     Xa = g.data.H(xc, 0);
     Xh = sum(pagemtimes(g.x(:, :, 1)-g.zbinit, g.Wbf'), 2)./sum(g.W, 2);
 else
-    Xa = g.data.Z(xc, 0);
-    Xh = sum(pagemtimes(g.x(:, :, 1), g.Wbf'), 2)./sum(g.W, 2);
     h0 = g.data.h0;
+    Xa = g.data.N(xc, 0)-h0;
+    Xh = sum(pagemtimes(g.x(:, :, 1)-h0, g.Wbf'), 2)./sum(g.W, 2);
     Xa = Xa./h0;
     Xh = Xh./h0;
 end

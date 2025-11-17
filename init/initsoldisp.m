@@ -177,6 +177,7 @@ g.Xj        = Xj;
 g.xydc_disp = xydc;
 g.xyqc_disp = xyqc;
 g.R_disp    = R;
+g.Wbf_disp  = Wbf;
 g.MASS_disp = sparse(Xid, Xjd, reshape(Mass, [], 1), KN, KN); % UNUSED
 %--------------------------------------------------------------------------
 g.bf_disp   = bf;
@@ -197,13 +198,25 @@ DiFi1       = DiFi(:, :, :, 1).*theta;
 DiFi2       = DiFi(:, :, :, 2).*theta;
 FiDi1       = FiDi(:, :, :, 1);
 FiDi2       = FiDi(:, :, :, 2);
+DiFibl      = DiFibl.*theta;
+DiFibr      = DiFibr.*theta;
+Penibl      = Penibl.*penParam;
+Penibr      = Penibr.*penParam;
 g.auxi1     = FiDi1-DiFi1;
 g.auxi2     = FiDi2-DiFi2;
+g.auxbl     = 2.*FiDibl-DiFibl-Penibl;
+g.auxbr     = 2.*FiDibr-DiFibr-Penibr;
 %{
-g.DiFi1     = DiFi(:, :, :, 1).*theta;
-g.DiFi2     = DiFi(:, :, :, 2).*theta;
+g.DiFi1     = DiFi(:, :, :, 1);
+g.DiFi2     = DiFi(:, :, :, 2);
 g.FiDi1     = FiDi(:, :, :, 1);
 g.FiDi2     = FiDi(:, :, :, 2);
+g.DiFil     = DiFibl;
+g.DiFir     = DiFibr;
+g.FiDil     = FiDibl;
+g.FiDir     = FiDibr;
+g.Penil     = Penibl;
+g.Penir     = Penibr;
 %}
 g.DiFe1     = DiFe(:, :, :, 1).*theta;
 g.DiFe2     = DiFe(:, :, :, 2).*theta;
@@ -213,12 +226,6 @@ g.Peni1     = Peni(:, :, :, 1).*penParam;
 g.Peni2     = Peni(:, :, :, 2).*penParam;
 g.Pene1     = Pene(:, :, :, 1).*penParam;
 g.Pene2     = Pene(:, :, :, 2).*penParam;
-g.DiFil     = DiFibl.*theta;
-g.DiFir     = DiFibr.*theta;
-g.FiDil     = FiDibl;
-g.FiDir     = FiDibr;
-g.Penil     = Penibl.*penParam;
-g.Penir     = Penibr.*penParam;
 g.A         = spinit(Xi, Xj, [KN, KN]);
 %--------------------------------------------------------------------------
 %{

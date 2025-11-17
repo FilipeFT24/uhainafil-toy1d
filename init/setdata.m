@@ -15,7 +15,7 @@ switch test
         %------------------------------------------------------------------
         xm       = 0;
         xM       = 1;
-        K        = 4000;
+        K        = 5000;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -24,22 +24,21 @@ switch test
         %------------------------------------------------------------------
         b        = sin(pi.*x).^2;
         h        = 2+x+sin(100.*x);
-        z        = h+b;
+        n        = h+b;
         hu       = exp(h);
         u        = hu./h;
         tend     = 0.10;
         tk       = tend;
         %------------------------------------------------------------------
-        % SOURCE:
-        dt_z     = diff(z , t, 1);
+        dt_n     = diff(n , t, 1);
         dthu     = diff(hu, t, 1);
         dxhu     = diff(hu, x, 1);
-        dxzb     = diff(b , x, 1);
+        dxnb     = diff(b , x, 1);
         hu2      = h.*u.^2;
-        f1       = hu2+G.*(1./2.*z.^2-z.*b);
+        f1       = hu2+G.*(1./2.*n.^2-n.*b);
         dxf1     = diff(f1, x, 1);
-        f2       = G.*z.*dxzb;
-        s1       = dt_z+dxhu;
+        f2       = G.*n.*dxnb;
+        s1       = dt_n+dxhu;
         s2       = dthu+dxf1+f2;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 2
@@ -66,12 +65,12 @@ switch test
         c        = sqrt(G.*(h0+A1));
         k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
         xs       =-12.5;
-        b        =-h0;
-        z        = A1.*sech(k.*(x-xs-c.*t)).^2;
-        h        = z-b;
-        u        = c.*(1-h0./(h0+z));
-        hu       = h.*u;
-        tend     = 30;%25./c;
+        b        = 0;
+        n        = h0+A1.*sech(k.*(x-xs-c.*t)).^2;
+        h        = n-b;
+        hu       = c.*(n-h0);
+        u        = hu./h;
+        tend     = 25./c;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 3
@@ -100,11 +99,11 @@ switch test
         c        = sqrt(G.*(h0+A1));
         k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
         xs       = 0;
-        b        =-h0;
-        z        = A1.*sech(k.*(x-xs-c.*t)).^2;
-        h        = z-b;
-        u        = c.*(1-h0./(h0+z));
-        hu       = h.*u;
+        b        = 0;
+        n        = h0+A1.*sech(k.*(x-xs-c.*t)).^2;
+        h        = n-b;
+        hu       = c.*(n-h0);
+        u        = hu./h;
         %{
         a1       = -(alpha-1)./3;
         a        = -alpha./3;
@@ -156,8 +155,8 @@ switch test
                 return
         end
         b        = b1+b2;
-        z        = h0+(b-h0).*(0.5.*(sign(b2.*heaviside(x)-h0)+1));
-        h        = z-b;
+        n        = h0+(b-h0).*(0.5.*(sign(b2.*heaviside(x)-h0)+1));
+        h        = n-b;
         u        = 0;
         hu       = h.*u;
         tend     = 10e3;
@@ -187,8 +186,8 @@ switch test
         c2       = 0.10;
         k        = pi./c2;
         b        = c1.*(cos(k.*x)+1).*heaviside(x+c2).*heaviside(c2-x);
-        z        = h0+(b-h0).*heaviside(b-h0);
-        h        = z-b;
+        n        = h0+(b-h0).*heaviside(b-h0);
+        h        = n-b;
         u        = 0;
         hu       = h.*u;
         tend     = 1000;
@@ -219,7 +218,7 @@ switch test
         b        = h0.*x.^2;
         h_aux    = h0+2.*h0.*a0.*cos(omega.*t).*(x-a0./2.*cos(omega.*t))-b;
         h        = h_aux.*heaviside(h_aux);
-        z        = h+b;
+        n        = h+b;
         u        =-a0.*omega.*sin(omega.*t);
         hu       = h.*u;
         tend     = 2.*pi./omega;
@@ -227,7 +226,7 @@ switch test
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 7
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % S2/T1 - Head-on collision (OK)
+        % S2/T1 - Head-on collision
         %------------------------------------------------------------------
         alpha    = 1;
         dispers  = 1;
@@ -269,21 +268,19 @@ switch test
         k2       = sqrt(3.*A2)./(2.*h0.*sqrt(h0+A2));
         xs1      =-50;
         xs2      = 50;
-        b        =-h0;
+        b        = 0;
         z1       = A1.*sech(k1.*(x-xs1-c1.*t)).^2;
         z2       = A2.*sech(k2.*(x-xs2+c2.*t)).^2;
-        z        = z1+z2;
-        h        = z-b;
-        u1       = c1.*(1-h0./(h0+z1));
-        u2       =-c2.*(1-h0./(h0+z2));
-        u        = u1+u2;
-        hu       = h.*u;
+        n        = h0+z1+z2;
+        h        = n-b;
+        hu       = c1.*z1-c2.*z2;
+        u        = hu./h;
         tend     = 100./c2;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 8
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % S2/T2 - Wall (OK)
+        % S2/T2 - Wall
         %------------------------------------------------------------------
         alpha    = 1;
         dispers  = 1;
@@ -313,17 +310,17 @@ switch test
         c        = sqrt(G.*(h0+A1));
         k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
         xs       =-50;
-        b        =-h0;
-        z        = A1.*sech(k.*(x-xs-c.*t)).^2;
-        h        = z-b;
-        u        = c.*(1-h0./(h0+z));
-        hu       = h.*u;
+        b        = 0;
+        n        = h0+A1.*sech(k.*(x-xs-c.*t)).^2;
+        h        = n-b;
+        hu       = c.*(n-h0);
+        u        = hu./h;
         tend     = 100./c;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 9
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % S2/T3 - Overtaking collision (OK)
+        % S2/T3 - Overtaking collision
         %------------------------------------------------------------------
         alpha    = 1;
         dispers  = 1;
@@ -349,21 +346,19 @@ switch test
         k2       = sqrt(3.*A2)./(2.*h0.*sqrt(h0+A2));
         xs2      =-150;
         xs1      = xs2.*c1./c2;
-        b        =-h0;
+        b        = 0;
         z1       = A1.*sech(k1.*(x-xs1-c1.*t)).^2;
         z2       = A2.*sech(k2.*(x-xs2-c2.*t)).^2;
-        z        = z1+z2;
-        h        = z-b;
-        u1       = c1.*(1-h0./(h0+z1));
-        u2       = c2.*(1-h0./(h0+z2));
-        u        = u1+u2;
-        hu       = h.*u;
+        n        = h0+z1+z2;
+        h        = n-b;
+        hu       = c1.*z1+c2.*z2;
+        u        = hu./h;
         tend     =-2.*xs1./c1;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 10
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % S2/T4 - Breakup of a Gaussian hump (OK)
+        % S2/T4 - Breakup of a Gaussian hump
         %------------------------------------------------------------------
         alpha    = 1;
         dispers  = 1;
@@ -390,17 +385,17 @@ switch test
             otherwise
                 return
         end
-        b        =-h0;
-        z        = exp(-x.^2./A1);
-        h        = z-b;
-        u        = 0;
-        hu       = h.*u;
+        b        = 0;
+        n        = h0+exp(-x.^2./A1);
+        h        = n-b;
+        hu       = 0;
+        u        = hu./h;
         tend     = 100;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 11
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % S2/T5 - Dispersive dam-break (OK)
+        % S2/T5 - Dispersive dam-break
         %------------------------------------------------------------------
         alpha    = 1;
         dispers  = 1;
@@ -419,11 +414,11 @@ switch test
         end
         %------------------------------------------------------------------
         A1       = 0.8;
-        b        =-h0;
-        z        = 1./2.*A1.*(1-tanh(x./0.4));
-        h        = z-b;
-        u        = eps.*x;
-        hu       = h.*u;
+        b        = 0;
+        n        = h0+1./2.*A1.*(1-tanh(x./0.4));
+        h        = n-b;
+        hu       = 0;
+        u        = hu./h;
         tend     = 47.434;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -480,29 +475,29 @@ switch test
         ds       = 0.5;
         switch bathy
             case 0
-                b =-h0+heaviside(x).*slope.*x;
+                b  = heaviside(x).*slope.*x;
             case 1
                 f1 = bathyC1(slope, ds, 1);
-                b  =-h0+...
+                b  = ...
                     (heaviside(x+ds)-heaviside(x-ds)).*f1(x)+...
                     (heaviside(x-ds)).*slope.*x;
             case 2
                 f2 = bathyC2(slope, ds, 1);
-                b  =-h0+...
+                b  = ...
                     (heaviside(x+ds)-heaviside(x-ds)).*f2(x)+...
                     (heaviside(x-ds)).*slope.*x;
             case 3
                 f3 = bathyC3(slope, ds, 1);
-                b  =-h0+...
+                b  = ...
                     (heaviside(x+ds)-heaviside(x-ds)).*f3(x)+...
                     (heaviside(x-ds)).*slope.*x;
             otherwise
                 return
         end
-        z        = A1.*sech(k.*(x-xs-c.*t)).^2;
-        h        = z-b;
-        u        = c.*(1-h0./(h0+z));
-        hu       = h.*u;
+        n        = h0+A1.*sech(k.*(x-xs-c.*t)).^2;
+        h        = n-b;
+        hu       = c.*(n-h0);
+        u        = hu./h;
         xg       = [-5.00, 20.96, 22.55, 23.68, 24.68, 25.91]'.*h0;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -537,14 +532,14 @@ switch test
         xs       = 80;
         switch bathy
             case 0
-                b  =-h0+...
+                b  = ...
                     slope.*(x-130).*(heaviside(x-130)-heaviside(x-140))+...
                     slope.*10.*heaviside(x-140);
             case 3
                 ds = 0.5;
                 f3 = bathyC3(slope, ds, 1);
                 g3 = bathyC3(slope, ds, 3);
-                b  =-h0+...
+                b  = ...
                     (heaviside(x-(130-ds))-heaviside(x-(130+ds))).*f3(x-130)+...
                     (heaviside(x-(130+ds))-heaviside(x-(140-ds))).*slope.*(x-130)+...
                     (heaviside(x-(140-ds))-heaviside(x-(140+ds))).*g3(x-140)+...
@@ -552,10 +547,10 @@ switch test
             otherwise
                 return
         end
-        z        = A1.*sech(k.*(x-xs-c.*t)).^2;
-        h        = z-b;
-        u        = c.*(1-h0./(h0+z));
-        hu       = h.*u;
+        n        = h0+A1.*sech(k.*(x-xs-c.*t)).^2;
+        h        = n-b;
+        hu       = c.*(n-h0);
+        u        = hu./h;
         tend     = 50;
         tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -596,11 +591,11 @@ switch test
         c        = sqrt(G.*(h0+A1));
         k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
         xs       =-30;
-        z        = A1.*sech(k.*(x-xs-c.*t)).^2;
-        b        =-h0+heaviside(x).*slope.*(x);
-        h        = z-b;
-        u        = c.*(1-h0./(h0+z));
-        hu       = h.*u;
+        b        = heaviside(x).*slope.*(x);
+        n        = h0+A1.*sech(k.*(x-xs-c.*t)).^2;
+        h        = n-b;
+        hu       = c.*(n-h0);
+        u        = hu./h;
         xg       = [0.00, 16.25, 17.75]';
         tend     = 30;
         tk       = tend;
@@ -650,20 +645,20 @@ switch test
         ds       = 0.5;
         switch bathy
             case 0
-                b  =-h0+...
+                b  = ...
                     heaviside(-x+1./slope).*slope.*(-x+1./slope);
             case 3
                 f3 = bathyC3(slope, ds, 2);
-                b  =-h0+...
+                b  = ...
                     slope.*(-x+1./slope).*heaviside(-x+1./slope-ds)+...
                     f3(x-1./slope).*(heaviside(x-(1./slope-ds))-heaviside(x-(1./slope+ds)));
             otherwise
                 return
         end
-        z        = A1.*sech(k.*(x-xs-c.*t)).^2;
-        z        = z.*heaviside(x-eps)+heaviside(-(x+eps)).*b; %?
-        h        = z-b;
-        u        = c.*(1-h0./(h0+z));
+        n        = h0+A1.*sech(k.*(x-xs-c.*t)).^2;
+        h        = n-b;
+        hu       = c.*(n-h0);
+        u        = hu./h;
         hu       = h.*u;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 16
@@ -680,7 +675,7 @@ switch test
         return
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-data.Z       = mymatlabFunction(vpa(z , 16), [x, t]); % sol1
+data.N       = mymatlabFunction(vpa(n , 16), [x, t]); % sol1
 data.HU      = mymatlabFunction(vpa(hu, 16), [x, t]); % sol2
 data.B       = mymatlabFunction(vpa(b , 16), [x, t]);
 data.H       = mymatlabFunction(vpa(h , 16), [x, t]); % NOT NECESSARY
@@ -692,7 +687,7 @@ end
 d1b          = diff(b , x, 1);
 d1h          = diff(h , x, 1);
 d1u          = diff(u , x, 1);
-d1z          = diff(z , x, 1);
+d1n          = diff(n , x, 1);
 d1hu         = diff(hu, x, 1);
 d2b          = diff(b , x, 2);
 d2h          = diff(h , x, 2);
@@ -701,8 +696,8 @@ d2hu         = diff(hu, x, 2);
 d3b          = diff(b , x, 3);
 data.d1B     = mymatlabFunction(vpa(d1b , 16), [x, t]);
 data.d1H     = mymatlabFunction(vpa(d1h , 16), [x, t]);
+data.d1N     = mymatlabFunction(vpa(d1n , 16), [x, t]);
 data.d1U     = mymatlabFunction(vpa(d1u , 16), [x, t]);
-data.d1Z     = mymatlabFunction(vpa(d1z , 16), [x, t]);
 data.d1Hu    = mymatlabFunction(vpa(d1hu, 16), [x, t]);
 data.d2B     = mymatlabFunction(vpa(d2b , 16), [x, t]);
 data.d2H     = mymatlabFunction(vpa(d2h , 16), [x, t]);
@@ -726,18 +721,17 @@ data.xv      = xv;
 data.nf      = 1800;
 %--------------------------------------------------------------------------
 if ismembc(test, [2, 7, 8])
-    ghd1z      = G.*h.*d1z;
-    q1         = 2.*h.*(d1h+d1b./2).*d1u.^2+4./3.*h.^2.*d1u.*d2u+h.*d2b.*u.*d1u+(d1h.*d2b+h./2.*d3b).*u.^2;
+    ghd1n      = G.*h.*d1n;
+    q1         = 2.*h.*(d1h+d1b./2).*d1u.^2+4./3.*h.^2.*d1u.*d2u+h.*d2b.*u.*d1u+(d1n.*d2b+h./2.*d3b).*u.^2;
     hq1        = h.*q1;
     huu        = hu.*u;
     tp         = diff(huu, x, 1);
-    phi        = diff(hu, t, 1)+tp+ghd1z;
-    psi        = phi-ghd1z./alpha;
-    psi_h      = psi./h;
-    rhs        =-ghd1z./alpha-hq1;
-
-    data.HYD   = mymatlabFunction(vpa(ghd1z, 16), [x, t]);
+    disp       = diff(hu, t, 1)+tp+ghd1n;
+    hp         = disp-ghd1n./alpha;
+    rhs        = ghd1n./alpha+hq1;
+    data.HYD   = mymatlabFunction(vpa(ghd1n, 16), [x, t]);
     data.HQ1   = mymatlabFunction(vpa(hq1  , 16), [x, t]);
+    data.P     = mymatlabFunction(vpa(hp./h, 16), [x, t]);
     data.RHS   = mymatlabFunction(vpa(rhs  , 16), [x, t]);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -745,9 +739,9 @@ if flag
     f1 = figure('Color', 'w', 'Renderer', 'painters');
     subplot(1, 2, 1);
     hold on;
-    p1 = plot(xv, data.Z (xv, 0), '-*r');
+    p1 = plot(xv, data.N (xv, 0), '-*r');
     p2 = plot(xv, data.B (xv, 0), '-og');
-    p3 = plot(xv, data.H (xv, 0), '-sm'); legend([p1, p2, p3], '$\zeta$', '$b$', '$h$');
+    p3 = plot(xv, data.H (xv, 0), '-sm'); legend([p1, p2, p3], '$\eta$', '$b$', '$h$');
     subplot(1, 2, 2);
     hold on;
     p3 = plot(xv, data.HU(xv, 0), '-or'); legend(p3, '$hu$');

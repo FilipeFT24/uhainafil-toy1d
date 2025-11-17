@@ -15,25 +15,25 @@ test    = g.test;
 S       = zeros(K, N, D);
 if dispers
     g = computephi(g, t, penParam);
-    S = g.PHIN;
+    S = g.DISP;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % VARS #2:
 %--------------------------------------------------------------------------
-Z_dof    = g.x(:, :, 1);
+N_dof    = g.x(:, :, 1);
 Hudof    = g.x(:, :, 2);
 B_dof    = g.zb;
-H_dof    = Z_dof-B_dof;
+H_dof    = N_dof-B_dof;
 d1B_dof  = d1Xlift_c(g, B_dof);
 %--------------------------------------------------------------------------
-Z_quad   = Z_dof*bf';
+N_quad   = N_dof*bf';
 Huquad   = Hudof*bf';
 B_quad   = B_dof*bf';
 H_quad   = H_dof*bf';
 d1B_quad = d1B_dof*bf';
-GZ_quad  = G.*Z_quad;
-GZ1quad  = GZ_quad.*d1B_quad;
-GZ2quad  = GZ_quad.*(1./2.*Z_quad-B_quad);
+GN_quad  = G.*N_quad;
+GN1quad  = GN_quad.*d1B_quad;
+GN2quad  = GN_quad.*(1./2.*N_quad-B_quad);
 %--------------------------------------------------------------------------
 if vellim == 1 || (vellim == 2 && wetdry == 0)
     W2quad      = Huquad.^2./H_quad;
@@ -51,10 +51,10 @@ DK          = g.DKc;
 fk          = g.fc;
 HU          = permute(Huquad , [2, 3, 1]); % hu
 W2          = permute(W2quad , [2, 3, 1]); % hu^2
-GZ2         = permute(GZ2quad, [2, 3, 1]); % G/2*(z^2-2zb)
-F_          =-pagemtimes(DK, [HU, W2+GZ2]);
+GN2         = permute(GN2quad, [2, 3, 1]); % G/2*(n^2-2nb)
+F_          =-pagemtimes(DK, [HU, W2+GN2]);
 F_          = permute(F_, [3, 1, 2]);
-F_(:, :, 2) = F_(:, :, 2)+GZ1quad*fk-S;  % S is defined w/ -1/3 instead of 1/3
+F_(:, :, 2) = F_(:, :, 2)+GN1quad*fk+S;
 if test == 1 % for SW CONVERGENCE
     for i = 1:1+D
         F_(:, :, i) = F_(:, :, i)-inittype(g.itype, @(x) g.data.S{1, i}(x, t), g.xydc, g.xyqc, fk);

@@ -21,12 +21,12 @@ lambda = zeros(Kf, 1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % VARS #2:
 %--------------------------------------------------------------------------
-Z_dof  = g.x(:, :, 1);
+N_dof  = g.x(:, :, 1);
 Hudof  = g.x(:, :, 2);
 B_dof  = g.zb;
 %--------------------------------------------------------------------------
-Z_l    = Z_dof*bfl';
-Z_r    = Z_dof*bfr';
+N_l    = N_dof*bfl';
+N_r    = N_dof*bfr';
 Hul    = Hudof*bfl';
 Hur    = Hudof*bfr';
 B_l    = B_dof*bfl';
@@ -37,19 +37,19 @@ switch test
         xv   = g.coordV0T;
         xlb  = xv(1, 1);
         xrb  = xv(K, 2);
-        Z_lb = g.data.Z (xlb, t);
-        Z_rb = g.data.Z (xrb, t);
+        N_lb = g.data.N (xlb, t);
+        N_rb = g.data.N (xrb, t);
         Hulb = g.data.HU(xlb, t);
         Hurb = g.data.HU(xrb, t);
     case 5
-        Z_lb = Z_l(1, 1);
-        Z_rb = 0.40;
+        N_lb = N_l(1, 1);
+        N_rb = 0.40;
         Hulb =-Hul(1, 1);
         Hurb = 0;
     otherwise
-        Z_lb = Z_l(1, 1);
+        N_lb = N_l(1, 1);
         Hulb =-Hul(1, 1);
-        Z_rb = Z_r(K, 1);
+        N_rb = N_r(K, 1);
         Hurb =-Hur(K, 1);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,11 +57,11 @@ end
 %--------------------------------------------------------------------------
 % INT:
 lambda(2:Kf-1, 1) = lambdaLF(drytol, veltol, vellim, wetdry, G, ...
-    Z_l(2:K, 1), Z_r(1:K-1, 1), ...
+    N_l(2:K, 1), N_r(1:K-1, 1), ...
     Hul(2:K, 1), Hur(1:K-1, 1), B_l(2:K, 1), B_r(1:K-1, 1));
 % BND:
-lambda(1 , 1) = lambdaLF(drytol, veltol, vellim, wetdry, G, Z_l(1, 1), Z_lb, Hul(1, 1), Hulb, B_l(1, 1), B_l(1, 1));
-lambda(Kf, 1) = lambdaLF(drytol, veltol, vellim, wetdry, G, Z_r(K, 1), Z_rb, Hur(K, 1), Hurb, B_r(K, 1), B_r(K, 1));
+lambda(1 , 1) = lambdaLF(drytol, veltol, vellim, wetdry, G, N_l(1, 1), N_lb, Hul(1, 1), Hulb, B_l(1, 1), B_l(1, 1));
+lambda(Kf, 1) = lambdaLF(drytol, veltol, vellim, wetdry, G, N_r(K, 1), N_rb, Hur(K, 1), Hurb, B_r(K, 1), B_r(K, 1));
 %--------------------------------------------------------------------------
 LAMBDA    = max(lambda, [], 1);
 vollambda = [...
@@ -73,15 +73,15 @@ vollambda(isinf(vollambda) | isnan(vollambda)) = 1./eps;
 %--------------------------------------------------------------------------
 % INT:
 F_l = hydro_reconstruction2(drytol, veltol, vellim, wetdry, G, ...
-    Z_l(2:K  , 1), Z_r(1:K-1, 1), ...
+    N_l(2:K  , 1), N_r(1:K-1, 1), ...
     Hul(2:K  , 1), Hur(1:K-1, 1), B_l(2:K  , 1), B_r(1:K-1, 1), LAMBDA, -1);
 F_r = hydro_reconstruction2(drytol, veltol, vellim, wetdry, G, ...
-    Z_r(1:K-1, 1), Z_l(2:K  , 1), ...
+    N_r(1:K-1, 1), N_l(2:K  , 1), ...
     Hur(1:K-1, 1), Hul(2:K  , 1), B_r(1:K-1, 1), B_l(2:K  , 1), LAMBDA, +1);
 %--------------------------------------------------------------------------
 % BND:
-Fbl = hydro_reconstruction2(drytol, veltol, vellim, wetdry, G, Z_l(1, 1), Z_lb, Hul(1, 1), Hulb, B_l(1, 1), B_l(1, 1), LAMBDA, -1);
-Fbr = hydro_reconstruction2(drytol, veltol, vellim, wetdry, G, Z_r(K, 1), Z_rb, Hur(K, 1), Hurb, B_r(K, 1), B_r(K, 1), LAMBDA, +1);
+Fbl = hydro_reconstruction2(drytol, veltol, vellim, wetdry, G, N_l(1, 1), N_lb, Hul(1, 1), Hulb, B_l(1, 1), B_l(1, 1), LAMBDA, -1);
+Fbr = hydro_reconstruction2(drytol, veltol, vellim, wetdry, G, N_r(K, 1), N_rb, Hur(K, 1), Hurb, B_r(K, 1), B_r(K, 1), LAMBDA, +1);
 %--------------------------------------------------------------------------
 for v = 1:2
     F_(2:K  , :, v) = F_(2:K  , :, v)+Fi_(2:K  , :, 1).*F_l(:, v);

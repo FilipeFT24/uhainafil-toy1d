@@ -77,7 +77,7 @@ g.Fik       = fr./g.detJ0T(K, 1);
 %--------------------------------------------------------------------------
 t           = 0;
 X           = zeros(K, N, 2);
-X(:, :, 1)  = inittype(itype, @(x) g.data.Z (x, t), xydc, xyqc, fc);
+X(:, :, 1)  = inittype(itype, @(x) g.data.N (x, t), xydc, xyqc, fc);
 X(:, :, 2)  = inittype(itype, @(x) g.data.HU(x, t), xydc, xyqc, fc);
 B_dof       = inittype(itype, @(x) g.data.B (x, t), xydc, xyqc, fc);
 g.x         = X;
