@@ -131,26 +131,26 @@ end
 %--------------------------------------------------------------------------
 % INT: W (<-)
 for o = 2:K
-    DiFi(:, :, o  , 1) =-1./2.*bDl(o, :)'.*bfl;
-    DiFe(:, :, o-1, 1) =-1./2.*bDl(o, :)'.*bfr;
+    DiFi(:, :, o  , 1) =-1./2.*bDl(o, :)'.*bfl; % df*n (n = -1): sym
+    DiFe(:, :, o-1, 1) =-1./2.*bDl(o, :)'.*bfr; % df*n (n = -1): sym
     for j = 1:N
-        FiDi(:, j, o  , 1) =-1./2.*bfl.*bDl(o  , j);
-        FiDe(:, j, o-1, 1) =-1./2.*bfl.*bDr(o-1, j);
+        FiDi(:, j, o  , 1) =-1./2.*bfl.*bDl(o  , j); % fd*n (n = -1): ibp
+        FiDe(:, j, o-1, 1) =-1./2.*bfl.*bDr(o-1, j); % fd*n (n = -1): ibp
     end
-    Peni(:, :, o  , 1) = flfl./g.detJ0T(o, 1);
-    Pene(:, :, o-1, 1) = flfr./g.detJ0T(o, 1);
+    Peni(:, :, o  , 1) = flfl./g.detJ0T(o, 1); % pen/|jac|: pen
+    Pene(:, :, o-1, 1) = flfr./g.detJ0T(o, 1); % pen/|jac|: pen
 end
 %--------------------------------------------------------------------------
 % INT: E (->)
 for o = 1:K-1
-    DiFi(:, :, o  , 2) = 1./2.*bDr(o, :)'.*bfr;
-    DiFe(:, :, o  , 2) = 1./2.*bDr(o, :)'.*bfl;
+    DiFi(:, :, o  , 2) = 1./2.*bDr(o, :)'.*bfr; % df*n (n = +1): sym
+    DiFe(:, :, o  , 2) = 1./2.*bDr(o, :)'.*bfl; % df*n (n = +1): sym
     for j = 1:N
-        FiDi(:, j, o  , 2) = 1./2.*bfr.*bDr(o  , j);
-        FiDe(:, j, o  , 2) = 1./2.*bfr.*bDl(o+1, j);
+        FiDi(:, j, o  , 2) = 1./2.*bfr.*bDr(o  , j); % fd*n (n = -1): ibp
+        FiDe(:, j, o  , 2) = 1./2.*bfr.*bDl(o+1, j); % fd*n (n = -1): ibp
     end
-    Peni(:, :, o  , 2) = frfr./g.detJ0T(o, 1);
-    Pene(:, :, o  , 2) = frfl./g.detJ0T(o, 1);
+    Peni(:, :, o  , 2) = frfr./g.detJ0T(o, 1); % pen/|jac|: pen
+    Pene(:, :, o  , 2) = frfl./g.detJ0T(o, 1); % pen/|jac|: pen
 end
 %--------------------------------------------------------------------------
 % BND: W (<-) and E(->)
@@ -202,10 +202,10 @@ DiFibl      = DiFibl.*theta;
 DiFibr      = DiFibr.*theta;
 Penibl      = Penibl.*penParam;
 Penibr      = Penibr.*penParam;
-g.auxi1     = FiDi1-DiFi1;
-g.auxi2     = FiDi2-DiFi2;
-g.auxbl     = 2.*FiDibl-DiFibl-Penibl;
-g.auxbr     = 2.*FiDibr-DiFibr-Penibr;
+g.auxi1     = FiDi1-DiFi1;             % integral = auxi1*kl
+g.auxi2     = FiDi2-DiFi2;             % integral = auxi2*kr
+g.auxbl     = 2.*FiDibl-DiFibl-Penibl; % p = 0 => ext. contribution in DF and Pen = 0
+g.auxbr     = 2.*FiDibr-DiFibr-Penibr; % p = 0 => ext. contribution in DF and Pen = 0
 %{
 g.DiFi1     = DiFi(:, :, :, 1);
 g.DiFi2     = DiFi(:, :, :, 2);
@@ -234,10 +234,10 @@ g.dKr_disp  = dKr;
 g.fKl_disp  = fKl;
 g.fKr_disp  = fKr;
 %}
-g.dKli_disp = dKl(2:K  , :);
-g.dKri_disp = dKr(1:K-1, :);
-g.dKlb_disp = dKl(1    , :);
-g.dKrb_disp = dKr(K    , :);
+g.dKli_disp = dKl(2:K  , :).*theta;
+g.dKri_disp = dKr(1:K-1, :).*theta;
+g.dKlb_disp = dKl(1    , :).*theta;
+g.dKrb_disp = dKr(K    , :).*theta;
 g.fKli_disp = fKl(2:K  , :);
 g.fKri_disp = fKr(1:K-1, :);
 g.fKlb_disp = fKl(1    , :);

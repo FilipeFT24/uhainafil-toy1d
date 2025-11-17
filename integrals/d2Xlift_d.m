@@ -20,7 +20,7 @@ fKri   = g.fKri_disp;
 d1Xl   = d1X*bfl';
 d1Xr   = d1X*bfr';
 d1Xav  = 1./2.*(d1Xr(1:K-1, 1)+d1Xl(2:K, 1));
-d2X    = d2X-[zerosN; fKli.*d1Xav+dKli.*Xjmpl]+[fKri.*d1Xav+dKri.*Xjmpr; zerosN];
+d2X    = d2X-[zerosN; fKli.*d1Xav-dKli.*Xjmpl]+[fKri.*d1Xav-dKri.*Xjmpr; zerosN];
 switch eq
     case 1
         fKlb      = g.fKlb_disp;
@@ -28,12 +28,12 @@ switch eq
         d2X(1, :) = d2X(1, :)-fKlb.*d1Xl(1, 1);
         d2X(K, :) = d2X(K, :)+fKrb.*d1Xr(K, 1);
     case 2
-        dKlb      = g.fKlb_disp;
-        dKrb      = g.fKrb_disp;
+        dKlb      = g.dKlb_disp;
+        dKrb      = g.dKrb_disp;
         Xbl       = X  (1, :)*bfl';
         Xbr       = X  (K, :)*bfr';
-        d2X(1, :) = d2X(1, :)-dKlb.*Xbl;
-        d2X(K, :) = d2X(K, :)+dKrb.*Xbr;
+        d2X(1, :) = d2X(1, :)+dKlb.*Xbl;
+        d2X(K, :) = d2X(K, :)-dKrb.*Xbr;
     otherwise
         return
 end
@@ -52,7 +52,6 @@ d2Xc              = reshape(pagemtimes(d2kc, X_dof_perm), [N, K])';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FACE:
 %--------------------------------------------------------------------------
-theta             =-1;
 penParam          = 0;
 bfl               = g.bfl_disp;
 bfr               = g.bfr_disp;
@@ -87,7 +86,7 @@ switch eq
         return
 end
 %--------------------------------------------------------------------------
-d2X               = d2Xc-d2X_ibp+theta.*d2X_sym+penParam.*d2X_pen; % B. Rivière (pag. 5)
+d2X               = d2Xc-d2X_ibp+d2X_sym+penParam.*d2X_pen; % B. Rivière (pag. 5)
 d2X               =-d2X;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
