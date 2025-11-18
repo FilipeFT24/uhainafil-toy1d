@@ -1,99 +1,101 @@
 classdef Output < handle
     properties
-        i
-        Ph
-        fid
-        ndt
-        nf
-        V
         K
         N
-        n
+        V
+        nf
         xc
         xv
-        xg
-        BF
-        data
-        phi
-        datag
-        wd
-        time
-        vm
-        vM
-        tm
-        tM
-        Um
-        UM
+        t
+        U
+        it
+        dt
+        fid
+        Ph
+        isg
+        isp
+        bf
+        Ug
+        tp
+        vp
+        Up
     end
     methods
-        function [obj] = Output(Ph, fid, ndt, nf, K, N, n, xc, xv, xg, BF)
-            obj.i     = 1;
-            obj.Ph    = Ph;
-            obj.fid   = fid;
-            obj.ndt   = ndt;
-            obj.nf    = nf;
-            obj.V     = 2;
-            obj.K     = K;
-            obj.N     = N;
-            obj.n     = n;
-            obj.xc    = xc;
-            obj.xv    = xv;
-            obj.xg    = xg;
-            obj.BF    = BF;
-            obj.time  = zeros(nf, 1);
-            obj.data  = zeros(nf, K, N, obj.V);
-            obj.phi   = zeros(nf, K, N);
-            obj.datag = zeros(nf, 1+n);
-            obj.wd    = zeros(nf, K);
-            obj.vm    = realmax;
-            obj.vM    = realmin;
-            obj.tm    = 0;
-            obj.tM    = 0;
-            obj.Um    = zeros(K, N, obj.V);
-            obj.UM    = zeros(K, N, obj.V);
-        end
-        function Write1(obj, t, U, wd)
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        function [obj] = Output(g, fid, Ph)
             %--------------------------------------------------------------
-            dry = wd == 2;
-            vmi = min(U(~dry, :, 1), [], 'all');
-            vMi = max(U(~dry, :, 1), [], 'all');
+            K       = g.numE;
+            N       = g.N;
+            D       = 1;
+            V       = 1+D;
+            t       = 0;
+            nf      = g.data.nf;
+            test    = g.test;
+            obj.K   = g.numE;
+            obj.N   = g.N;
+            obj.V   = V;
+            obj.nf  = nf;
+            obj.xc  = mean(g.coordV0T, 2);
+            obj.xv  = g.coordV;
+            obj.t   = zeros(nf, 1);
+            obj.U   = zeros(nf, K, N, V);
             %--------------------------------------------------------------
-            if vmi < obj.vm
-                obj.tm = t;
-                obj.vm = vmi;
-                obj.Um = U;
+            obj.it  = 1;
+            obj.dt  = g.data.tend./nf;
+            obj.fid = fid;
+            obj.Ph  = Ph;
+            obj.isg = ismembc(test, [12, 14, 15, 16, 17]);
+            obj.isp = ismembc(test, [7, 8, 9]);
+            %--------------------------------------------------------------
+            if obj.isg
+                obj.bf       = g.BF;
+                xg           = g.data.xg;
+                ng           = size (xg, 2);
+                obj.Ug       = zeros(nf, 1+ng);
+                obj.Write1(t, g.x);
             end
-            %--------------------------------------------------------------
-            if vMi > obj.vM
-                obj.tM = t;
-                obj.vM = vMi;
-                obj.UM = U;
+            if obj.isp
+                obj.tp       = zeros(1, 2);
+                obj.vp       = zeros(1, 2);
+                obj.vp(1, 1) = realmax;
+                obj.vp(1, 2) = realmin;
+                obj.Up       = zeros(K, N, V, 2);
+                obj.Write2(t, g.x);
             end
             %--------------------------------------------------------------
         end
-        function Write2(obj, t, U, phi, wd)
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % SOL.
+        function Write1(obj, t, U)
             %--------------------------------------------------------------
-            if obj.n ~= 0
-                Fg       = zeros(1, obj.n+1);
-                Fg(1, 1) = t;
-                for k = 1:obj.n
-                    xgk = obj.xg(k, 1);
-                    o   = sum(xgk > obj.xv, 1);
-                    xo  = (xgk-obj.xv(o, 1))./(obj.xv(o+1, 1)-obj.xv(o, 1));
-                    for j = 1:obj.N
-                        Fg(1, k+1) = Fg(1, k+1)+obj.BF{1, j}(xo)*U(o, j, 1);
-                    end
-                end
-                obj.datag(obj.i, :) = Fg;
+            obj.U(obj.it, :, :, :) = U;
+            obj.t(obj.it, 1)       = t;
+            obj.it                 = obj.it+1;
+            %--------------------------------------------------------------
+            if obj.isg
+                xx = 1;
             end
             %--------------------------------------------------------------
-            obj.data(obj.i, :, :, :) = U;
-            obj.phi (obj.i, :, :)    = phi;
-            obj.wd  (obj.i, :)       = wd;
-            obj.time(obj.i, 1)       = t;
+        end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % PEAKS
+        function Write2(obj, t, U)
             %--------------------------------------------------------------
-            obj.i = obj.i+1;
+            vmin = min(U(:, :, 1), [], 'all');
+            vmax = max(U(:, :, 1), [], 'all');
+            %--------------------------------------------------------------
+            if vmin < obj.vp(1, 1)
+                obj.tp(1, 1)       = t;
+                obj.vp(1, 1)       = vmin;
+                obj.Up(:, :, :, 1) = U;
+            end
+            if vmax > obj.vp(1, 2)
+                obj.tp(1, 2)       = t;
+                obj.vp(1, 2)       = vmax;
+                obj.Up(:, :, :, 2) = U;
+            end
             %--------------------------------------------------------------
         end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 end

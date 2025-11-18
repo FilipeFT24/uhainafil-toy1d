@@ -5,7 +5,8 @@ grey   = repmat(0.80, 1, 3);
 LW     = [1.0, 2.5];
 %--------------------------------------------------------------------------
 K      = g.numE;
-N      = g.N;
+p      = g.p;
+h0     = g.data.h0;
 flag   = 0; % Plot auxiliary vars.
 test   = g.test;
 wetdry = g.data.wetdry;
@@ -46,29 +47,39 @@ switch test
         %------------------------------------------------------------------
     case {7, 8}
         %------------------------------------------------------------------
+        opt         = g.data.opt;
+        switch opt
+            case 1
+                str = "0.21";
+            case 2
+                str = "0.96";
+            otherwise
+                return
+        end
+        %------------------------------------------------------------------
         switch test
             case 7
-                path       = "Plot/S2/T1 - Head-on-colission/DATA/Hoc_";
+                path       = sprintf("Plot/S2/T1 - Head-on-colission/DATA/%s/Hoc", str);
                 xlim       = [-100, 100];
                 xtick      =-100:50:100;
                 xticklabel = ["-100", "-50", "0", "50", "100"];
             case 8
-                path       = "Plot/S2/T2 - Wall/DATA/Wall_";
+                path       = sprintf("Plot/S2/T2 - Wall/DATA/%s/Wall", str);
                 xlim       = [-100, 0];
                 xtick      =-100:25:0;
                 xticklabel = ["-100", "-75", "-50", "-25", "0"];
             otherwise
                 return
         end
-        switch g.data.opt
+        switch opt
             case 1
-                ylim       = [-0.45, 2.65];
-                ytick      = [-0.45, 0.00:0.50:2.50, 2.65];
-                yticklabel = ["-0.45", "0.00", "0.50", "1.00", "1.50", "2.00", "2.50", "2.65"];
-            case 2
                 ylim       = [-0.05, 0.45];
                 ytick      = [-0.05, 0.00:0.10:0.40, 0.45];
                 yticklabel = ["-0.05", "0.00", "0.10", "0.20", "0.30", "0.40", "0.45"];
+            case 2
+                ylim       = [-0.45, 2.65];
+                ytick      = [-0.45, 0.00:0.50:2.50, 2.65];
+                yticklabel = ["-0.45", "0.00", "0.50", "1.00", "1.50", "2.00", "2.50", "2.65"];
             otherwise
                 return
         end
@@ -79,7 +90,7 @@ switch test
         %------------------------------------------------------------------
     case 9
         %------------------------------------------------------------------
-        path        = "Plot/S2/T3 - Overtaking colission/DATA/Oc_";
+        path        = "Plot/S2/T3 - Overtaking colission/DATA/Oc";
         xlim        = [-200, 200];
         xtick       =-200:50:200;
         xticklabel  = ["-200", "-150", "-100", "-50", "0", "50", "100", "150", "200"];
@@ -93,7 +104,16 @@ switch test
         %------------------------------------------------------------------
     case 10
         %------------------------------------------------------------------
-        path        = "Plot/S2/T4 - Breakup of a Gaussian hump/DATA/Bgh_";
+        opt         = g.data.opt;
+        switch opt
+            case 1
+                str = "01";
+            case 2
+                str = "20";
+            otherwise
+                return
+        end
+        path       = sprintf("Plot/S2/T4 - Breakup of a Gaussian hump/DATA/%s/Bgh", str);
         xlim        = [-100, 100];
         xtick       =-100:50:100;
         xticklabel  = ["-100", "-50", "0", "50", "100"];
@@ -115,7 +135,7 @@ switch test
         %------------------------------------------------------------------
     case 11
         %------------------------------------------------------------------
-        path        = "Plot/S2/T5 - Dispersive dam-break/DATA/Ddb_";
+        path        = "Plot/S2/T5 - Dispersive dam-break/DATA/Ddb";
         %------------------------------------------------------------------
         xlim        = [-300, 300];
         xtick       =-300:100:300;
@@ -125,6 +145,43 @@ switch test
         yticklabel  = ["0.95", "1.00", "1.25", "1.50", "1.75", "2.00"];
         xtitle      = "$x$";
         ytitle      = "$h$";
+        %------------------------------------------------------------------
+    case 12
+        %------------------------------------------------------------------
+        bathy       = g.data.bathy;
+        xlim        = [xv(1, 1), xv(K+1, 1)]./h0;
+        xtick       =-50:10:30;
+        xticklabel  = ["-50", "-40", "-30", "-20", "-10", "0", "10", "20", "30"];
+        xtitle      = "$x^{\prime}$";
+        %------------------------------------------------------------------
+        switch g.data.opt
+            case 1
+                path       = sprintf("Plot/S3/T1 - Grilli/DATA/0.10/C%d/Grilli", bathy);
+                ylim       = [-0.01, 0.20];
+                ytick      = [-0.01, 0.00:0.05:0.20];
+                yticklabel = ["-0.01", "0.00", "0.05", "0.10", "0.15", "0.20"];
+                ytitle     = "$\zeta^{\prime}$";
+            case 2
+                path       = sprintf("Plot/S3/T1 - Grilli/DATA/0.15/C%d/Grilli", bathy);
+                ylim       = [-0.01, 0.30];
+                ytick      = [-0.01, 0.00:0.05:0.30];
+                yticklabel = ["-0.01", "0.00", "0.05", "0.10", "0.15", "0.20", "0.25", "0.30"];
+                ytitle     = "$\zeta^{\prime}$";
+            case 3
+                path       = sprintf("Plot/S3/T1 - Grilli/DATA/0.20/C%d/Grilli", bathy);
+                ylim       = [-0.02, 0.40];
+                ytick      = [-0.02, 0.00:0.10:0.40];
+                yticklabel = ["-0.02", "0.00", "0.10", "0.20", "0.30", "0.40"];
+                ytitle     = "$\zeta^{\prime}$";
+            case 4
+                path       = sprintf("Plot/S3/T1 - Grilli/DATA/0.25/C%d/Grilli", bathy);
+                ylim       = [-0.02, 0.50];
+                ytick      = [-0.02, 0.00:0.10:0.50];
+                yticklabel = ["-0.02", "0.00", "0.10", "0.20", "0.30", "0.40", "0.50"];
+                ytitle     = "$\zeta^{\prime}$";
+            otherwise
+                return
+        end
         %------------------------------------------------------------------
     otherwise
         return
@@ -139,6 +196,9 @@ else
     Xh = sum(pagemtimes(g.x(:, :, 1)-h0, g.Wbf'), 2)./sum(g.W, 2);
     Xa = Xa./h0;
     Xh = Xh./h0;
+end
+if test == 12
+    xc = xc./h0;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if test == 2 && flag
@@ -162,8 +222,8 @@ if test == 2 && flag
                 Xh = zeros(K, 1);
             end
             ph{k, 1} = plot(nan, nan, 'Color', Color(1, :), 'LineWidth', LW(1, 1));
-            ph{k, 2} = plot(nan, nan, 'Color', Color(2, :), 'LineWidth', LW(1, 2));
             Ph{k, 1} = plot(xc , Xa , 'Color', Color(1, :), 'LineWidth', LW(1, 1));
+            ph{k, 2} = plot(nan, nan, 'Color', Color(2, :), 'LineWidth', LW(1, 2));
             Ph{k, 2} = plot(xc , Xh , 'Color', Color(2, :), 'LineWidth', LW(1, 2));
             PlotX2(...
                 ph(k, :), legendlabel(k, :), 'northeast', numcols);
@@ -185,9 +245,11 @@ else
         xtick, ytick, ...
         xticklabel, yticklabel, ...
         xtitle, ytitle);
-    ph{1, 1} = plot(nan, nan, 'Color', Color(1, :), 'LineWidth', LW(1, 1));
+    if ~ismembc(test, [12, 13, 14, 15, 16, 17])
+        ph{1, 1} = plot(nan, nan, 'Color', Color(1, :), 'LineWidth', LW(1, 1));
+        Ph{1, 1} = plot(xc , Xa , 'Color', Color(1, :), 'LineWidth', LW(1, 1));
+    end
     ph{1, 2} = plot(nan, nan, 'Color', Color(2, :), 'LineWidth', LW(1, 2));
-    Ph{1, 1} = plot(xc , Xa , 'Color', Color(1, :), 'LineWidth', LW(1, 1));
     Ph{1, 2} = plot(xc , Xh , 'Color', Color(2, :), 'LineWidth', LW(1, 2));
     if ismembc(test, [1, 2, 7, 8, 9])
         PlotX2(...
@@ -202,41 +264,18 @@ if test == 1 || wetdry
         xbathy, ybathy, grey, 'EdgeColor', grey);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CFL  = g.CFL;
-str2 = split(sprintf('%.15g', CFL), '.');
-%--------------------------------------------------------------------------
 switch test
     case 1
     case 2
-    case 7
-    case 8
-    case 9
-    case 10
-    case 11
+    case {7, 8, 9, 10, 11}
+        fid = sprintf('%s_P%d_%d.mat', path, p, K);
+    case 12
     otherwise
         return
 end
-
-
-
-
-num1 = '';
-if numel(str2) < 2
-    num2 = '0000';
-else
-    num2 = [str2{2}, '0000'];
-    num2 = num2(1, 1:2);
-end
-%--------------------------------------------------------------------------
-fid = sprintf('%s_0512_P%d.mat', path, g.p);
 if isfile(fid)
     delete(fid);
 end
-nf  = g.data.nf+1;
-ndt = g.data.tend./g.data.nf;
-obj = Output(Ph, fid, ndt, nf, K, N, 0, xc, nan, nan, nan);
-%--------------------------------------------------------------------------
-obj.Write1(0, g.x, 0);
-obj.Write2(0, g.x, nan, 0);
+obj = Output(g, fid, Ph);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end

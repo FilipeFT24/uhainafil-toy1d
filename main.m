@@ -39,10 +39,11 @@ dirs = [...
     "Plot/S2/T5 - Dispersive dam-break/", ...
     "Plot/S2/T5 - Dispersive dam-break/DATA/", ...
     "Plot/S3/T1 - Grilli/", ...
-    "Plot/S3/T1 - Grilli/DATA/0.10/", ...
-    "Plot/S3/T1 - Grilli/DATA/0.15/", ...
-    "Plot/S3/T1 - Grilli/DATA/0.20/", ...
-    "Plot/S3/T1 - Grilli/DATA/0.25/", ...
+    "Plot/S3/T1 - Grilli/DATA/0.20/C0/", ...
+    "Plot/S3/T1 - Grilli/DATA/0.10/C3/", ...
+    "Plot/S3/T1 - Grilli/DATA/0.15/C3/", ...
+    "Plot/S3/T1 - Grilli/DATA/0.20/C3/", ...
+    "Plot/S3/T1 - Grilli/DATA/0.25/C3/", ...
     "Plot/S3/T2 - Reversibility check/", ...
     "Plot/S3/T2 - Reversibility check/DATA/C0/", ...
     "Plot/S3/T2 - Reversibility check/DATA/C3/", ...
@@ -70,8 +71,8 @@ for i = 1:size(fc, 1)
     set(groot, strrep(fn{fc(i, 1)}, 'factory', 'default'), 'latex');
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p         = 1;
-test      = 2;
+p         = 3;
+test      = 7;
 run       = 1;
 %--------------------------------------------------------------------------
 data      = setdata(test, 0);
@@ -79,7 +80,7 @@ g         = MSH(data.xv, p);
 drytol    = 1.0e-02;
 velcutoff = drytol;
 vellim    = 1;
-itype     = 1; % 0: uhaina: interpolation
+itype     = 0; % 0: uhaina: interpolation
                % 1: my:     projection
 CFL       = 3./(4.*(2.*p+1));
 theta     =-1;
@@ -106,29 +107,18 @@ else
         case {1, 2}
             PlotS0T0(g, [0, 0]);
         case 3
-            PlotT03C(g, [0, 0]);
         case 4
-            PlotT04C(g, [0, 0]);
         case 5
-            PlotT05C(g, [0, 0]);
         case 6
-            PlotT06C(g, [0, 0]);
         case {7, 8}
-            PlotT07C(g, [0, 0]);
+            PlotS2T1(g, [0, 0]);
         case 9
-            PlotT09C(g, [0, 0]);
         case 10
-            PlotT10C(g, [0, 0]);
         case 11
-            PlotT11C(g, [0, 0]);
         case 12
-            PlotT12C(g, [0, 0]);
         case 13
-            PlotT13C(g, [0, 0]);
         case 14
-            PlotT14C(g, [0, 0]);
         case 15
-            PlotT15C(g, [0, 0]);
         case 16
         case 17
         otherwise

@@ -90,12 +90,11 @@ for j = 1:N
 end
 d2R       = permute(d2N, [2, 3, 1]);
 d2c       = mass\sum(d2R, 3);
-%{
+% DEBUG
 d2kc      = zeros(N, N, K);
 for o = 1:K
     d2kc(:, :, o) = Mass(:, :, o)\sum(D2Kc(:, :, :, o), 3);
 end
-%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FACE:
 %--------------------------------------------------------------------------
@@ -177,6 +176,7 @@ g.Xj        = Xj;
 g.xydc_disp = xydc;
 g.xyqc_disp = xyqc;
 g.R_disp    = R;
+g.W_disp    = W;
 g.Wbf_disp  = Wbf;
 g.MASS_disp = sparse(Xid, Xjd, reshape(Mass, [], 1), KN, KN); % UNUSED
 %--------------------------------------------------------------------------
@@ -187,9 +187,7 @@ g.FFKc      = FFKc;
 g.F_Kc      = F_Kc;
 g.fc_disp   = fc_disp;
 g.fx_disp   = fx_disp;
-%{
-g.d2kc      = d2kc;
-%}
+g.d2kc      = d2kc; % DEBUG
 g.d2c       = d2c;
 %--------------------------------------------------------------------------
 g.bfl_disp  = bfl;
@@ -228,12 +226,10 @@ g.Pene1     = Pene(:, :, :, 1).*penParam;
 g.Pene2     = Pene(:, :, :, 2).*penParam;
 g.A         = spinit(Xi, Xj, [KN, KN]);
 %--------------------------------------------------------------------------
-%{
-g.dKl_disp  = dKl;
-g.dKr_disp  = dKr;
-g.fKl_disp  = fKl;
-g.fKr_disp  = fKr;
-%}
+g.dKl_disp  = dKl; % DEBUG
+g.dKr_disp  = dKr; % DEBUG
+g.fKl_disp  = fKl; % DEBUG
+g.fKr_disp  = fKr; % DEBUG
 g.dKli_disp = dKl(2:K  , :).*theta;
 g.dKri_disp = dKr(1:K-1, :).*theta;
 g.dKlb_disp = dKl(1    , :).*theta;

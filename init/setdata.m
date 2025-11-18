@@ -234,7 +234,7 @@ switch test
         h0       = 1;
         nm       = 0;
         wetdry   = 0;
-        option   = 1;
+        option   = 2;
         %------------------------------------------------------------------
         xm       =-100;
         xM       = 100;
@@ -254,10 +254,10 @@ switch test
         %------------------------------------------------------------------
         switch option
             case 1
-                A1 = 0.96.*h0;
+                A1 = 0.21.*h0;
                 A2 = A1;
             case 2
-                A1 = 0.21.*h0;
+                A1 = 0.96.*h0;
                 A2 = A1;
             otherwise
                 return
@@ -435,7 +435,7 @@ switch test
         wetdry   = 0;
         option   = 3;
         %
-        bathy    = 0;
+        bathy    = 3;
         slope    = 1./34.70;
         %------------------------------------------------------------------
         xm       =-52.32.*h0;
@@ -460,12 +460,6 @@ switch test
             case 4
                 A1   = 0.25.*h0;
                 tend = 42.52.*(sqrt(h0./G));
-            case 5
-                A1   = 0.30.*h0;
-                tend = 40.52.*(sqrt(h0./G));
-            case 6
-                A1   = 0.40.*h0;
-                tend = 38.52.*(sqrt(h0./G));
             otherwise
                 return
         end
@@ -473,26 +467,20 @@ switch test
         k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
         xs       =-5.2.*h0-(c.*13.56.*(sqrt(h0./G)));
         ds       = 0.5;
-        switch bathy
-            case 0
-                b  = heaviside(x).*slope.*x;
-            case 1
-                f1 = bathyC1(slope, ds, 1);
-                b  = ...
-                    (heaviside(x+ds)-heaviside(x-ds)).*f1(x)+...
-                    (heaviside(x-ds)).*slope.*x;
-            case 2
-                f2 = bathyC2(slope, ds, 1);
-                b  = ...
-                    (heaviside(x+ds)-heaviside(x-ds)).*f2(x)+...
-                    (heaviside(x-ds)).*slope.*x;
-            case 3
-                f3 = bathyC3(slope, ds, 1);
-                b  = ...
-                    (heaviside(x+ds)-heaviside(x-ds)).*f3(x)+...
-                    (heaviside(x-ds)).*slope.*x;
-            otherwise
-                return
+        if bathy == 0
+            b = heaviside(x).*slope.*x;
+        else
+            switch bathy
+                case 1
+                    f = bathyC1(slope, ds, 1);
+                case 2
+                    f = bathyC2(slope, ds, 1);
+                case 3
+                    f = bathyC3(slope, ds, 1);
+                otherwise
+                    return
+            end
+            b = (heaviside(x+ds)-heaviside(x-ds)).*f(x)+(heaviside(x-ds)).*slope.*x;
         end
         n        = h0+A1.*sech(k.*(x-xs-c.*t)).^2;
         h        = n-b;
@@ -567,7 +555,7 @@ switch test
         wetdry   = 0;
         option   = 1;
         %
-        bathy    = 0; %#ok<NASGU> 
+        bathy    = 0;
         slope    = 1./50;
         %------------------------------------------------------------------
         xm       =-55;
@@ -711,14 +699,16 @@ data.G       = G;
 data.h0      = h0;
 data.nm      = nm;
 data.wetdry  = wetdry;
+data.nf      = 1801;
 data.tk      = tk;
 data.tend    = tend;
+data.xv      = xv;
 if ismembc(test, [4, 7, 8, 10, 12, 14, 15])
     data.opt = option;
 end
-%--------------------------------------------------------------------------
-data.xv      = xv;
-data.nf      = 1800;
+if ismembc(test, [12, 13, 14, 15, 16, 17])
+    data.bathy = bathy;
+end
 %--------------------------------------------------------------------------
 if ismembc(test, [2, 7, 8])
     ghd1n      = G.*h.*d1n;
@@ -748,6 +738,10 @@ if flag
     close(f1);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

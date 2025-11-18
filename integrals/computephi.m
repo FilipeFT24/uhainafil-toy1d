@@ -40,12 +40,17 @@ d1N_dof  = d1Xlift_d(g, N_dof         , N_jmpl, N_jmpr, 1); % eq.1: cont.
 d1Hudof  = d1Xlift_d(g, Hudof         , Hujmpl, Hujmpr, 2); % eq.2: mom.
 d2Hudof  = d2Xlift_d(g, Hudof, d1Hudof, Hujmpl, Hujmpr, 2); % eq.2: mom.
 %--------------------------------------------------------------------------
+%{
+d1B_dof  = d1Xlift_c(g,   B_dof);
+d2B_dof  = d1Xlift_c(g, d1B_dof);
+d3B_dof  = d1Xlift_c(g, d2B_dof);
+%}
 d1B_dof  = d1Xlift_d(g, B_dof         , B_jmpl, B_jmpr, 1);
 d2B_dof  = d2Xlift_d(g, B_dof, d1B_dof, B_jmpl, B_jmpr, 1);
 d1B_l    = d1B_dof*bfl';
 d1B_r    = d1B_dof*bfr';
-d1B_jmpl = 1./2.*(d1B_l(2:K  , 1)-d1B_r(1:K-1, 1));
-d1B_jmpr = 1./2.*(d1B_r(1:K-1, 1)-d1B_l(2:K  , 1));
+d1B_jmpl = 1./2.*(d1B_l(2:K, 1)-d1B_r(1:K-1, 1));
+d1B_jmpr =-d1B_jmpl;
 d3B_dof  = d2Xlift_d(g, d1B_dof, d2B_dof, d1B_jmpl, d1B_jmpr, 1);
 %--------------------------------------------------------------------------
 H_quad   = H_dof  *bf';
@@ -110,57 +115,9 @@ g.HQ1N          = HQ1_quad*fc;
 b               = ghd1n1./alpha+hq1;
 %               = g.MASS_disp*reshape(inittype(g.itype, @(x) g.data.RHS(x, t), g.xydc_disp, g.xyqc_disp, fc)', [], 1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%{
-n         = 100;
-penParami = logspace(-3, 6, n);
-psi_ha1   = reshape(inittype(g.itype, @(x) g.data.PSI_H(x, t), g.xydc_disp, g.xyqc_disp, fc)', [], 1);
-ec        = zeros(K, n);
-tc        = zeros(K, n);
-e2        = zeros(1, n);
-t2        = zeros(1, n);
-cA        = zeros(1, n);
-for i = 1:n
-    A        = sparse(Xi, Xj, reshape(cat(3, MATd+penParami(1, i).*aux.PENd, MATo+penParami(1, i).*aux.PENo), [], 1), KN, KN);   
-    psih1    = A\b;
-    e1       = psi_ha1-psi_h1;
-    t1       = A*psi_ha1-b;
-    eN       = reshape(e1, [N, K])';
-    tN       = reshape(t1, [N, K])';
-    e_quad   = eN*bf';
-    t_quad   = tN*bf';
-    ec(:, i) = (e_quad.^2)*g.W_disp'.*detJ0T;
-    tc(:, i) = (t_quad.^2)*g.W_disp'.*detJ0T;
-    e2(1, i) = sqrt(sum(ec(:, i), 1));
-    t2(1, i) = sqrt(sum(tc(:, i), 1));
-    cA(1, i) = condest(A);
-end
-figure('Color', 'w', 'Renderer', 'painters');
-subplot(1, 2, 1);
-plot(penParami, cA, '-b');
-set(gca, ...
-    'Box', 'on', ...
-    'Clipping', 'on', ...
-    'Layer', 'top', ...
-    'TickLabelInterpreter', 'latex', ...
-    'XMinorTick', 'on', ...
-    'YMinorTick', 'on', ...
-    'XScale', 'log', ...
-    'YScale', 'log');
-subplot(1, 2, 2);
-plot(penParami, e2, '-b');
-set(gca, ...
-    'Box', 'on', ...
-    'Clipping', 'on', ...
-    'Layer', 'top', ...
-    'TickLabelInterpreter', 'latex', ...
-    'XMinorTick', 'on', ...
-    'YMinorTick', 'on', ...
-    'XScale', 'log', ...
-    'YScale', 'log');
-%}
-%--------------------------------------------------------------------------
 val     = reshape(cat(3, MATd, MATo), [], 1);
-A       = g.A(val(:));
+val1    = val(:);
+A       = g.A(val1);
 %{
 KN      = K*N;
 Xi      = g.Xi;
@@ -188,4 +145,54 @@ e2      = sqrt(sum(ec, 1));
 t2      = sqrt(sum(tc, 1));
 cA      = condest(A);
 %}
+%--------------------------------------------------------------------------
+%{
+n       = 100;
+peni    = logspace(-3, 6, n);
+psi_ha1 = reshape(inittype(g.itype, @(x) g.data.PSI_H(x, t), g.xydc_disp, g.xyqc_disp, fc)', [], 1);
+ec      = zeros(K, n);
+tc      = zeros(K, n);
+e2      = zeros(1, n);
+t2      = zeros(1, n);
+cA      = zeros(1, n);
+for i = 1:n
+    A        = sparse(Xi, Xj, reshape(cat(3, MATd+peni(1, i).*aux.PENd, MATo+peni(1, i).*aux.PENo), [], 1), KN, KN);   
+    psih1    = A\b;
+    e1       = psi_ha1-psi_h1;
+    t1       = A*psi_ha1-b;
+    eN       = reshape(e1, [N, K])';
+    tN       = reshape(t1, [N, K])';
+    e_quad   = eN*bf';
+    t_quad   = tN*bf';
+    ec(:, i) = (e_quad.^2)*g.W_disp'.*detJ0T;
+    tc(:, i) = (t_quad.^2)*g.W_disp'.*detJ0T;
+    e2(1, i) = sqrt(sum(ec(:, i), 1));
+    t2(1, i) = sqrt(sum(tc(:, i), 1));
+    cA(1, i) = condest(A);
+end
+figure('Color', 'w', 'Renderer', 'painters');
+subplot(1, 2, 1);
+plot(peni, cA, '-b');
+set(gca, ...
+    'Box', 'on', ...
+    'Clipping', 'on', ...
+    'Layer', 'top', ...
+    'TickLabelInterpreter', 'latex', ...
+    'XMinorTick', 'on', ...
+    'YMinorTick', 'on', ...
+    'XScale', 'log', ...
+    'YScale', 'log');
+subplot(1, 2, 2);
+plot(peni, e2, '-b');
+set(gca, ...
+    'Box', 'on', ...
+    'Clipping', 'on', ...
+    'Layer', 'top', ...
+    'TickLabelInterpreter', 'latex', ...
+    'XMinorTick', 'on', ...
+    'YMinorTick', 'on', ...
+    'XScale', 'log', ...
+    'YScale', 'log');
+%}
+%--------------------------------------------------------------------------
 end

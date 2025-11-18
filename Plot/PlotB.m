@@ -1,6 +1,8 @@
 function [obj] = PlotB(g, obj)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 xc   = obj.xc;
+isg  = obj.isg;
+isp  = obj.isp;
 t    = g.t;
 tend = g.data.tend;
 test = g.test;
@@ -41,9 +43,9 @@ if mod(g.nit, 25) == 0
     end
     drawnow limitrate;
 end
-%--------------------------------------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ismembc(test, [1, 2])
-    if g.t+eps >= tend
+    if g.t >= tend
         %------------------------------------------------------------------
         K  = g.numE;
         N  = g.N;
@@ -75,47 +77,34 @@ if ismembc(test, [1, 2])
             ec(:, i) = eq*g.W';
             e2(1, i) = sqrt(sum(((eq.^2)*g.W').*g.detJ0T, 1));
         end
-        save(obj.fid, 'ua', 'uh', 'ec');
+        save(obj.fid, 'ua', 'uh', 'ec', '-uint', '-v7.3');
     end
     %----------------------------------------------------------------------
 else
     %----------------------------------------------------------------------
+    if isp
+        obj.Write2(g.t, g.x);
+    end
+    %----------------------------------------------------------------------
+    if g.t > (obj.it-1)*obj.dt || any(g.t == g.data.tk, 2)
+        %------------------------------------------------------------------
+        obj.Write1(g.t, g.x);
+        %------------------------------------------------------------------
+        if obj.it > obj.nf || g.t >= tend
+            if isp
+                out.tp = obj.tp; % min./max. peak time
+                out.vp = obj.vp; % min./max. peak val.
+                out.Up = obj.Up; % min./max. peak sol.
+                out.t  = obj.t;  % time
+                out.U  = obj.U;  % sol.
+            end
+            if isg
+            end
+            save(obj.fid, '-struct', 'out', '-v7.3'); % could be transformed to type = single
+        end
+        %------------------------------------------------------------------
+    end
     %----------------------------------------------------------------------
 end
-
-
-
-
-% obj.Write1(g.t, g.x, 0);
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% if g.t > (obj.i-1)*obj.ndt || any(g.t == g.data.tk, 2)
-%     %----------------------------------------------------------------------
-%     obj.Write2(g.t, g.x, nan, 0);
-%     %----------------------------------------------------------------------
-%     if obj.i > obj.nf
-%         if ismembc(test, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15])
-%             tm    = obj.tm;
-%             tM    = obj.tM;
-%             vm    = obj.vm;
-%             vM    = obj.vM;
-%             Um    = obj.Um;
-%             UM    = obj.UM;
-%             time  = obj.time;
-%             data  = obj.data;
-%             datag = obj.datag;
-%             if obj.n ~= 0
-%                 save(obj.fid, 'time', 'data', 'datag', 'tm', 'vm', 'Um', 'tM', 'vM', 'UM');
-%             else
-%                 save(obj.fid, 'time', 'data', 'tm', 'vm', 'Um', 'tM', 'vM', 'UM');
-%             end
-%         elseif ismembc(test, [12, 13])
-%             time  = obj.time;
-%             data  = obj.data;
-%             wd    = obj.wd;
-%             save(obj.fid, 'time', 'data', 'wd');
-%         end
-%     end
-%     %----------------------------------------------------------------------
-% end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end

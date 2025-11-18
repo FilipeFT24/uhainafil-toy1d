@@ -9,9 +9,9 @@ if vellim == 1 || (vellim == 2 && wetdry == 0)
 else
     ui = kurganov_desingularise(hi, hui);
     ue = kurganov_desingularise(he, hue);
-    ui(hi < drytol | ui < veltol) = 0;
-    ue(he < drytol | ue < veltol) = 0;
 end
+ui(hi < drytol | ui < veltol) = 0;
+ue(he < drytol | ue < veltol) = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % HYDRO RECONSTRUCTION:
 zbmax    = max(zbi, zbe);

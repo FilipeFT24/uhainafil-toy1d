@@ -14,22 +14,22 @@ z_tildei  = h_tildei+zbtilde; % =NEW zi = free-surface elev.
 z_tildee  = h_tildee+zbtilde; % =NEW ze = free-surface elev.
 %--------------------------------------------------------------------------
 if vellim == 1 || (vellim == 2 && wetdry == 0)
-    ui1       = hui./hi;
-    ue1       = hue./he;
-    ui2       = ui1.^2;
-    ue2       = ue1.^2;
+    ui1 = hui./hi;
+    ue1 = hue./he;
+    ui2 = ui1.^2;
+    ue2 = ue1.^2;
 else
-    ui1       = kurganov_desingularise(hi, hui);
-    ue1       = kurganov_desingularise(he, hue);
-    ui2       = kurganov_desingularise(hi.^2, hui.^2);
-    ue2       = kurganov_desingularise(he.^2, hue.^2);
-    logi      = hi < drytol | hi < veltol;
-    loge      = he < drytol | he < veltol;
-    ui1(logi) = 0;
-    ue1(loge) = 0;
-    ui2(logi) = 0;
-    ue2(loge) = 0;
+    ui1 = kurganov_desingularise(hi, hui);
+    ue1 = kurganov_desingularise(he, hue);
+    ui2 = kurganov_desingularise(hi.^2, hui.^2);
+    ue2 = kurganov_desingularise(he.^2, hue.^2);
 end
+logi      = hi < drytol | hi < veltol;
+loge      = he < drytol | he < veltol;
+ui1(logi) = 0;
+ue1(loge) = 0;
+ui2(logi) = 0;
+ue2(loge) = 0;
 hutildei  = h_tildei.*ui1;
 hutildee  = h_tildee.*ue1;
 huutildei = h_tildei.*ui2;
