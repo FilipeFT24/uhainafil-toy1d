@@ -86,17 +86,17 @@ else
         obj.Write2(g.t, g.x);
     end
     %----------------------------------------------------------------------
-    if g.t > (obj.it-1)*obj.dt || any(g.t == g.data.tk, 2)
+    if g.t > obj.it*obj.dt || any(g.t == g.data.tk, 2)
         %------------------------------------------------------------------
         obj.Write1(g.t, g.x);
         %------------------------------------------------------------------
         if obj.it > obj.nf || g.t >= tend
+            out.t = obj.t; % time
+            out.U = obj.U; % sol.
             if isp
                 out.tp = obj.tp; % min./max. peak time
                 out.vp = obj.vp; % min./max. peak val.
                 out.Up = obj.Up; % min./max. peak sol.
-                out.t  = obj.t;  % time
-                out.U  = obj.U;  % sol.
             end
             if isg
             end

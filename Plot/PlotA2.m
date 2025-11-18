@@ -264,15 +264,7 @@ if test == 1 || wetdry
         xbathy, ybathy, grey, 'EdgeColor', grey);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-switch test
-    case 1
-    case 2
-    case {7, 8, 9, 10, 11}
-        fid = sprintf('%s_P%d_%d.mat', path, p, K);
-    case 12
-    otherwise
-        return
-end
+fid = sprintf('%s_P%d_%d.mat', path, p, K);
 if isfile(fid)
     delete(fid);
 end

@@ -48,11 +48,11 @@ classdef Output < handle
             obj.isp = ismembc(test, [7, 8, 9]);
             %--------------------------------------------------------------
             if obj.isg
-                obj.bf       = g.BF;
-                xg           = g.data.xg;
-                ng           = size (xg, 2);
-                obj.Ug       = zeros(nf, 1+ng);
-                obj.Write1(t, g.x);
+%                 obj.bf       = g.BF;
+%                 xg           = g.data.xg;
+%                 ng           = size (xg, 2);
+%                 obj.Ug       = zeros(nf, 1+ng);
+%                 obj.Write1(t, g.x);
             end
             if obj.isp
                 obj.tp       = zeros(1, 2);
