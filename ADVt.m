@@ -11,6 +11,7 @@ xtmp = zeros(K, N, V);
 ks   = zeros(K, N, V, ns);
 %--------------------------------------------------------------------------
 tk   = g.data.tk;
+tend = g.data.tend;
 nk   = size(tk, 2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 g              = FLUX(g, penParam, t0);
@@ -18,6 +19,9 @@ ks(:, :, :, 1) = g.res;
 dt             = g.CFL*min(g.vollambda, [], 'all');
 for i = 1:nk
     if t0 < tk(1, i) && t0+dt > tk(1, i)
+        if t0+dt > tend
+            g.data.istend = 1;
+        end
         dt = tk(1, i)-t0;
         break;
     end

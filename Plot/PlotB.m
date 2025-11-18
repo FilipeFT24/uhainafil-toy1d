@@ -1,11 +1,11 @@
 function [obj] = PlotB(g, obj)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-xc   = obj.xc;
-isg  = obj.isg;
-isp  = obj.isp;
-t    = g.t;
-tend = g.data.tend;
-test = g.test;
+xc     = obj.xc;
+isg    = obj.isg;
+isp    = obj.isp;
+t      = g.t;
+istend = g.data.istend;
+test   = g.test;
 if test == 11
     Xa = g.data.H(xc, t);
     Xh = sum(pagemtimes(g.x(:, :, 1)-g.zbinit, g.Wbf'), 2)./sum(g.W, 2);
@@ -28,7 +28,7 @@ if mod(g.nit, 25) == 0
     else
         PHIa = g.data.PHI(xc, t);
         HYDa = g.data.d1Z(xc, t);
-        HQ1a = g.data.HQ1(xc, g.t);
+        HQ1a = g.data.HQ1(xc, t);
         PHIh = sum(pagemtimes(g.PHIN   , g.Wbf'), 2)./sum(g.W, 2);
         HYDh = sum(pagemtimes(g.GHd1ZNX, g.Wbf'), 2)./sum(g.W, 2);
         HQ1h = sum(pagemtimes(g.HQ1N   , g.Wbf'), 2)./sum(g.W, 2);
@@ -45,7 +45,7 @@ if mod(g.nit, 25) == 0
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ismembc(test, [1, 2])
-    if g.t >= tend
+    if istend
         %------------------------------------------------------------------
         K  = g.numE;
         N  = g.N;
@@ -86,11 +86,11 @@ else
         obj.Write2(g.t, g.x);
     end
     %----------------------------------------------------------------------
-    if g.t > obj.it*obj.dt || any(g.t == g.data.tk, 2)
+    if g.t >= obj.it*obj.dt || any(g.t == g.data.tk, 2)
         %------------------------------------------------------------------
         obj.Write1(g.t, g.x);
         %------------------------------------------------------------------
-        if obj.it > obj.nf || g.t >= tend
+        if istend
             out.t = obj.t; % time
             out.U = obj.U; % sol.
             if isp
@@ -99,6 +99,7 @@ else
                 out.Up = obj.Up; % min./max. peak sol.
             end
             if isg
+                %
             end
             save(obj.fid, '-struct', 'out', '-v7.3'); % could be transformed to type = single
         end

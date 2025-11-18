@@ -6,6 +6,7 @@ close all;
 dirs = [...
     "core/", ...
     "core/spinit/src", ... https://www.mathworks.com/matlabcentral/fileexchange/30293-spinit?s_tid=srchtitle
+    "core/QuadTools", ... https://www.mathworks.com/matlabcentral/fileexchange/72378-quadtools
     "debug/", ...
     "init/", ...
     "integrals/", ...
@@ -71,8 +72,8 @@ for i = 1:size(fc, 1)
     set(groot, strrep(fn{fc(i, 1)}, 'factory', 'default'), 'latex');
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p         = 3;
-test      = 12;
+p         = 1;
+test      = 7;
 run       = 1;
 %--------------------------------------------------------------------------
 data      = setdata(test, 0);
@@ -98,7 +99,7 @@ if dispers
 end
 %--------------------------------------------------------------------------
 if run
-    obj = PlotA2(g);
+    obj = PlotA1(g);
     while g.t < g.data.tend
         [g, obj] = ADVt(g, obj, penParam);
     end

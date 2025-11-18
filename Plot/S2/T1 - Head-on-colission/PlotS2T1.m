@@ -4,10 +4,10 @@ function [] = PlotS2T1(g, export)
 
 xx = 1;
 
-aa = load("Plot/S2/T1 - Head-on-colission/DATA/0.21/Hoc_P2.mat");
+aa = load("Plot/S2/T1 - Head-on-colission/DATA/0.96/Hoc_P1_1000.mat");
 
 
-bb = reshape(aa.U(200, :, :, 1), [500, 3]);
+bb = reshape(aa.U(200, :, :, 1), [1000, 2]);
 
 Color  = linspecer(9, 'Qualitative');
 grey   = repmat(0.80, 1, 3);

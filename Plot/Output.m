@@ -37,22 +37,22 @@ classdef Output < handle
             obj.nf  = nf;
             obj.xc  = mean(g.coordV0T, 2);
             obj.xv  = g.coordV;
-            obj.t   = zeros(nf, 1);
-            obj.U   = zeros(nf, K, N, V);
+            obj.t   = zeros(nf+1, 1);
+            obj.U   = zeros(nf+1, K, N, V);
             %--------------------------------------------------------------
             obj.it  = 1;
             obj.dt  = g.data.tend./nf;
             obj.fid = fid;
             obj.Ph  = Ph;
-            obj.isg = ismembc(test, [12, 14, 15, 16, 17]);
+            obj.isg = ismembc(test, [12, 14]);
             obj.isp = ismembc(test, [7, 8, 9]);
             %--------------------------------------------------------------
             if obj.isg
-%                 obj.bf       = g.BF;
-%                 xg           = g.data.xg;
-%                 ng           = size (xg, 2);
-%                 obj.Ug       = zeros(nf, 1+ng);
-%                 obj.Write1(t, g.x);
+                obj.bf       = g.BF;
+                xg           = g.data.xg;
+                ng           = size (xg, 2);
+                obj.Ug       = zeros(nf, 1+ng);
+                obj.Write1(t, g.x);
             end
             if obj.isp
                 obj.tp       = zeros(1, 2);
@@ -68,9 +68,9 @@ classdef Output < handle
         % SOL.
         function Write1(obj, t, U)
             %--------------------------------------------------------------
+            obj.it                 = obj.it+1;
             obj.U(obj.it, :, :, :) = U;
             obj.t(obj.it, 1)       = t;
-            obj.it                 = obj.it+1;
             %--------------------------------------------------------------
             if obj.isg
                 xx = 1;

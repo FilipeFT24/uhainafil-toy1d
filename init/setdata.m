@@ -238,7 +238,7 @@ switch test
         %------------------------------------------------------------------
         xm       =-100;
         xM       = 100;
-        K        = 2000;
+        K        = 1000;
         %{
         dxmin    = 2e-02;
         func     = @(y) (L./(2.*N)).*y./sinh(y./2)-dxmin;
@@ -276,7 +276,7 @@ switch test
         hu       = c1.*z1-c2.*z2;
         u        = hu./h;
         tend     = 100./c2;
-        tk       = tend;
+        tk       = [3,tend];
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 8
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -301,9 +301,9 @@ switch test
         %------------------------------------------------------------------
         switch option
             case 1
-                A1 = 0.96.*h0;
-            case 2
                 A1 = 0.21.*h0;
+            case 2
+                A1 = 0.96.*h0;
             otherwise
                 return
         end
@@ -699,8 +699,9 @@ data.G       = G;
 data.h0      = h0;
 data.nm      = nm;
 data.wetdry  = wetdry;
-data.nf      = 1801;
+data.nf      = 1800;
 data.tk      = tk;
+data.istend  = 0;
 data.tend    = tend;
 data.xv      = xv;
 if ismembc(test, [4, 7, 8, 10, 12, 14, 15])
