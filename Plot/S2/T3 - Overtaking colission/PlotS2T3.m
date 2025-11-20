@@ -1,9 +1,9 @@
-function [] = PlotT08C(g, export)
+function [] = PlotS2T3(g, export)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Color = linspecer(9, 'Qualitative');
 nc    = 50;
 nf    = g.data.nf+1;
-nk    = linspace(1, nf, 10);
+nk    = round(linspace(1, nf, 5), 0);
 R     = linspace(1, Color(2, 1), nc);
 G     = linspace(1, Color(2, 2), nc);
 B     = linspace(1, Color(2, 3), nc);
@@ -11,9 +11,9 @@ lblue = [R', G', B'];
 M     = [":", "-"];
 LW    = 2.5;
 flag  = [1, 1];
-path1 = "Plot/T08 - Overtaking colission/DATA";
-path2 = "Plot/T08 - Overtaking colission";
-path3 = "Plot/T08 - Overtaking colission/";
+path1 = "Plot/S2/T3 - Overtaking colission/DATA";
+path2 = "Plot/S2/T3 - Overtaking colission";
+path3 = "Plot/S2/T3 - Overtaking colission/";
 %--------------------------------------------------------------------------
 xm    =-200;
 xM    = 200;
@@ -25,7 +25,9 @@ for i = 1:K
 end
 %--------------------------------------------------------------------------
 p     = 3;
-Fh1   = getdata1(sprintf("%s/Oc_P%d_01_GN.mat", path1, p), p, 1);
+Fh1   = getdata1(sprintf("%s/Oc_P3_4000.mat", path1), p, 1);
+h0 = g.data.h0;
+Fh1   = Fh1-h0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 xlim        = [-200, 200];
 xtick       =-200:50:200;
@@ -50,9 +52,9 @@ P3          = cell(2, numel(nk));
 if flag(1, 1)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if ~export(1, 1)
-        fig1 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
+        fig1 = figure('Color', 'w', 'Windowstate', 'maximized');
     else
-        fig1 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized', 'MenuBar', 'none', 'Toolbar', 'none');
+        fig1 = figure('Color', 'w', 'Windowstate', 'maximized', 'MenuBar', 'none', 'Toolbar', 'none');
     end
     hold on;
     %----------------------------------------------------------------------
@@ -86,7 +88,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flag(1, 2)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    for i = 1:2
+    for i = 2:2
         if ~export(1, 2)
             fig2 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
         else

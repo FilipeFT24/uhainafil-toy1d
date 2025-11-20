@@ -1,15 +1,15 @@
-function [] = PlotT10C(g, export)
+function [] = PlotS2T5(g, export)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Color = linspecer(9, 'Qualitative');
 M     = [":", "-", "-.", "--"];
 LW    = 2.5;
 flag  = [1, 0];
-path1 = "Plot/T10 - Dispersive dam-break/DATA";
-path2 = "Plot/T10 - Dispersive dam-break/";
+path1 = "Plot/S2/T5 - Dispersive dam-break/DATA";
+path2 = "Plot/S2/T5 - Dispersive dam-break/";
 %--------------------------------------------------------------------------
 h0    = g.data.h0;
 G     = g.data.G;
-A     = g.data.A;
+A     = 0.8;
 xm    =-300;
 xM    = 300;
 K     = 6000;
@@ -26,7 +26,7 @@ P1  = cell (m , 3+n);
 P2  = cell (m , 3);
 Fh1 = zeros(nf, K, n, m);
 for i = 1:n
-    [Fh1(:, :, i, 1), Fh1(:, :, i, 2)] = geth1(sprintf("%s/Ddb_P%d_01_GN.mat", path1, i), i, h0);
+    [Fh1(:, :, i, 1), Fh1(:, :, i, 2)] = geth1(sprintf("%s/Ddb_P%d_6000.mat", path1, i), i);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fid1          = ["Ddb_h.pdf"; "Ddb_u.pdf"];
@@ -223,10 +223,10 @@ if flag(1, 2)
         switch i
             case 1
                 path_mp4 = sprintf("%s/VIDEO2_P3 (h)", path2);
-                path_png = "Plot/T10 - Dispersive dam-break/FRAMES/h (2)";
+                path_png = "Plot/S2/T5 - Dispersive dam-break/FRAMES";
             case 2
                 path_mp4 = sprintf("%s/VIDEO2_P3 (u)", path2);
-                path_png = "Plot/T10 - Dispersive dam-break/FRAMES/u (2)";
+                path_png = "Plot/S2/T5 - Dispersive dam-break/FRAMES";
             otherwise
                 return
         end
@@ -246,8 +246,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [Fh1, Fh2] = geth1(fid, p, h0)
-Fh1 = getdata1(fid, p, 1)+h0;
+function [Fh1, Fh2] = geth1(fid, p)
+Fh1 = getdata1(fid, p, 1);
 Fh2 = getdata1(fid, p, 2);
 Fh2 = Fh2./Fh1;
 end

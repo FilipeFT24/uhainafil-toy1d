@@ -1,4 +1,4 @@
-function [] = PlotT04C(g, export)
+function [] = PlotS3T3(g, export)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Color = linspecer(9, 'Qualitative');
 grey  = repmat(0.80, 1, 3);
@@ -15,10 +15,10 @@ lred  = [R1', G1', B1'];
 lblue = [R2', G2', B2'];
 M     = [":", "-", "-.", "--"];
 LW    = 2.5;
-flag  = [0, 1];
-path1 = "Plot/T04 - Reflection of shoaling waves/DATA";
-path2 = "Plot/T04 - Reflection of shoaling waves";
-path3 = "Plot/T04 - Reflection of shoaling waves/";
+flag  = [1, 0];
+path1 = "Plot/S3/T3 - Reflection of shoaling waves/DATA";
+path2 = "Plot/S3/T3 - Reflection of shoaling waves";
+path3 = "Plot/S3/T3 - Reflection of shoaling waves/";
 type  = 0;
 switch type
     case 0
@@ -54,12 +54,15 @@ str1  = ["1000", "1834"];
 str2  = ["walkleya1.txt", "walkleya2.txt", "walkleya3.txt"; "walkleyb1.txt", "walkleyb2.txt", "walkleyb3.txt"];
 for i = 1:n
     for j = 1:m
-        Fh1(:, :, i, j) = getdata1(sprintf("%s/0.%s/Ref_P%d_%s_05_%s.mat", path1, str1(1, j), i, str1(1, j), path4), i, 1);
-        Fh2(:, :, i, j) = getdata2(sprintf("%s/0.%s/Ref_P%d_%s_05_%s.mat", path1, str1(1, j), i, str1(1, j), path4), i, 1, ns);
-        Fh3(:, :, i, j) = getdatag(sprintf("%s/0.%s/Ref_P%d_%s_05_%s.mat", path1, str1(1, j), i, str1(1, j), path4));
-        th1(:, i, j)    = getdata3(sprintf("%s/0.%s/Ref_P%d_%s_05_%s.mat", path1, str1(1, j), i, str1(1, j), path4));
+        Fh1(:, :, i, j) = getdata1(sprintf("%s/0.%s/Ref_P%d_750.mat", path1, str1(1, j), i), i, 1);
+        Fh2(:, :, i, j) = getdata2(sprintf("%s/0.%s/Ref_P%d_750.mat", path1, str1(1, j), i), i, 1, ns);
+        Fh3(:, :, i, j) = getdatag(sprintf("%s/0.%s/Ref_P%d_750.mat", path1, str1(1, j), i));
+        th1(:, i, j)    = getdata3(sprintf("%s/0.%s/Ref_P%d_750.mat", path1, str1(1, j), i));
     end
 end
+Fh1                 = Fh1-h0;
+Fh2(:, 2:end, :, :) = Fh2(:, 2:end, :, :)-h0;
+Fh3(:, 2:end, :, :) = Fh3(:, 2:end, :, :)-h0;
 for i = 1:m
     for j = 1:ng
         Fe{i, j}       = readmatrix(str2(i, j));
@@ -307,7 +310,7 @@ if flag(1, 2)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     PB = cell(1, ns);
     TB = cell(1, ns);
-    for i = 1:2
+    for i = 2:2
         if ~export(1, 2)
             fig21 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
         else
@@ -376,6 +379,7 @@ if flag(1, 2)
         video.nf       = nf;
         video.nk       = [sum(Fh2(:, 1, p, 1)' > th1(:, p, 1), 1); sum(Fh2(:, 1, p, 2)' > th1(:, p, 2), 1)];
         video.nk(:, 2) = nf+1;
+        set(gca, 'box', 'on');
         %------------------------------------------------------------------
         switch i
             case 1
@@ -398,7 +402,7 @@ if flag(1, 2)
         %------------------------------------------------------------------
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    for i = 1:2
+    for i = 2:2
         if ~export(1, 2)
             fig22 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
         else

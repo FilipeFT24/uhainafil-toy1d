@@ -15,6 +15,8 @@ classdef Output < handle
         isg
         isp
         bf
+        ng
+        xg
         Ug
         tp
         vp
@@ -40,19 +42,20 @@ classdef Output < handle
             obj.t   = zeros(nf+1, 1);
             obj.U   = zeros(nf+1, K, N, V);
             %--------------------------------------------------------------
-            obj.it  = 1;
+            obj.it  = 0;
             obj.dt  = g.data.tend./nf;
             obj.fid = fid;
             obj.Ph  = Ph;
             obj.isg = ismembc(test, [12, 14]);
-            obj.isp = ismembc(test, [7, 8, 9]);
+            obj.isp = ismembc(test, [7, 8, 9, 14]);
             %--------------------------------------------------------------
             if obj.isg
-                obj.bf       = g.BF;
                 xg           = g.data.xg;
-                ng           = size (xg, 2);
+                ng           = size(xg, 1);
+                obj.bf       = g.BF;
+                obj.xg       = xg;
+                obj.ng       = ng;
                 obj.Ug       = zeros(nf, 1+ng);
-                obj.Write1(t, g.x);
             end
             if obj.isp
                 obj.tp       = zeros(1, 2);
@@ -62,6 +65,7 @@ classdef Output < handle
                 obj.Up       = zeros(K, N, V, 2);
                 obj.Write2(t, g.x);
             end
+            obj.Write1(t, g.x);
             %--------------------------------------------------------------
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -73,7 +77,17 @@ classdef Output < handle
             obj.t(obj.it, 1)       = t;
             %--------------------------------------------------------------
             if obj.isg
-                xx = 1;
+                Fg       = zeros(1, obj.ng+1);
+                Fg(1, 1) = t;
+                for k = 1:obj.ng
+                    xgk = obj.xg(k, 1);
+                    o   = sum(xgk > obj.xv, 1);
+                    xo  = (xgk-obj.xv(o, 1))./(obj.xv(o+1, 1)-obj.xv(o, 1));
+                    for j = 1:obj.N
+                        Fg(1, k+1) = Fg(1, k+1)+obj.bf{1, j}(xo)*U(o, j, 1);
+                    end
+                end
+                obj.Ug(obj.it, :) = Fg;
             end
             %--------------------------------------------------------------
         end

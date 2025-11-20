@@ -1,4 +1,4 @@
-function [] = PlotT01C(g, export)
+function [] = PlotS3T1(g, export)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Color  = linspecer(9, 'Qualitative');
 grey   = repmat(0.80, 1, 3);
@@ -20,10 +20,10 @@ lgreen = [R3', G3', B3'];
 M      = ["o", "-", "-.", "--"];
 lw     = 1.5;
 LW     = 2.5;
-flag   = [1, 1, 0, 0];
-path1  = "Plot/T01 - Grilli/DATA";
-path2  = "Plot/T01 - Grilli";
-path3  = "Plot/T01 - Grilli/";
+flag   = [0, 0, 1, 0];
+path1  = "Plot/S3/T1 - Grilli/DATA";
+path2  = "Plot/S3/T1 - Grilli";
+path3  = "Plot/S3/T1 - Grilli/";
 bathy  = 0;
 type   = 1;
 switch type
@@ -63,12 +63,11 @@ ZbC3   = @(x) -1+...
     (heaviside(x-ds)).*slope.*x;
 %--------------------------------------------------------------------------
 n     = 3;
-ne    = 4;
+ne    = 3;
 ng    = 6;
 Fh1   = zeros(nf, K, n, ne);
 Fh2   = cell (ne, n);
 Fh3   = zeros(nf, 1+ng, n, ne);
-Fh4   = zeros(nf-1, K, 4);
 Fe1   = cell (ng, 1);
 Fe2   = cell (ne, 1);
 Xc1   = cell (ne, 1);
@@ -82,21 +81,20 @@ lim2  = [...
     26.0, ... % (c)
     24.5];    % (d)
 for i = 1:n
-    for j = 1:ne
-        if j ~= 3
-            Fh1(:, :, i, j) = getdata1(sprintf("%s/0.%s/C3/Grilli_P%d_%s_05_%s.mat", path1, str1(1, j), i, str1(1, j), path4), i, 1);
-            Fh3(:, :, i, j) = getdatag(sprintf("%s/0.%s/C3/Grilli_P%d_%s_05_%s.mat", path1, str1(1, j), i, str1(1, j), path4));
-            th1(:, i, j)    = getdata3(sprintf("%s/0.%s/C3/Grilli_P%d_%s_05_%s.mat", path1, str1(1, j), i, str1(1, j), path4));
-        else
-            Fh1(:, :, i, j) = getdata1(sprintf("%s/0.%s/%s/Grilli_P%d_%s_05_%s.mat", path1, str1(1, j), path5, i, str1(1, j), path4), i, 1);
-            Fh3(:, :, i, j) = getdatag(sprintf("%s/0.%s/%s/Grilli_P%d_%s_05_%s.mat", path1, str1(1, j), path5, i, str1(1, j), path4));
-            th1(:, i, j)    = getdata3(sprintf("%s/0.%s/%s/Grilli_P%d_%s_05_%s.mat", path1, str1(1, j), path5, i, str1(1, j), path4));
-        end
+    for j = 3:ne
+        %if j ~= 3
+            Fh1(:, :, i, j) = getdata1(sprintf("%s/0.%s/C0/Grilli_P%d_383.mat", path1, str1(1, j), i), i, 1);
+            Fh3(:, :, i, j) = getdatag(sprintf("%s/0.%s/C0/Grilli_P%d_383.mat", path1, str1(1, j), i));
+            th1(:, i, j)    = getdata3(sprintf("%s/0.%s/C0/Grilli_P%d_383.mat", path1, str1(1, j), i));
+        %else
+        %    Fh1(:, :, i, j) = getdata1(sprintf("%s/0.%s/%s/Grilli_P%d_383.mat", path1, str1(1, j), path5, i), i, 1);
+        %    Fh3(:, :, i, j) = getdatag(sprintf("%s/0.%s/%s/Grilli_P%d_383.mat", path1, str1(1, j), path5, i));
+        %    th1(:, i, j)    = getdata3(sprintf("%s/0.%s/%s/Grilli_P%d_383.mat", path1, str1(1, j), path5, i));
+        %end
     end
 end
-for i = 0:3
-    Fh4(:, :, i+1) = getdata4(sprintf("%s/0.20/C%d/Grilli_P3_20_05_GN.mat", path1, i), 3);
-end
+Fh1                  = Fh1-h0;
+Fh3(:, 2:ng+1, :, :) = Fh3(:, 2:1+ng, :, :)-h0;
 Fh1                  = Fh1./h0;
 Fh3(:, 2:ng+1, :, :) = Fh3(:, 2:1+ng, :, :)./h0;
 Fh3(:, 1     , :, :) = Fh3(:, 1     , :, :)./(sqrt(h0./g.data.G));
@@ -248,36 +246,36 @@ end
 fid14 = ["Grilli_phi (t1).pdf", "Grilli_phi (t2).pdf"];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flag(1, 1)
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    fig10 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
-    cp = get(gca, 'Position');
-    hold on;
-    %----------------------------------------------------------------------
-    patch(...
-        [xm./h0, xm./h0, 0.00, xM./h0, xM./h0], [-1.05, -1.00, -1.00, 0.0, -1.05], grey, 'EdgeColor', grey);
-    plot(xv./h0, -ones(1, K+1), ...
-        '-|', 'Color', 'k', 'LineWidth', 0.01);
-    P10{1, 2} = fplot(@(x) ZbC1(x), 'Color', Color(2, :), 'LineWidth', LW);
-    P10{1, 3} = fplot(@(x) ZbC2(x), 'Color', Color(3, :), 'LineWidth', LW);
-    P10{1, 4} = fplot(@(x) ZbC3(x), 'Color', Color(4, :), 'LineWidth', LW);
-    P10{1, 1} = fplot(@(x) ZbC0(x), 'Color', Color(1, :), 'LineWidth', lw);
-    %----------------------------------------------------------------------
-    PlotX1(...
-        xlim10, ylim10, ...
-        xtick10, ytick10, ...
-        xticklabel10, yticklabel10, ...
-        xtitle1, ytitle10);
-    PlotX2(...
-        P10, legendlabel10, 'northeast', numcols1);
-    %----------------------------------------------------------------------
-    MagInset(gcf, -1, ...
-        [xz10, yz10], ...
-        [xr10, yr10], {'SE', 'SE'; 'SW', 'SW'}, cp, xlimz10, ylimz10, xtickz10, ytickz10, xticklabelz10, yticklabelz10, 10.5);
-    %------------------------------------------------------------------
-    if export(1, 1)
-        exportgraphics(fig10, fid10, 'ContentType', 'Vector', 'Resolution', 600);
-        movefile      (fid10, path3);
-    end
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     fig10 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
+%     cp = get(gca, 'Position');
+%     hold on;
+%     %----------------------------------------------------------------------
+%     patch(...
+%         [xm./h0, xm./h0, 0.00, xM./h0, xM./h0], [-1.05, -1.00, -1.00, 0.0, -1.05], grey, 'EdgeColor', grey);
+%     plot(xv./h0, -ones(1, K+1), ...
+%         '-|', 'Color', 'k', 'LineWidth', 0.01);
+%     P10{1, 2} = fplot(@(x) ZbC1(x), 'Color', Color(2, :), 'LineWidth', LW);
+%     P10{1, 3} = fplot(@(x) ZbC2(x), 'Color', Color(3, :), 'LineWidth', LW);
+%     P10{1, 4} = fplot(@(x) ZbC3(x), 'Color', Color(4, :), 'LineWidth', LW);
+%     P10{1, 1} = fplot(@(x) ZbC0(x), 'Color', Color(1, :), 'LineWidth', lw);
+%     %----------------------------------------------------------------------
+%     PlotX1(...
+%         xlim10, ylim10, ...
+%         xtick10, ytick10, ...
+%         xticklabel10, yticklabel10, ...
+%         xtitle1, ytitle10);
+%     PlotX2(...
+%         P10, legendlabel10, 'northeast', numcols1);
+%     %----------------------------------------------------------------------
+%     MagInset(gcf, -1, ...
+%         [xz10, yz10], ...
+%         [xr10, yr10], {'SE', 'SE'; 'SW', 'SW'}, cp, xlimz10, ylimz10, xtickz10, ytickz10, xticklabelz10, yticklabelz10, 10.5);
+%     %------------------------------------------------------------------
+%     if export(1, 1)
+%         exportgraphics(fig10, fid10, 'ContentType', 'Vector', 'Resolution', 600);
+%         movefile      (fid10, path3);
+%     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     fig11 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
     cp = get(gca, 'Position');
@@ -396,61 +394,61 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if flag(1, 3)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    fig3 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
-    cp = get(gca, 'Position');
-    hold on;
-    %----------------------------------------------------------------------
-    xbathy = linspace(-0.5./h0, 0.5./h0, 1000);
-    switch bathy
-        case 0
-            ybathy = ZbC0(xbathy);
-        case 3
-            ybathy = ZbC3(xbathy);
-        otherwise
-            return
-    end
-    patch(...
-        [xm./h0, -0.5./h0, xbathy, 0.5./h0, xM./h0, xM./h0], [-1.0, -1.0, ybathy, -1.0+0.5./h0.*slope, 0.0, -1.0], grey, 'EdgeColor', grey);
-    %----------------------------------------------------------------------
-    NK       = linspace(0, 1800, ns)';
-    nk       = NK(1:ns-1, 1);
-    nk(1, 1) = 1;
-    for i = 1:ns-1
-        P33{1, i} = plot(xc./h0, Fh1(nk(i, 1), :, 1, 3)', '-', 'Color', lred  (11, :), 'LineWidth', LW, 'Visible', 'off');
-        P33{2, i} = plot(xc./h0, Fh1(nk(i, 1), :, 2, 3)', '-', 'Color', lblue (11, :), 'LineWidth', LW, 'Visible', 'off');
-        P33{3, i} = plot(xc./h0, Fh1(nk(i, 1), :, 3, 3)', '-', 'Color', lgreen(11, :), 'LineWidth', LW, 'Visible', 'off');
-    end
-    for i = 1:n
-        P31{1, i} = plot(xc./h0, Fh1(1, :, i, 3)', '-', 'Color', Color(i, :), 'LineWidth', LW);
-        P32{1, i} = plot(nan   , nan          , '-', 'Color', Color(i, :), 'LineWidth', LW);
-    end
-    %----------------------------------------------------------------------
-    for i = 1:n
-        set(P33{i, 1}, 'Visible', 'off');
-    end
-    %----------------------------------------------------------------------
-    PlotX1(...
-        xlim10, ylim3, ...
-        xtick10, ytick3, ...
-        xticklabel10, yticklabel3, ...
-        xtitle1, ytitle10);
-    PlotX2(...
-        P32(1, :), legendlabel3, 'northwest', numcols1);
-    %----------------------------------------------------------------------
-    MagInset(gcf, -1, ...
-        [xz10, yz3], ...
-        [xr10, yr3], {'SE', 'SE'; 'SW', 'SW'}, cp, xlimz10, ylimz3, xtickz10, ytickz3, xticklabelz10, yticklabelz3, 10.5);
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    video.path_mp4 = sprintf("%s/Grilli1 (C%d)", path2, bathy);
-    video.path_png = sprintf("%s/FRAMES/", path2);
-    video.fig      = fig3;
-    video.P1       = P31;
-    video.P2       = P33;
-    video.Fh1      = Fh1(:, :, :, 3);
-    video.nf       = nf;
-    video.nk       = repmat(nk', n, 1);
-    %----------------------------------------------------------------------
-    WriteVideo1(video, export(1, 2));
+%     fig3 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
+%     cp = get(gca, 'Position');
+%     hold on;
+%     %----------------------------------------------------------------------
+%     xbathy = linspace(-0.5./h0, 0.5./h0, 1000);
+%     switch bathy
+%         case 0
+%             ybathy = ZbC0(xbathy);
+%         case 3
+%             ybathy = ZbC3(xbathy);
+%         otherwise
+%             return
+%     end
+%     patch(...
+%         [xm./h0, -0.5./h0, xbathy, 0.5./h0, xM./h0, xM./h0], [-1.0, -1.0, ybathy, -1.0+0.5./h0.*slope, 0.0, -1.0], grey, 'EdgeColor', grey);
+%     %----------------------------------------------------------------------
+%     NK       = linspace(0, 150, ns)';
+%     nk       = round(NK(1:ns-1, 1), 0);
+%     nk(1, 1) = 1;
+%     for i = 1:ns-1
+%         %P33{1, i} = plot(xc./h0, Fh1(nk(i, 1), :, 1, 3)', '-', 'Color', lred  (11, :), 'LineWidth', LW, 'Visible', 'off');
+%         P33{1, i} = plot(xc./h0, Fh1(nk(i, 1), :, 3, 3)', '-', 'Color', lblue (11, :), 'LineWidth', LW, 'Visible', 'off');
+%         %P33{3, i} = plot(xc./h0, Fh1(nk(i, 1), :, 3, 3)', '-', 'Color', lgreen(11, :), 'LineWidth', LW, 'Visible', 'off');
+%     end
+%     %for i = 1:n
+%         P31{1, 1} = plot(xc./h0, Fh1(1, :, 3, 3)', '-', 'Color', Color(2, :), 'LineWidth', LW);
+%         P32{1, 1} = plot(nan   , nan          , '-', 'Color', Color(2, :), 'LineWidth', LW);
+%     %end
+%     %----------------------------------------------------------------------
+%     for i = 1:n
+%         set(P33{1, 1}, 'Visible', 'on');
+%     end
+%     %----------------------------------------------------------------------
+%     PlotX1(...
+%         xlim10, ylim3, ...
+%         xtick10, ytick3, ...
+%         xticklabel10, yticklabel3, ...
+%         xtitle1, ytitle10);
+%     %PlotX2(...
+%     %    P32(1, :), legendlabel3, 'northwest', numcols1);
+%     %----------------------------------------------------------------------
+%     MagInset(gcf, -1, ...
+%         [xz10, yz3], ...
+%         [xr10, yr3], {'SE', 'SE'; 'SW', 'SW'}, cp, xlimz10, ylimz3, xtickz10, ytickz3, xticklabelz10, yticklabelz3, 10.5);
+%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     video.path_mp4 = sprintf("%s/Grilli1 (C%d)", path2, bathy);
+%     video.path_png = sprintf("%s/FRAMES/", path2);
+%     video.fig      = fig3;
+%     video.P1       = P31;
+%     video.P2       = P33;
+%     video.Fh1      = Fh1(:, :, :, 3);
+%     video.nf       = nf;
+%     video.nk       = repmat(nk', n, 1);
+%     %----------------------------------------------------------------------
+%     WriteVideo2(video, export(1, 2));
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if ~export(1, 2)
         fig3 = figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
@@ -459,30 +457,30 @@ if flag(1, 3)
     end
     hold on;
     %----------------------------------------------------------------------
-    NK       = linspace(0, 1800, ns)';
-    nk       = NK(1:ns-1, 1);
+    NK       = linspace(0, 150, ns)';
+    nk       = round(NK(1:ns-1, 1), 0);
     nk(1, 1) = 1;
     for i = 1:ns-1
-        P33{1, i} = plot(xc./h0, Fh1(nk(i, 1), :, 1, 3)', '-', 'Color', lred  (11, :), 'LineWidth', LW, 'Visible', 'off');
-        P33{2, i} = plot(xc./h0, Fh1(nk(i, 1), :, 2, 3)', '-', 'Color', lblue (11, :), 'LineWidth', LW, 'Visible', 'off');
-        P33{3, i} = plot(xc./h0, Fh1(nk(i, 1), :, 3, 3)', '-', 'Color', lgreen(11, :), 'LineWidth', LW, 'Visible', 'off');
+    %    P33{1, i} = plot(xc./h0, Fh1(nk(i, 1), :, 1, 3)', '-', 'Color', lred  (11, :), 'LineWidth', LW, 'Visible', 'off');
+        P33{1, i} = plot(xc./h0, Fh1(nk(i, 1), :, 3, 3)', '-', 'Color', lblue (11, :), 'LineWidth', LW, 'Visible', 'off');
+    %    P33{3, i} = plot(xc./h0, Fh1(nk(i, 1), :, 3, 3)', '-', 'Color', lgreen(11, :), 'LineWidth', LW, 'Visible', 'off');
     end
-    for i = 1:n
-        P31{1, i} = plot(xc./h0, Fh1(1, :, i, 3)', '-', 'Color', Color(i, :), 'LineWidth', LW);
-        P32{1, i} = plot(nan   , nan          , '-', 'Color', Color(i, :), 'LineWidth', LW);
-    end
+    %for i = 1:n
+        P31{1, 1} = plot(xc./h0, Fh1(1, :, 3, 3)', '-', 'Color', Color(2, :), 'LineWidth', LW);
+        %P32{1, 1} = plot(nan   , nan          , '-', 'Color', Color(1, :), 'LineWidth', LW);
+    %end
     %----------------------------------------------------------------------
-    for i = 1:n
-        set(P33{i, 1}, 'Visible', 'off');
-    end
+    %for i = 1:n
+        set(P33{1, 1}, 'Visible', 'on');
+    %end
     %----------------------------------------------------------------------
     PlotX1(...
         xlim10, ylim11, ...
         xtick10, ytick11, ...
         xticklabel10, yticklabel11, ...
         xtitle1, ytitle11);
-    PlotX2(...
-        P32(1, :), legendlabel3, 'northwest', numcols1);
+    %PlotX2(...
+    %    P32(1, :), legendlabel3, 'northwest', numcols1);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     video.path_mp4 = sprintf("%s/Grilli3 (C%d)", path2, bathy);
     video.path_png = sprintf("%s/FRAMES/", path2);
@@ -493,7 +491,7 @@ if flag(1, 3)
     video.nf       = nf;
     video.nk       = repmat(nk', n, 1);
     %----------------------------------------------------------------------
-    WriteVideo1(video, export(1, 2));
+    WriteVideo2(video, export(1, 2));
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

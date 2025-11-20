@@ -38,7 +38,7 @@ if test == 2 && flag
     ph = cell(4, 2);
     Ph = cell(4, 2);
     for i = 1:2
-        figure('Color', 'w', 'Renderer', 'painters', 'Windowstate', 'maximized');
+        figure('Color', 'w', 'Windowstate', 'maximized');
         for j = 1:2
             %--------------------------------------------------------------
             k = 2*(i-1)+j;

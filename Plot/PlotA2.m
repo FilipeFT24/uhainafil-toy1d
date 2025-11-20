@@ -136,7 +136,7 @@ switch test
         bathy           = g.data.bathy;
         xv              = g.data.xv;
         h0              = g.data.h0;
-        aux.xlim        = [xv(1, 1), xv(K+1, 1)]./h0;
+        aux.xlim        = [xv(1, 1), xv(end, 1)]./h0;
         aux.xtick       =-50:10:30;
         aux.xticklabel  = ["-50", "-40", "-30", "-20", "-10", "0", "10", "20", "30"];
         aux.xtitle      = "$x^{\prime}$";
@@ -166,6 +166,29 @@ switch test
                 aux.ytick      = [-0.02, 0.00:0.10:0.50];
                 aux.yticklabel = ["-0.02", "0.00", "0.10", "0.20", "0.30", "0.40", "0.50"];
                 aux.ytitle     = "$\zeta^{\prime}$";
+            otherwise
+                return
+        end
+        %------------------------------------------------------------------
+    case 14
+        %------------------------------------------------------------------
+        aux.xlim       = [-55, 20];
+        aux.xtick      = [-55, -50:10:20];
+        aux.xticklabel = ["-55", "50", "-40", "-30", "-20", "-10", "0", "10", "20"];
+        aux.xtitle     = "$x^{\prime}$";
+        aux.ytitle     = "$\zeta^{\prime}$";
+        %------------------------------------------------------------------
+        switch g.data.opt
+            case 1
+                aux.path       = "Plot/S3/T3 - Reflection of shoaling waves/DATA/0.1000/Ref";
+                aux.ylim       = [-0.02, 0.30];
+                aux.ytick      = [-0.02, 0.00:0.05:0.30];
+                aux.yticklabel = ["-0.02", "0.00", "0.05", "0.10", "0.15", "0.20", "0.25", "0.30"];
+            case 2
+                aux.path       = "Plot/S3/T3 - Reflection of shoaling waves/DATA/0.1834/Ref";
+                aux.ylim       = [-0.05, 0.70];
+                aux.ytick      = [-0.05, 0.00:0.10:0.70];
+                aux.yticklabel = ["-0.05", "0.00", "0.10", "0.20", "0.30", "0.40", "0.50", "0.60", "0.70"];
             otherwise
                 return
         end

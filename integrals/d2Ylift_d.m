@@ -2,9 +2,7 @@ function [aux] = d2Ylift_d(g, kdof, BETA, penParam) %#ok<INUSD>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % VARS #1:
 %--------------------------------------------------------------------------
-alpha         = g.data.alpha;
 wetdry        = g.data.wetdry; %#ok<NASGU>
-kdof          = kdof.*alpha;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CELL:
 %--------------------------------------------------------------------------
@@ -90,10 +88,10 @@ PENd(:, :, K) = PENd(:, :, K)-Penir.*kr(K, 1));
 PENol         = pagemtimes(Pene1, kav);
 PENou         = pagemtimes(Pene2, kav);
 PENo          = cat(3, PENol, PENou);
-aux.MATd      = alpha.*(MATd-PENd);
-aux.MATo      = alpha.*(MATo-PENo);
-aux.PENd      = alpha.*(PENd)./penParam;
-aux.PENo      = alpha.*(PENo)./penParam;
+aux.MATd      = (MATd-PENd);
+aux.MATo      = (MATo-PENo);
+aux.PENd      = (PENd)./penParam;
+aux.PENo      = (PENo)./penParam;
 %--------------------------------------------------------------------------
 %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

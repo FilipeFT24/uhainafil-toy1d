@@ -99,7 +99,7 @@ else
                 out.Up = obj.Up; % min./max. peak sol.
             end
             if isg
-                %
+                out.Ug = obj.Ug; % gauge val.
             end
             save(obj.fid, '-struct', 'out', '-v7.3'); % could be transformed to type = single
         end

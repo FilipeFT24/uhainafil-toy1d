@@ -68,7 +68,7 @@ W2quad   = H_quad.^2.*d2Huquad-H_quad.*(d2H_quad.*Huquad+2.*d1H_quad.*d1Huquad)+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LHS:
 %--------------------------------------------------------------------------
-beta            = H_quad.*(ones(K, R)+alpha.*(d1H_quad.*d1B_quad+1./2.*H_quad.*d2B_quad+d1B_quad.^2));
+beta            = H_quad.*(1./alpha.*ones(K, R)+(d1H_quad.*d1B_quad+1./2.*H_quad.*d2B_quad+d1B_quad.^2));
 beta_perm       = permute(beta, [3, 4, 2, 1]);
 BETA            = pagemtimes(g.FFKc, beta_perm);
 aux             = d2Ylift_d(g, H_dof, BETA, penParam);  
@@ -115,7 +115,7 @@ g.HQ1N          = HQ1_quad*fc;
 b               = ghd1n1./alpha+hq1;
 %               = g.MASS_disp*reshape(inittype(g.itype, @(x) g.data.RHS(x, t), g.xydc_disp, g.xyqc_disp, fc)', [], 1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-val     = reshape(cat(3, MATd, MATo), [], 1);
+val     = alpha.*reshape(cat(3, MATd, MATo), [], 1);
 val1    = val(:);
 A       = g.A(val1);
 %{
@@ -130,7 +130,7 @@ P_quad  = PN*bf';
 HP_quad = H_quad.*P_quad;
 g.PN    = PN;
 g.HPN   = HP_quad*fc;
-g.DISP  = g.HPN-g.GHd1NN;
+g.DISP  = g.HPN-g.GHd1NN./alpha;
 %{
 Pa1     = reshape(inittype(g.itype, @(x) g.data.P(x, t), g.xydc_disp, g.xyqc_disp, fc)', [], 1);
 e1      = Pa1-P1;

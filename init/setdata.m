@@ -238,7 +238,7 @@ switch test
         %------------------------------------------------------------------
         xm       =-100;
         xM       = 100;
-        K        = 1000;
+        K        = 2000;
         %{
         dxmin    = 2e-02;
         func     = @(y) (L./(2.*N)).*y./sinh(y./2)-dxmin;
@@ -276,7 +276,7 @@ switch test
         hu       = c1.*z1-c2.*z2;
         u        = hu./h;
         tend     = 100./c2;
-        tk       = [3,tend];
+        tk       = tend;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case 8
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -288,7 +288,7 @@ switch test
         h0       = 1;
         nm       = 0;
         wetdry   = 0;
-        option   = 1;
+        option   = 2;
         %------------------------------------------------------------------
         xm       =-100;
         xM       = 0;
@@ -426,8 +426,7 @@ switch test
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % S3/T1 - Grilli
         %------------------------------------------------------------------
-        alpha    = 1;
-        %        = 1.159;
+        alpha    = 1;%1.159;
         dispers  = 1;
         G        = 9.81;
         h0       = 0.44;
@@ -435,12 +434,12 @@ switch test
         wetdry   = 0;
         option   = 3;
         %
-        bathy    = 3;
+        bathy    = 0;
         slope    = 1./34.70;
         %------------------------------------------------------------------
         xm       =-52.32.*h0;
         xM       = h0./slope;
-        K        = 383;
+        K        = 389;
         xv       = linspace(xm, xM, K+1)';
         dx       = zeros(K, 1);
         for i = 1:K
@@ -465,7 +464,7 @@ switch test
         end
         c        = sqrt(G.*(h0+A1));
         k        = sqrt(3.*A1)./(2.*h0.*sqrt(h0+A1));
-        xs       =-5.2.*h0-(c.*13.56.*(sqrt(h0./G)));
+        xs       =-5.15.*h0-(c.*13.56.*(sqrt(h0./G)));
         ds       = 0.5;
         if bathy == 0
             b = heaviside(x).*slope.*x;
@@ -500,7 +499,6 @@ switch test
         h0       = 1;
         nm       = 0;
         wetdry   = 0;
-        option   = 3;
         %
         bathy    = 3;
         slope    = 1./20;
@@ -699,7 +697,7 @@ data.G       = G;
 data.h0      = h0;
 data.nm      = nm;
 data.wetdry  = wetdry;
-data.nf      = 1800;
+data.nf      = 150;
 data.tk      = tk;
 data.istend  = 0;
 data.tend    = tend;
@@ -707,8 +705,11 @@ data.xv      = xv;
 if ismembc(test, [4, 7, 8, 10, 12, 14, 15])
     data.opt = option;
 end
-if ismembc(test, [12, 13, 14, 15, 16, 17])
+if ismembc(test, [12, 14, 15, 16, 17])
     data.bathy = bathy;
+end
+if ismembc(test, [12, 14])
+    data.xg = xg;
 end
 %--------------------------------------------------------------------------
 if ismembc(test, [2, 7, 8])

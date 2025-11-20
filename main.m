@@ -73,8 +73,8 @@ for i = 1:size(fc, 1)
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p         = 1;
-test      = 7;
-run       = 1;
+test      = 11;
+run       = 0;
 %--------------------------------------------------------------------------
 data      = setdata(test, 0);
 g         = MSH(data.xv, p);
@@ -114,11 +114,15 @@ else
         case {7, 8}
             PlotS2T1(g, [0, 0]);
         case 9
+            PlotS2T3(g, [0, 0]);
         case 10
         case 11
+            PlotS2T5(g, [1, 0]);
         case 12
+            PlotS3T1(g, [0, 0]);
         case 13
         case 14
+            PlotS3T3(g, [1, 0]);
         case 15
         case 16
         case 17

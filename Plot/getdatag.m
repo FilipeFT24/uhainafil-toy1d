@@ -1,4 +1,4 @@
 function [Fh] = getdatag(fid)
-fh_data = load(fid);
-Fh      = fh_data.datag;
+data = load(fid);
+Fh   = data.Ug;
 end
